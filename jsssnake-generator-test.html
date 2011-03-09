@@ -5,15 +5,17 @@
 function start(){
 	var game = JSSnakeGame(Field("field"))
 
+	// zombification...
 	game.field.reset()
+	setInterval(function(){
+		game.field.reset()
+		game.levels.walls()
 
-	game.levels.walls()
+		var APPLES = 4
 
-	var APPLES = 4
-
-	for(var i=0; i < APPLES; i++)
-		game.Apple()
-
+		for(var i=0; i < APPLES; i++)
+			game.Apple()
+	}, 1000)
 }
 
 DEBUG = false
