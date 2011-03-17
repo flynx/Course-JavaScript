@@ -255,6 +255,19 @@ function JSSnakeGame(field){
 	var game = {
 		field: field,
 		TICK: 300,
+
+		// this enables snakes of the same colors...
+		SIMILAR_COLORS: false,
+		used_colors: function(){
+			// this is a workaround the inability to directly create an object
+			// with field names not a literal identifier or string...
+			var res = {}
+			res[field.FIELD_COLOR] = true
+			res[field.WALL_COLOR] = true
+			res[field.APPLE_COLOR] = true
+			return res
+		}(),
+
 		// utility methods...
 		_random_empty_cell: function(){
 			// NOTE: if we are really unlucky, this will take 
@@ -272,10 +285,30 @@ function JSSnakeGame(field){
 					return null
 			}
 		},
+		// key handler...
+		// functions:
+		// 	- control snake - dispatch player-specific keys to player-specific snake
+		// 	- create player - two unused keys pressed within timeout, random color 
+		//
+		// modes:
+		// 	- player add
+		// 	- game control
+		//
+		// NOTE: modes can intersect...
+		// NOTE: modes are game state dependant...
+		_keyHandler: function(evt){
+			var key = window.event ? event.keyCode : evt.keyCode
+
+			return true
+		},
 		// create a new player...
 		// NOTE: direction and position are optional...
 		// XXX BUG: players should not get created facing a wall directly...
 		Player: function(name, ccw_button, cw_button, color, cell, direction, size){
+			if(!this.SIMILAR_COLORS && this.used_colors[color] == true){
+				// error: that the color is already used...
+				return
+			}
 			// XXX register controls...
 
 			if(direction == null){
@@ -287,6 +320,7 @@ function JSSnakeGame(field){
 					return
 			}
 			// create a snake...
+			this.used_colors[color] = true
 			return this.field.Snake(color, cell, direction, size)
 		},
 		// NOTE: position is optional...
@@ -358,7 +392,9 @@ function JSSnakeGame(field){
 	}
 
 	field.on_apple_eaten = function(){game.Apple()}
-	//field.on_kill = null
+	field.on_kill = function(snake){game.used_colors[snake.color] = false}
+	
+	//document.onkeyup = function(evt){return game._keyHandler(evt)}
 
 	return game
 }
