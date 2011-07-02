@@ -296,9 +296,29 @@ function JSSnakeGame(field){
 		//
 		// NOTE: modes can intersect...
 		// NOTE: modes are game state dependant...
+		key_time_frame: 0.5,
+		pending_key: null,
+
 		_keyHandler: function(evt){
+			var name, color
 			var key = window.event ? event.keyCode : evt.keyCode
 
+			// find a target registered for key...
+			// XXX
+
+			// no one is registered...
+			// if wait time set and is not exceeded create a player and register keys
+			if(!this.pending_key || Date().getTime() - this.pending_key['time'] > this.key_time_frame ){
+				// if no wait time is set, set it and remember the key...
+				this.pending_key = {time: Date().getTime(), key: key}
+			} else {
+				// get name...
+				// XXX
+				// get color...
+				// XXX
+				this.Player(name, this.pending_key['key'], key, color)
+				this.pending_key = null
+			}
 			return true
 		},
 		// create a new player...
@@ -309,7 +329,8 @@ function JSSnakeGame(field){
 				// error: that the color is already used...
 				return
 			}
-			// XXX register controls...
+			// register controls...
+			// XXX 
 
 			if(direction == null){
 				direction = ['n', 's', 'e', 'w'][Math.round(Math.random()*3)]
@@ -326,7 +347,7 @@ function JSSnakeGame(field){
 		// NOTE: position is optional...
 		Apple: function(cell){
 			// place an apple at a random and not occupied position...
-			var c = this._random_empty_cell()
+			var c = cell? cell: this._random_empty_cell()
 			if(c === null)
 				return
 			return this.field.Apple(c)
