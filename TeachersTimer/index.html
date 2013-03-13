@@ -1,0 +1,158 @@
+<html>
+<head>
+<title>Teacher's Timer</title>
+
+<style>
+
+.timer {
+	position: relative;
+	min-height: 30px;
+	min-width: 100px;
+	border: solid 1px silver;
+}
+
+.timer .sum {
+	display: inline-block;
+	width: 50px;
+	background: gray;	
+	margin: 5px;
+	padding-left: 5px;
+	padding-right: 5px;
+	text-align: right;
+	color: white;
+}
+
+.timer .run {
+	display: inline-block;
+	background: silver;
+	margin: 5px;
+	color: white;
+}
+
+.timer .start,
+.timer .end,
+.timer .duration {
+	margin: 10px; 
+}
+
+
+
+</style>
+
+<script>
+
+//var DEBUG = true
+
+var TIMER_TEMPLATE = '<div class="run">'+
+		'<span class="start">00:00:00</span>'+
+		'<span class="end">00:00:00</span>'+
+		'(<span class="duration">0</span>)'+
+	'</div>'
+
+var TIMER = null
+
+function getFormattedTime(t){
+	if(t != null){
+		t = new Date(t)
+	} else {
+		t = new Date()
+	}
+
+	var h = t.getHours()
+	var m = t.getMinutes()
+	var s = t.getSeconds()
+
+	return (h < 10 ? '0' + h : h) +':'+
+			(m < 10 ? '0' + m : m) +':'+ 
+			(s < 10 ? '0' + s : s)
+}
+
+function getDurationInMinutes(a, b){
+	var s = b - a
+	// return the duration in seconds...
+	if(window.DEBUG){
+		// for debug use seconds for faster updates...
+		return Math.floor(s/1000)
+	}
+	return Math.floor(s/1000/60)
+}
+
+function toggleTimer(elem){
+	elem = elem
+
+	// stop timer...
+	if(TIMER){
+		clearInterval(TIMER)
+		TIMER = null
+
+		var start = elem.getAttribute('start')*1
+		var end = Date.now()
+		var d = getDurationInMinutes(start, end)
+
+		var duration = elem.getElementsByClassName('duration')
+		duration = duration[duration.length-1]
+		duration.innerText = d
+
+		var run = elem.getElementsByClassName('run')
+		run = run[run.length-1]
+		run.setAttribute('duration', d)
+
+	// setup a new timer...
+	} else {
+		var now = Date.now()
+		elem.innerHTML += TIMER_TEMPLATE
+		elem.setAttribute('start', now)
+
+		var run = elem.getElementsByClassName('run')
+		run = run[run.length-1]
+
+		var start = elem.getElementsByClassName('start')
+		start = start[start.length-1]
+
+		var end = elem.getElementsByClassName('end')
+		end = end[end.length-1]
+
+		var duration = elem.getElementsByClassName('duration')
+		duration = duration[duration.length-1]
+		duration.innerText = 0
+
+		run.setAttribute('duration', 0)
+
+		// initial data...
+		start.innerText = getFormattedTime(now)
+		end.innerText = getFormattedTime(now)
+
+		TIMER = setInterval(function(){
+			var start = elem.getAttribute('start')*1
+			var now = Date.now()
+			var d = getDurationInMinutes(start, now)
+
+			run.setAttribute('duration', d)
+
+			// update end and duration values...
+			end.innerText = getFormattedTime(now)
+			duration.innerText = d
+
+			// update total...
+			var sum = 0
+			var runs = elem.getElementsByClassName('run')
+			for(var i=0; i < runs.length; i++){
+				sum += (runs[i].getAttribute('duration')*1)
+			}
+			elem.getElementsByClassName('sum')[0].innerText = sum
+		}, 1000)
+	}
+}
+
+</script>
+
+</head>
+<body>
+
+<div class="timer" onclick="toggleTimer(this)">
+	<div class="sum">0</div>
+</div>
+
+</body>
+<!-- vim:set ts=4 sw=4 : -->
+</html>
