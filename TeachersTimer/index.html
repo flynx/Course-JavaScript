@@ -9,17 +9,35 @@
 	min-height: 30px;
 	min-width: 100px;
 	border: solid 1px silver;
+	font-size: 32px;
+	margin: 10px;
 }
 
 .timer .sum {
 	display: inline-block;
-	width: 50px;
+	min-width: 100px;
 	background: gray;	
 	margin: 5px;
 	padding-left: 5px;
 	padding-right: 5px;
 	text-align: right;
 	color: white;
+
+	border-left: solid 10px black;
+	border-right: solid 10px black;
+
+	opacity: 0.8;
+}
+.timer .sum > span {
+	margin-left: 10px;
+	color: silver;
+}
+.timer .sum > span:last-child {
+	margin-right: 10px;
+}
+.timer .sum > span > span {
+	color: white;
+	text-shadow: black 0.1em 0.1em 0.2em;
 }
 
 .timer .run {
@@ -34,22 +52,35 @@
 .timer .duration {
 	margin: 10px; 
 }
+.timer .duration {
+	font-weight: bold;
+	text-shadow: black 0.1em 0.1em 0.2em;
+}
 
+.timer .run:not(:nth-child(2)) .start,
+.timer .run:not(:last-child) .end {
+	display: none;
+}
+
+.timer .run:nth-child(2) {
+	border-left: solid 10px gray;
+}
+.timer .run:last-child {
+	border-right: solid 10px gray;
+}
 
 
 </style>
 
 <script>
 
-//var DEBUG = true
+var DEBUG = true
 
 var TIMER_TEMPLATE = '<div class="run">'+
-		'<span class="start">00:00:00</span>'+
-		'<span class="end">00:00:00</span>'+
-		'(<span class="duration">0</span>)'+
+		'<span class="start" title="Start time">00:00:00</span>'+
+		'<span class="duration" title="Duration">0</span>'+
+		'<span class="end" title="Current/End time">00:00:00</span>'+
 	'</div>'
-
-var TIMER = null
 
 function getFormattedTime(t){
 	if(t != null){
@@ -77,13 +108,20 @@ function getDurationInMinutes(a, b){
 	return Math.floor(s/1000/60)
 }
 
+function formatSum(m){
+	return '<span title="Astronomical hours">h:<span>'+ (m/60).toFixed(2) +'</span></span>'+
+			'<span title="Academic hours">a:<span>'+ (m/45).toFixed(2) +'</span></span>'+
+			'<span title="Minutes">m:<span>'+ m +'</span></span>'
+}
+
 function toggleTimer(elem){
 	elem = elem
+	var t = elem.getAttribute('timer')*1
 
 	// stop timer...
-	if(TIMER){
-		clearInterval(TIMER)
-		TIMER = null
+	if(t){
+		clearInterval(t)
+		elem.removeAttribute('timer')
 
 		var start = elem.getAttribute('start')*1
 		var end = Date.now()
@@ -91,7 +129,7 @@ function toggleTimer(elem){
 
 		var duration = elem.getElementsByClassName('duration')
 		duration = duration[duration.length-1]
-		duration.innerText = d
+		duration.innerText = d 
 
 		var run = elem.getElementsByClassName('run')
 		run = run[run.length-1]
@@ -122,7 +160,7 @@ function toggleTimer(elem){
 		start.innerText = getFormattedTime(now)
 		end.innerText = getFormattedTime(now)
 
-		TIMER = setInterval(function(){
+		elem.setAttribute('timer', setInterval(function(){
 			var start = elem.getAttribute('start')*1
 			var now = Date.now()
 			var d = getDurationInMinutes(start, now)
@@ -139,8 +177,8 @@ function toggleTimer(elem){
 			for(var i=0; i < runs.length; i++){
 				sum += (runs[i].getAttribute('duration')*1)
 			}
-			elem.getElementsByClassName('sum')[0].innerText = sum
-		}, 1000)
+			elem.getElementsByClassName('sum')[0].innerHTML = formatSum(sum)
+		}, 1000))
 	}
 }
 
@@ -148,6 +186,10 @@ function toggleTimer(elem){
 
 </head>
 <body>
+
+<div class="timer" onclick="toggleTimer(this)">
+	<div class="sum">0</div>
+</div>
 
 <div class="timer" onclick="toggleTimer(this)">
 	<div class="sum">0</div>
