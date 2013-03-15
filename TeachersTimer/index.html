@@ -69,6 +69,17 @@
 	border-right: solid 10px gray;
 }
 
+#new_timer {
+	width: 40px;
+	height: 40px;
+	margin: 10px;
+	border: solid 1px gray;
+	border-radius: 50%;
+	color: gray;
+	font-size: 39px;
+	text-align: center;
+	cursor: hand;
+}
 
 </style>
 
@@ -112,6 +123,15 @@ function formatSum(m){
 	return '<span title="Astronomical hours">h:<span>'+ (m/60).toFixed(2) +'</span></span>'+
 			'<span title="Academic hours">a:<span>'+ (m/45).toFixed(2) +'</span></span>'+
 			'<span title="Minutes">m:<span>'+ m +'</span></span>'
+}
+
+function createTimer(parent){
+	var timer = document.createElement('div')
+	timer.className = 'timer'
+	timer.innerHTML = '<div class="sum">0</div>'
+	parent.appendChild(timer)
+
+	timer.setAttribute('onclick', 'toggleTimer(this)')
 }
 
 function toggleTimer(elem){
@@ -182,18 +202,20 @@ function toggleTimer(elem){
 	}
 }
 
+
+
+function setup(){
+	//createTimer(document.getElementById('timers'))
+}
+
 </script>
 
 </head>
-<body>
+<body onload="setup()">
 
-<div class="timer" onclick="toggleTimer(this)">
-	<div class="sum">0</div>
-</div>
+<div id="timers"></div>
+<div id="new_timer" title="Add new timer" onclick="createTimer(document.getElementById('timers'))">+</div>
 
-<div class="timer" onclick="toggleTimer(this)">
-	<div class="sum">0</div>
-</div>
 
 </body>
 <!-- vim:set ts=4 sw=4 : -->
