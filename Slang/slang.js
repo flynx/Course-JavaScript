@@ -379,9 +379,56 @@ var NAMESPACE = {
 
 
 var BOOTSTRAP = '\n'+
-':: _swap ( x -- y ) [ 1 1 _swapN ]\n'+
-':: _push ( x -- y ) [ 0 _swapN ]\n'+
-':: _pull ( x -- y ) [ 0 swap _swapN ]\n'+
+'-- To expalin stack and code effect some commands have will use a not so\n'+
+'-- traditional notation, the "|" will indicate the split between the stack\n'+
+'-- and code, here is a representation:\n'+
+'--\n'+
+'-- 	[ .. STACK .. ] <-- runtime -- [ .. CODE .. ]\n'+
+'--\n'+
+'--\n'+
+'-- And here is the new notation representing the states while we run through a\n'+
+'-- word, "add" in this case:\n'+
+'--\n'+
+'--		stack   code\n'+
+'--		      | 1 2 add\n'+
+'--		    1 | 2 add\n'+
+'--		  1 2 | add\n'+
+'--		1 2 [add]			(a)\n'+
+'--		    3 |				(b)\n'+
+'--\n'+
+'-- With stack effect is written like this:\n'+
+'--\n'+
+'--		( a b -- c )\n'+
+'--\n'+
+'--\n'+
+'-- In traditional stack effect notation we indicate the difference between\n'+
+'-- states (a) ans (b), but when we need to explain something like _swap we\'ll\n'+
+'-- also affect the code, so the process will go like this (expanding "+" word):\n'+
+'--\n'+
+'--		stack   code\n'+
+'--		      | 1 + 2\n'+
+'--		    1 | + 2\n'+
+'--		   1 [+] 2			(a)\n'+
+'--		    3 |				(b)\n'+
+'--\n'+
+'-- So here what "+" actually does is the difference between steps (a) and (b)\n'+
+'-- thus the notation:\n'+
+'--\n'+
+'--		( a | b -- c |  )\n'+
+'--\n'+
+'--\n'+
+'-- Just for illustration, here is how _swap ( a | b -- b | a ) works:\n'+
+'--\n'+
+'--		stack   code\n'+
+'--		      | a _swap b\n'+
+'--		    a | _swap b\n'+
+'--		 a [_swap] b			(a)\n'+
+'--		    b | a			(b)\n'+
+'--\n'+
+'--\n'+
+':: _swap ( x | y -- y | x ) [ 1 1 _swapN ]\n'+
+':: _push ( x |  -- | x ) [ 0 _swapN ]\n'+
+':: _pull (  | x -- x |  ) [ 0 swap _swapN ]\n'+
 '\n'+
 ':: exec ( b -- ... ) [ s2b pop _exec b2s ]\n'+
 ':: eval ( c -- ... ) [ lex prep exec ]\n'+
@@ -391,27 +438,32 @@ var BOOTSTRAP = '\n'+
 ':: . ( x -- ) [ print drop ]\n'+
 '\n'+
 ':: swap2 ( a _ b -- b _ a ) [ swap rot swap tor swap ]\n'+
+':: dup2 ( a b -- a b a b ) [ dup swap2 dup rot swap2 tor swap ]\n'+
 '\n'+
 ':: isT ( a -- b ) [ not not true eq ]\n'+
 ':: isF ( a -- b ) [ not isT ]\n'+
 //'\n'+
+//'-- this defines a classic [ cond ] [ A ] [ B ] if word... (a bit too polish IMHO)\n'+
 //':: if ( cond a b -- ... ) [ rot rot exec isT tor and tor or exec ]\n'+
 '\n'+
-'-- [ <cond> ] ? [ <main> ] \n'+
-'-- [ <cond> ] ? [ <main> ] else [ <else> ] \n'+
-':: _run_else [ drop dup \\ else eq [ drop \\ exec _swap 4 ] and\n'+
-'				[ 1 _push 2 ] or\n'+
-'				b2s 0 _swapN ]\n'+
-':: _run_then [ \\ exec swap dup \\ else eq [ (drop else) drop \\ drop _swap 6 ] and\n'+
+'-- helpers for the ternary operator...\n'+
+'-- run then block and drop \'else B\' if it exists...\n'+
+':: _run_then ( a x | -- ... | x  )\n'+
+'	( a else | b -- ... | )\n'+
+'		[ \\ exec swap dup \\ else eq [ (drop else) drop \\ drop _swap 6 ] and\n'+
 '				[ (run as-is) 1 _push 4 ] or\n'+
 '				b2s 0 _swapN ]\n'+
-// XXX BUG: if no code after this will break...
-// 		Ex:
-// 			-- this will not exec [ B ]...
-// 			[ A ] ? [ B ]
-// 			-- while this will...
-// 			[ A ] ? [ B ] nop
-':: ? [ exec [ _run_then 1 ] and [ swap _run_else 2 ] or b2s 2 _swapN ]\n'+
+'-- if \'else B\' exists, run it, else cleanup...\n'+
+':: _run_else ( a | --  | a  )\n'+
+'	( b else | b -- ... | )\n'+
+'		[ drop dup \\ else eq [ drop \\ exec _swap 4 ] and\n'+
+'				[ 1 _push 2 ] or\n'+
+'				b2s 0 _swapN ]\n'+
+'-- NOTE: this may actually have one of three stack effects...\n'+
+':: ? ( c | a -- | )\n'+
+'	( c | a -- ... | )\n'+
+'	( c | a else b -- ... | )\n'+
+'		[ exec [ _run_then 1 ] and [ swap _run_else 2 ] or b2s 2 _swapN ]\n'+
 '\n'+
 '\n'+
 '-- list/block 2\'nd gen stuff...\n'+
@@ -422,17 +474,17 @@ var BOOTSTRAP = '\n'+
 '-- NOTE: these are at this point stupid and do not support priorities or grouping...\n'+
 '-- NOTE: these have both stack and code effect, in genera the operations are of \n'+
 '--		the form: A op B\n'+
-':: + [ \\ add _swap ]\n'+
-':: - [ \\ sub _swap ]\n'+
-':: * [ \\ mul _swap ]\n'+
-':: / [ \\ div _swap ]\n'+
+':: + ( a | b -- c |  ) [ \\ add _swap ]\n'+
+':: - ( a | b -- c |  ) [ \\ sub _swap ]\n'+
+':: * ( a | b -- c |  ) [ \\ mul _swap ]\n'+
+':: / ( a | b -- c |  ) [ \\ div _swap ]\n'+
 '\n'+
-':: == [ \\ eq _swap ]\n'+
-':: > [ \\ gt _swap ]\n'+
+':: == ( a | b -- c |  ) [ \\ eq _swap ]\n'+
+':: > ( a | b -- c |  ) [ \\ gt _swap ]\n'+
 '\n'+
 '\n'+
 '-- this is here for devel use only\n'+
-':: _clear ( * -- ) [ s2b drop ] \n'+
+':: _clear ( ... -- ) [ s2b drop ] \n'+
 ':: _stack_size ( -- l ) [ s2b len swap b2s tor ] \n'+
 '\n'+
 '\n'+
