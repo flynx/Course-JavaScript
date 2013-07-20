@@ -54,7 +54,7 @@ function run(context){
 	return context
 }
 
-var SPLITTER = /\s*\([^\)]*\)\s*|\s*--.*[\n$]|\s*(".*")\s*|\s*('.*')\s*|\s+/m
+var SPLITTER = /\s*\([^\)]*\)\s*|\s*--.*[\n$]|\s*"([^"]*)"\s*|\s*'([^']*)'\s*|\s+/m
 
 
 // pre-processor namespace...
@@ -435,16 +435,18 @@ var BOOTSTRAP = '\n'+
 '-- like exec but will run a block in current context...\n'+
 ':: b2c [ len rot b2s tor 0 _swapN ]\n'+
 '\n'+
-':: . ( x -- ) [ print drop ]\n'+
+':: . ( x -- ) [ drop ]\n'+
+':: .. ( x -- ) [ print drop ]\n'+
 '\n'+
 ':: swap2 ( a _ b -- b _ a ) [ swap rot swap tor swap ]\n'+
 ':: dup2 ( a b -- a b a b ) [ dup swap2 dup rot swap2 tor swap ]\n'+
 '\n'+
+':: ne ( a -- b ) [ eq not ]\n'+
 ':: isT ( a -- b ) [ not not true eq ]\n'+
 ':: isF ( a -- b ) [ not isT ]\n'+
-//'\n'+
-//'-- this defines a classic [ cond ] [ A ] [ B ] if word... (a bit too polish IMHO)\n'+
-//':: if ( cond a b -- ... ) [ rot rot exec isT tor and tor or exec ]\n'+
+'\n'+
+'-- this defines a classic [ cond ] [ A ] [ B ] if word... (a bit too polish IMHO)\n'+
+':: if ( cond a b -- ... ) [ rot rot exec isT tor and tor or exec ]\n'+
 '\n'+
 '-- helpers for the ternary operator...\n'+
 '-- run then block and drop \'else B\' if it exists...\n'+
@@ -470,6 +472,9 @@ var BOOTSTRAP = '\n'+
 ':: push ( b e i -- b ) [ -1 before ]\n'+
 '\n'+
 '\n'+
+':: inc ( a -- b ) [ 1 add ]\n'+
+':: dec ( a -- b ) [ 1 sub ]\n'+
+'\n'+
 '-- experimental...\n'+
 '-- NOTE: these are at this point stupid and do not support priorities or grouping...\n'+
 '-- NOTE: these have both stack and code effect, in genera the operations are of \n'+
@@ -491,8 +496,8 @@ var BOOTSTRAP = '\n'+
 '-- tests and examples...\n'+
 ':: hi ( -- ) [ "Hello World!" print drop ]\n'+
 //'-- NOTE: nop at the end is a stub to fix a bug in ? else ...\n'+
-//':: ! ( a -- b ) [ [ dup 1 eq not ] ? [ dup 1 sub ! mul ] nop ]\n'+
-':: ! ( a -- b ) [ [ dup 1 eq not ] ? [ dup 1 sub ! mul ] ]\n'+
+//':: ! ( a -- b ) [ [ dup 1 ne ] ? [ dup 1 sub ! mul ] nop ]\n'+
+':: ! ( a -- b ) [ [ dup 1 ne ] ? [ dup 1 sub ! mul ] ]\n'+
 ':: range ( n -- b ) [\n'+
 '		-- initial state...\n'+
 '		[ dup isNumber ] ? \n'+
@@ -541,13 +546,56 @@ function slang(code, context){
 	context = context == null ? CONTEXT : context
 
 	if(typeof(code) == typeof('abc')){
-		code = [ '"'+code+'"', 'lex', 'prep', 'exec' ]
+		//code = [ '"'+code+'"', 'lex', 'prep', 'exec' ]
+		code = [ code, 'lex', 'prep', 'exec' ]
 	} else {
 		code = [ [code], 'b2s', 'prep', 'exec' ]
 	}
 
 	context.code = code
 	return run(context).stack
+}
+
+
+
+/********************************************************** RSlang ***/
+
+var RS_PRE_NAMESPACE = {
+	// XXX using the ";" here just for the experiment, in the real thing
+	// 		if this thing pans out, that is, use indent... (a-la make/Python)
+	// XXX this reads ahead at the moment, but it must read back...
+	';': function(context){
+		var line = []
+		var code = context.code
+		var cur = code.splice(0, 1)[0]
+		while(cur != ';' && code.length > 0){
+			line.push(cur)
+			cur = code.splice(0, 1)[0]
+		}
+		
+		context.code.splice.apply(context.code, [0, 0].concat(line.reverse()))
+	},
+
+	'[': PRE_NAMESPACE['['],
+	'macro:': PRE_NAMESPACE['macro:'],
+}
+
+RS_CONTEXT = {
+	stack: [],
+	code: STARTUP.slice(),
+	ns: NAMESPACE,
+	pre_ns: PRE_NAMESPACE,
+}
+
+// NOTE: we use the traditional bootstrap for this...
+run(RS_CONTEXT)
+
+RS_CONTEXT.pre_ns = RS_PRE_NAMESPACE
+
+function rslang(code, context){
+	context = context == null ? RS_CONTEXT : context
+
+	return slang(code, context)
 }
 
 
