@@ -1,11 +1,149 @@
 <html>
+<style>
+
+#bootstrap {
+	display: none;
+}
+#bootstrap[shown] {
+	display: block;
+}
+
+.error {
+	color: red;
+	font-style: italic;
+}
+
+.command {
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.command:hover {
+	background: #eee;
+	cursor: hand;
+}
+
+.command:empty:after {
+	content: "input code here...";
+	opacity: 0.5;
+}
+.command:focus:before {
+	position: absolute;
+	content: "ctrl+enter to run";
+	opacity: 0.3;
+	right: 15px;
+}
+.command:focus:after {
+	opacity: 0.2;
+}
+
+.output {
+	font-weight: bold;
+}
+.output:before {
+	content: ">";
+	color: blue;
+	font-weight: bold;
+	margin: 5px;
+}
+
+
+#stack {
+	opacity: 0.8;
+}
+
+</style>
 <script src="slang.js"></script>
+
+<script>
+
+function runCommand(){
+	var stack = document.getElementById('stack')
+	var console = document.getElementById('console')
+	var commands = document.getElementsByClassName('command')
+	var command = commands[commands.length-1]
+	command.removeAttribute('contenteditable')
+
+	command.addEventListener('click', function(e){
+		var commands = document.getElementsByClassName('command')
+		var c = commands[commands.length-1]
+		c.innerText = command.innerText
+		c.focus()
+	}, false)
+	
+	try{
+		stack.innerText = 'stack: ' + slang(command.innerText)
+
+	} catch(e) {
+		stack.innerText = 'stack: ' + CONTEXT.stack
+		var err = document.createElement('div')
+		err.classList.add('error')
+		if(e.message != null){
+			err.innerText = e.message
+		} else {
+			err.innerText = e
+		}
+		console.appendChild(err)
+	}
+
+	// create the next element...
+	var next = document.createElement('div')
+	next.classList.add('command')
+	next.setAttribute('contenteditable', true)
+	console.appendChild(next)
+	next.focus()
+}
+
+NAMESPACE.print = function(context){
+	var c = document.getElementById('console')
+	var o = context.stack[context.stack.length-1]
+	console.log('>>>', o)
+
+	var data = document.createElement('div')
+	data.classList.add('output')
+	data.innerHTML = o
+	c.appendChild(data)
+}
+
+NAMESPACE.err = function(context){
+	throw context.stack[context.stack.length-1]
+}
+
+
+function toggleBootstrapCode(){
+	var bootstrap = document.getElementById('bootstrap')
+	if(bootstrap.hasAttribute('shown')){
+		bootstrap.removeAttribute('shown')
+	} else {
+		bootstrap.setAttribute('shown')
+	}
+}
+
+
+</script>
+
 <body>
+	<h1>Slang</h1>
+	<a href="#" onclick="toggleBootstrapCode()">Toggle bootstrap code view...</a>
+	<div id="bootstrap"></div>
+	<h2>Slang Console</h2>
+	<div id="console">
+		<div class="command" contenteditable="true"></div>
+	</div>
+	<div id="stack"></div>
 </body>
 <script>
-document.body.innerHTML='<pre>'+BOOTSTRAP
+document.getElementById('bootstrap').innerHTML='<pre>'+BOOTSTRAP
 		.replace(/&/g, '&amp;')
 		.replace(/>/g, '&gt;')
 		.replace(/</g, '&lt;')+'</pre>'
+
+document.getElementById('console')
+	.addEventListener("keyup", function(e) {
+		if(e.keyCode == 13 && e.ctrlKey){
+			runCommand()
+		}
+	}, false);
+
 </script>
 </html>
