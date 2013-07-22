@@ -159,9 +159,12 @@ var NAMESPACE = {
 		if(typeof(code) == typeof('abc')){
 			// XXX BUG: '"aaa" "bbb"' translates to ['"aaa"', '" "', '"bbb"'] 
 			// 		i.e. quotes w/o whitespace are eaten...
-			if(/^(['"]).*\1$/m.test(code)){
-				code = code.split(/^(['"])(.*)\1$/m)[2]
+			if(/^\s*(['"]).*\1\s*$/m.test(code)){
+				code = code.split(/^\s*(['"])(.*)\1\s*$/m)[2]
 			}
+
+			console.log(code)
+
 			var res = []
 			code = code
 				// split by strings whitespace and block comments...
@@ -546,10 +549,9 @@ function slang(code, context){
 	context = context == null ? CONTEXT : context
 
 	if(typeof(code) == typeof('abc')){
-		//code = [ '"'+code+'"', 'lex', 'prep', 'exec' ]
-		code = [ code, 'lex', 'prep', 'exec' ]
+		code = [ '\\', code, 'lex', 'prep', 'exec' ]
 	} else {
-		code = [ [code], 'b2s', 'prep', 'exec' ]
+		code = [ code, 'prep', 'exec' ]
 	}
 
 	context.code = code
