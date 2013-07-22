@@ -381,143 +381,187 @@ var NAMESPACE = {
 }
 
 
-var BOOTSTRAP = '\n'+
-'-- To expalin stack and code effect some commands have will use a not so\n'+
-'-- traditional notation, the "|" will indicate the split between the stack\n'+
-'-- and code, here is a representation:\n'+
-'--\n'+
-'-- 	[ .. STACK .. ] <-- runtime -- [ .. CODE .. ]\n'+
-'--\n'+
-'--\n'+
-'-- And here is the new notation representing the states while we run through a\n'+
-'-- word, "add" in this case:\n'+
-'--\n'+
-'--		stack   code\n'+
-'--		      | 1 2 add\n'+
-'--		    1 | 2 add\n'+
-'--		  1 2 | add\n'+
-'--		1 2 [add]			(a)\n'+
-'--		    3 |				(b)\n'+
-'--\n'+
-'-- With stack effect is written like this:\n'+
-'--\n'+
-'--		( a b -- c )\n'+
-'--\n'+
-'--\n'+
-'-- In traditional stack effect notation we indicate the difference between\n'+
-'-- states (a) ans (b), but when we need to explain something like _swap we\'ll\n'+
-'-- also affect the code, so the process will go like this (expanding "+" word):\n'+
-'--\n'+
-'--		stack   code\n'+
-'--		      | 1 + 2\n'+
-'--		    1 | + 2\n'+
-'--		   1 [+] 2			(a)\n'+
-'--		    3 |				(b)\n'+
-'--\n'+
-'-- So here what "+" actually does is the difference between steps (a) and (b)\n'+
-'-- thus the notation:\n'+
-'--\n'+
-'--		( a | b -- c |  )\n'+
-'--\n'+
-'--\n'+
-'-- Just for illustration, here is how _swap ( a | b -- b | a ) works:\n'+
-'--\n'+
-'--		stack   code\n'+
-'--		      | a _swap b\n'+
-'--		    a | _swap b\n'+
-'--		 a [_swap] b			(a)\n'+
-'--		    b | a			(b)\n'+
-'--\n'+
-'--\n'+
-':: _swap ( x | y -- y | x ) [ 1 1 _swapN ]\n'+
-':: _push ( x |  -- | x ) [ 0 _swapN ]\n'+
-':: _pull (  | x -- x |  ) [ 0 swap _swapN ]\n'+
-'\n'+
-':: exec ( b -- ... ) [ s2b pop _exec b2s ]\n'+
-':: eval ( c -- ... ) [ lex prep exec ]\n'+
-'-- like exec but will run a block in current context...\n'+
-':: b2c [ len rot b2s tor 0 _swapN ]\n'+
-'\n'+
-':: . ( x -- ) [ drop ]\n'+
-':: .. ( x -- ) [ print drop ]\n'+
-'\n'+
-':: swap2 ( a _ b -- b _ a ) [ swap rot swap tor swap ]\n'+
-':: dup2 ( a b -- a b a b ) [ dup swap2 dup rot swap2 tor swap ]\n'+
-'\n'+
-':: ne ( a -- b ) [ eq not ]\n'+
-':: isT ( a -- b ) [ not not true eq ]\n'+
-':: isF ( a -- b ) [ not isT ]\n'+
-'\n'+
-'-- this defines a classic [ cond ] [ A ] [ B ] if word... (a bit too polish IMHO)\n'+
-':: if ( cond a b -- ... ) [ rot rot exec isT tor and tor or exec ]\n'+
-'\n'+
-'-- helpers for the ternary operator...\n'+
-'-- run then block and drop \'else B\' if it exists...\n'+
-':: _run_then ( a x | -- ... | x  )\n'+
-'	( a else | b -- ... | )\n'+
-'		[ \\ exec swap dup \\ else eq [ (drop else) drop \\ drop _swap 6 ] and\n'+
-'				[ (run as-is) 1 _push 4 ] or\n'+
-'				b2s 0 _swapN ]\n'+
-'-- if \'else B\' exists, run it, else cleanup...\n'+
-':: _run_else ( a | --  | a  )\n'+
-'	( b else | b -- ... | )\n'+
-'		[ drop dup \\ else eq [ drop \\ exec _swap 4 ] and\n'+
-'				[ 1 _push 2 ] or\n'+
-'				b2s 0 _swapN ]\n'+
-'-- NOTE: this may actually have one of three stack effects...\n'+
-':: ? ( c | a -- | )\n'+
-'	( c | a -- ... | )\n'+
-'	( c | a else b -- ... | )\n'+
-'		[ exec [ _run_then 1 ] and [ swap _run_else 2 ] or b2s 2 _swapN ]\n'+
-'\n'+
-'\n'+
-'-- list/block 2\'nd gen stuff...\n'+
-':: push ( b e i -- b ) [ -1 before ]\n'+
-'\n'+
-'\n'+
-':: inc ( a -- b ) [ 1 add ]\n'+
-':: dec ( a -- b ) [ 1 sub ]\n'+
-'\n'+
-'-- experimental...\n'+
-'-- NOTE: these are at this point stupid and do not support priorities or grouping...\n'+
-'-- NOTE: these have both stack and code effect, in genera the operations are of \n'+
-'--		the form: A op B\n'+
-':: + ( a | b -- c |  ) [ \\ add _swap ]\n'+
-':: - ( a | b -- c |  ) [ \\ sub _swap ]\n'+
-':: * ( a | b -- c |  ) [ \\ mul _swap ]\n'+
-':: / ( a | b -- c |  ) [ \\ div _swap ]\n'+
-'\n'+
-':: == ( a | b -- c |  ) [ \\ eq _swap ]\n'+
-':: > ( a | b -- c |  ) [ \\ gt _swap ]\n'+
-'\n'+
-'\n'+
-'-- this is here for devel use only\n'+
-':: _clear ( ... -- ) [ s2b drop ] \n'+
-':: _stack_size ( -- l ) [ s2b len swap b2s tor ] \n'+
-'\n'+
-'\n'+
-'-- tests and examples...\n'+
-':: hi ( -- ) [ "Hello World!" print drop ]\n'+
-//'-- NOTE: nop at the end is a stub to fix a bug in ? else ...\n'+
-//':: ! ( a -- b ) [ [ dup 1 ne ] ? [ dup 1 sub ! mul ] nop ]\n'+
-':: ! ( a -- b ) [ [ dup 1 ne ] ? [ dup 1 sub ! mul ] ]\n'+
-':: range ( n -- b ) [\n'+
-'		-- initial state...\n'+
-'		[ dup isNumber ] ? \n'+
-'			[ [] swap ]\n'+
-'		-- get first elem...\n'+
-'		else\n'+
-'			[ 0 at ]\n'+
-'		-- we got to the end...\n'+
-'		[ dup 0 eq ] ? \n'+
-'			[ drop ]\n'+
-'		-- dec push new and continue...\n'+
-'		else\n'+
-'			[ 1 sub 0 before range ] ]\n'+
-':: range2 ( n s -- b )\n'+
-'		[ swap range swap [] swap push \\ * 0 before each ]\n'+
-'\n'+
-''
+// NOTE: hate how JS handles multi-line strings...
+var BOOTSTRAP = [
+'(------------------------------------------------------------------------------',
+' For a quick intro, Slang ([S]tack [lang]uage) consists of:',
+'	- Code',
+'	- Stack',
+'	- Namespace',
+'',
+' A namespace is a basic key/value store.',
+'',
+' Entities from the code scream are read one by one and depending on',
+' their type are either pushed on the stack or evaluated.',
+'',
+' The later entity is traditionally called a "word" (function in',
+' non-stack languages).',
+' The only thing that makes a word different from any other entity is',
+' that it matches a key in the namespace.',
+'',
+' In Slang evaluation is done simply by executing the value of the matched',
+' key/value pair in the namespace. An over-simplified way to explain',
+' evaluation is to say that the content of the value is pushed to the',
+' code stream to be read right away, that\'s almost it, if we skip a',
+' couple of details (see: _exec, exec and for details see: eval)',
+'',
+' The system contains two types of words:',
+'	- Host words -- defined by the host system,',
+'	- User words -- defined within the system (like this bootstrap code).',
+'',
+' Words may read and affect any of the three system parts:',
+'	- Code',
+'	- Stack',
+'	- Namespace (not yet fully implemented)',
+'',
+' Traditioannly, in stack languages words affect only the stack, this is',
+' one of the motivations to implement Slang, that is, to experiment with',
+' different ways to go with stack languages.',
+'',
+'-----------------------------------------------------------------------------',
+'',
+'',
+' To expalin stack and code effect some words here will use a not so',
+' traditional notation, the "|" will indicate the split between the stack',
+' and code, here is a representation of the system:',
+'',
+' 	                 { NAMESPACE }',
+'',
+' 	[ .. STACK .. ] <-- runtime -- [ .. CODE .. ]',
+'',
+'',
+' And here is the new notation representing the states while we run through a',
+' word, "add" in this case:',
+'',
+'		stack   code',
+'		      | 1 2 add',
+'		    1 | 2 add',
+'		  1 2 | add',
+'		1 2 [add]			(a)',
+'		    3 |				(b)',
+'',
+' With stack effect is written like this:',
+'',
+'		( a b -- c )',
+'',
+'',
+' In traditional stack effect notation we indicate the difference between',
+' states (a) ans (b), but when we need to explain something like _swap we\'ll',
+' also affect the code, so the process will go like this (expanding "+" word):',
+'',
+'		stack   code',
+'		      | 1 + 2',
+'		    1 | + 2',
+'		   1 [+] 2			(a)',
+'		    3 |				(b)',
+'',
+' So here what "+" actually does is the difference between steps (a) and (b)',
+' thus the notation:',
+'',
+'		( a | b -- c |  )',
+'',
+'',
+' Just for illustration, here is how _swap ( a | b -- b | a ) works:',
+'',
+'		stack   code',
+'		      | a _swap b',
+'		    a | _swap b',
+'		 a [_swap] b			(a)',
+'		    b | a			(b)',
+'',
+'',
+'------------------------------------------------------------------------------)',
+'--',
+'-- With that out of the way, let\'s start with the bootstrap...',
+'--',
+':: _swap ( x | y -- y | x ) [ 1 1 _swapN ]',
+':: _push ( x |  -- | x ) [ 0 _swapN ]',
+':: _pull (  | x -- x |  ) [ 0 swap _swapN ]',
+'',
+':: exec ( b -- ... ) [ s2b pop _exec b2s ]',
+':: eval ( c -- ... ) [ lex prep exec ]',
+'-- like exec but will run a block in current context...',
+':: b2c [ len rot b2s tor 0 _swapN ]',
+'',
+':: . ( x -- ) [ drop ]',
+':: .. ( x -- ) [ print drop ]',
+'',
+':: swap2 ( a _ b -- b _ a ) [ swap rot swap tor swap ]',
+':: dup2 ( a b -- a b a b ) [ dup swap2 dup rot swap2 tor swap ]',
+'',
+':: ne ( a -- b ) [ eq not ]',
+':: isT ( a -- b ) [ not not true eq ]',
+':: isF ( a -- b ) [ not isT ]',
+'',
+'-- this defines a classic [ cond ] [ A ] [ B ] if word... (a bit too polish IMHO)',
+':: if ( cond a b -- ... ) [ rot rot exec isT tor and tor or exec ]',
+'',
+'-- helpers for the ternary operator...',
+'-- run then block and drop \'else B\' if it exists...',
+':: _run_then ( a x | -- ... | x  )',
+'	( a else | b -- ... | )',
+'		[ \\ exec swap dup \\ else eq [ (drop else) drop \\ drop _swap 6 ] and',
+'				[ (run as-is) 1 _push 4 ] or',
+'				b2s 0 _swapN ]',
+'-- if \'else B\' exists, run it, else cleanup...',
+':: _run_else ( a | --  | a  )',
+'	( b else | b -- ... | )',
+'		[ drop dup \\ else eq [ drop \\ exec _swap 4 ] and',
+'				[ 1 _push 2 ] or',
+'				b2s 0 _swapN ]',
+'-- NOTE: this may actually have one of three stack effects...',
+':: ? ( c | a -- | )',
+'	( c | a -- ... | )',
+'	( c | a else b -- ... | )',
+'		[ exec [ _run_then 1 ] and [ swap _run_else 2 ] or b2s 2 _swapN ]',
+'',
+'',
+'-- list/block 2\'nd gen stuff...',
+':: push ( b e i -- b ) [ -1 before ]',
+'',
+'',
+':: inc ( a -- b ) [ 1 add ]',
+':: dec ( a -- b ) [ 1 sub ]',
+'',
+'-- experimental...',
+'-- NOTE: these are at this point stupid and do not support priorities or grouping...',
+'-- NOTE: these have both stack and code effect, in genera the operations are of ',
+'--		the form: A op B',
+':: + ( a | b -- c |  ) [ \\ add _swap ]',
+':: - ( a | b -- c |  ) [ \\ sub _swap ]',
+':: * ( a | b -- c |  ) [ \\ mul _swap ]',
+':: / ( a | b -- c |  ) [ \\ div _swap ]',
+'',
+':: == ( a | b -- c |  ) [ \\ eq _swap ]',
+':: > ( a | b -- c |  ) [ \\ gt _swap ]',
+'',
+'',
+'-- this is here for devel use only',
+':: _clear ( ... -- ) [ s2b drop ] ',
+':: _stack_size ( -- l ) [ s2b len swap b2s tor ] ',
+'',
+'',
+'-- tests and examples...',
+':: hi ( -- ) [ "Hello World!" print drop ]',
+//'-- NOTE: nop at the end is a stub to fix a bug in ? else ...',
+//':: ! ( a -- b ) [ [ dup 1 ne ] ? [ dup 1 sub ! mul ] nop ]',
+':: ! ( a -- b ) [ [ dup 1 ne ] ? [ dup 1 sub ! mul ] ]',
+':: range ( n -- b ) [',
+'		-- initial state...',
+'		[ dup isNumber ] ? ',
+'			[ [] swap ]',
+'		-- get first elem...',
+'		else',
+'			[ 0 at ]',
+'		-- we got to the end...',
+'		[ dup 0 eq ] ? ',
+'			[ drop ]',
+'		-- dec push new and continue...',
+'		else',
+'			[ 1 sub 0 before range ] ]',
+':: range2 ( n s -- b )',
+'		[ swap range swap [] swap push \\ * 0 before each ]',
+''].join('\n')
 
 
 var STARTUP = [[], BOOTSTRAP, 'lex', 'prep', '_exec', 'drop']
