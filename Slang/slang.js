@@ -4,6 +4,12 @@
 *
 **********************************************************************/
 
+/* XXX for some odd reason this breaks the interpreter...
+Array.prototype.toString = function(){
+	return '[ ' + this.join(', ') + ' ]'
+}
+*/
+
 
 /*********************************************************************/
 
@@ -163,7 +169,7 @@ var NAMESPACE = {
 				code = code.split(/^\s*(['"])(.*)\1\s*$/m)[2]
 			}
 
-			console.log(code)
+			//console.log(code)
 
 			var res = []
 			code = code
@@ -385,7 +391,7 @@ var NAMESPACE = {
 var BOOTSTRAP = [
 '(------------------------------------------------------------------------------',
 '',
-' Slang is a simple and complete [S]tack [lang]uage).',
+' Slang is a simple and complete [S]tack [lang]uage.',
 '',
 ' Slang was designed for three main reasons:',
 '	- a means to experiment with several aspects of language design,',
@@ -415,9 +421,8 @@ var BOOTSTRAP = [
 ' or evaluated.',
 '',
 ' The evaluated entity is traditionally called a "word" (function in non-stack',
-' languages).',
-' The only thing that makes a word different from any other entity is',
-' that it matches a key in the namespace, as mentioned above.',
+' languages). The only thing that makes a word different from any other entity',
+' is that it matches a key in the namespace, as mentioned above.',
 '',
 ' In Slang evaluation is done simply by executing the value of the matched',
 ' key/value pair in the namespace. An over-simplified way to explain',
