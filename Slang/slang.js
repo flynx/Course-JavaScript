@@ -556,6 +556,7 @@ var BOOTSTRAP = [
 ':: / ( a | b -- c |  ) [ \\ div _swap ]',
 '',
 ':: == ( a | b -- c |  ) [ \\ eq _swap ]',
+':: != ( a | b -- c |  ) [ \\ ne _swap ]',
 ':: > ( a | b -- c |  ) [ \\ gt _swap ]',
 '',
 '',
