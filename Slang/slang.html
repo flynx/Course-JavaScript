@@ -129,7 +129,7 @@ NAMESPACE.print = function(context){
 
 	var data = document.createElement('div')
 	data.classList.add('output')
-	data.innerHTML = o
+	data.innerHTML = stringifySlangCode(o)
 	c.appendChild(data)
 }
 
@@ -179,7 +179,7 @@ function showAvailableWords(){
 			}
 			return '<span class="word" builtin="'+builtin+'" title="'+code+'">'+e+'</span>'
 		})
-		.join(', ')
+		.join(' ')
 }
 
 
