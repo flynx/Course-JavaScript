@@ -65,6 +65,18 @@
 
 <script>
 
+function stringifySlangCode(code){
+	if(code.constructor.name == 'Array'){
+		return '[ '+code.map(function(c){
+			if(c.constructor.name == 'Array'){
+				return stringifySlangCode(c)
+			}
+			return c
+		}).join(' ')+' ]'
+	}
+	return code
+}
+
 function runCommand(){
 	var stack = document.getElementById('stack')
 	var console = document.getElementById('console')
@@ -80,7 +92,7 @@ function runCommand(){
 	}, false)
 	
 	try{
-		stack.innerText = 'stack: ' + slang(command.innerText)
+		stack.innerText = 'stack: ' + stringifySlangCode(slang(command.innerText))
 
 	} catch(e) {
 		stack.innerText = 'stack: ' + CONTEXT.stack
@@ -139,6 +151,22 @@ function toggleBootstrapCode(){
 	}
 }
 
+function showAvailableWords(){
+	document.getElementById('words').innerHTML = Object.keys(NAMESPACE).filter(function(e){
+		// skip words starting with '_'...
+		if(e[0] == '_'){
+			return false
+		}
+		return true
+	}).map(function(e){
+		var code = NAMESPACE[e]
+		if(code.constructor.name == 'Array'){
+			code = stringifySlangCode(code)
+		}
+		return '<span title="'+code+'">'+e+'</span>'
+	}).join(', ')
+}
+
 
 </script>
 
@@ -146,6 +174,8 @@ function toggleBootstrapCode(){
 	<h1>Slang</h1>
 	<a href="#" onclick="toggleBootstrapCode()">Toggle bootstrap code view...</a>
 	<div id="bootstrap"></div>
+	<h2>Available words</h2>
+	<p id="words"></p>
 	<h2>Slang Console</h2>
 	<div id="console">
 		<div class="command" contenteditable="true"></div>
@@ -162,8 +192,11 @@ document.getElementById('console')
 	.addEventListener("keyup", function(e) {
 		if(e.keyCode == 13 && e.ctrlKey){
 			runCommand()
+			showAvailableWords()
 		}
 	}, false);
+
+showAvailableWords()
 
 </script>
 </html>
