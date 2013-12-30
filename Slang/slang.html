@@ -55,6 +55,9 @@
 	color: blue;
 }
 
+#words {
+	font-family: monospace;
+}
 
 #stack {
 	opacity: 0.8;
@@ -66,13 +69,10 @@
 <script>
 
 function stringifySlangCode(code){
-	if(code.constructor.name == 'Array'){
-		return '[ '+code.map(function(c){
-			if(c.constructor.name == 'Array'){
-				return stringifySlangCode(c)
-			}
-			return c
-		}).join(' ')+' ]'
+	if(typeof(code) == typeof('str') && /\s/.test(code)){
+		return '\''+code+'\''
+	} else if(code.constructor.name == 'Array'){
+		return '[ '+code.map(stringifySlangCode).join(' ')+' ]'
 	}
 	return code
 }
@@ -95,7 +95,7 @@ function runCommand(){
 		stack.innerText = 'stack: ' + stringifySlangCode(slang(command.innerText))
 
 	} catch(e) {
-		stack.innerText = 'stack: ' + CONTEXT.stack
+		stack.innerText = 'stack: ' + stringifySlangCode(CONTEXT.stack)
 		var err = document.createElement('div')
 		err.classList.add('error')
 		if(e.message != null){
@@ -152,19 +152,23 @@ function toggleBootstrapCode(){
 }
 
 function showAvailableWords(){
-	document.getElementById('words').innerHTML = Object.keys(NAMESPACE).filter(function(e){
-		// skip words starting with '_'...
-		if(e[0] == '_'){
-			return false
-		}
-		return true
-	}).map(function(e){
-		var code = NAMESPACE[e]
-		if(code.constructor.name == 'Array'){
-			code = stringifySlangCode(code)
-		}
-		return '<span title="'+code+'">'+e+'</span>'
-	}).join(', ')
+	document.getElementById('words').innerHTML = Object.keys(NAMESPACE)
+		.sort()
+		.filter(function(e){
+			// skip words starting with '_'...
+			if(e[0] == '_'){
+				return false
+			}
+			return true
+		})
+		.map(function(e){
+			var code = NAMESPACE[e]
+			if(code.constructor.name == 'Array'){
+				code = stringifySlangCode(code)
+			}
+			return '<span title="'+code+'">'+e+'</span>'
+		})
+		.join(', ')
 }
 
 
