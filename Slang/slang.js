@@ -599,7 +599,7 @@ var BOOTSTRAP = [
 //':: = ( a | b -- |  ) [ 1 1 _swapN :: ]',
 '',
 '-- this is here for devel use only',
-':: _clear ( ... -- ) [ s2b drop ] ',
+':: _clear ( ... -- ) [ s2b print drop ] ',
 ':: _stack_size ( -- l ) [ s2b len swap b2s tor ] ',
 '',
 '',

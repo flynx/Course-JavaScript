@@ -59,7 +59,11 @@
 	font-family: monospace;
 }
 
-.word[builtin=yes] {
+.word[word-type=constant] {
+	font-weight: bold;
+	color: red;
+}
+.word[word-type=builtin] {
 	font-style: italic;
 	color: blue;
 }
@@ -171,13 +175,16 @@ function showAvailableWords(){
 		})
 		.map(function(e){
 			var code = NAMESPACE[e]
-			var builtin = 'no'
+			var type
 			if(code.constructor.name == 'Array'){
+				type = 'word'
 				code = stringifySlangCode(code)
 			} else if(typeof(code) == typeof(function(){})){
-				builtin = 'yes'
+				type = 'builtin'
+			} else {
+				type = 'constant'
 			}
-			return '<span class="word" builtin="'+builtin+'" title="'+code+'">'+e+'</span>'
+			return '<span class="word" word-type="'+type+'" title="'+code+'">'+e+'</span>'
 		})
 		.join(' ')
 }
@@ -190,6 +197,11 @@ function showAvailableWords(){
 	<a href="#" onclick="toggleBootstrapCode()">Toggle bootstrap code view...</a>
 	<div id="bootstrap"></div>
 	<h2>Available words</h2>
+	<p>
+		This section includes constants (red) ond constant-like
+		words (words that allways yield the same value), 
+		built-in words (blue), and 2'nd gen words (black):
+	</p>
 	<p id="words"></p>
 	<h2>Slang Console</h2>
 	<div id="console">
