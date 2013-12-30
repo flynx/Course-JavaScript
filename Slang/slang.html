@@ -59,6 +59,11 @@
 	font-family: monospace;
 }
 
+.word[builtin=yes] {
+	font-style: italic;
+	color: blue;
+}
+
 #stack {
 	opacity: 0.8;
 }
@@ -69,6 +74,9 @@
 <script>
 
 function stringifySlangCode(code){
+	if(code == null){
+		return code
+	}
 	if(typeof(code) == typeof('str') && /\s/.test(code)){
 		return '\''+code+'\''
 	} else if(code.constructor.name == 'Array'){
@@ -163,10 +171,13 @@ function showAvailableWords(){
 		})
 		.map(function(e){
 			var code = NAMESPACE[e]
+			var builtin = 'no'
 			if(code.constructor.name == 'Array'){
 				code = stringifySlangCode(code)
+			} else if(typeof(code) == typeof(function(){})){
+				builtin = 'yes'
 			}
-			return '<span title="'+code+'">'+e+'</span>'
+			return '<span class="word" builtin="'+builtin+'" title="'+code+'">'+e+'</span>'
 		})
 		.join(', ')
 }

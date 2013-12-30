@@ -151,6 +151,7 @@ var NAMESPACE = {
 	// ... [ ... ] -- ... ...
 	'b2s': function(context){
 		var c = context.stack.pop()
+		c = c === undefined ? [] : c
 		context.stack.splice.apply(context.stack, [context.stack.length, 0].concat(c))
 	},
 	'print': function(context){
@@ -293,6 +294,11 @@ var NAMESPACE = {
 	// x -- x x
 	'dup': function(context){
 		return context.stack[context.stack.length-1]
+	},
+	// x -- x'
+	// NOTE: this will do a deep copy...
+	'clone': function(context){
+		return JSON.parse(JSON.stringify(context.stack.pop()))
 	},
 	// x --
 	'drop': function(context){
@@ -497,6 +503,9 @@ var BOOTSTRAP = [
 '--',
 '-- With that out of the way, let\'s start with the bootstrap...',
 '--',
+'-- make a new block instance shorthand...',
+':: [] [ [ ] clone ]',
+'',
 ':: _swap ( x | y -- y | x ) [ 1 1 _swapN ]',
 ':: _push ( x |  -- | x ) [ 0 _swapN ]',
 ':: _pull (  | x -- x |  ) [ 0 swap _swapN ]',
