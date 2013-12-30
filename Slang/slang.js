@@ -570,7 +570,7 @@ var BOOTSTRAP = [
 '-- Here is an infix operator example...',
 '-- 	:: + ( a | b -- c |  ) [ \\ exec 2 0 _swapN \\ exec \\ add 2 1 _swapN ]',
 '-- now let\'s make a meta function to make things shorter...',
-'-- first the helper...'
+'-- first the helper...',
 ':: _infix ( op word -- ) [',
 '		-- format the word definition...',
 '		s2b \\ :: -3 before b2s',
