@@ -597,6 +597,7 @@ var BOOTSTRAP = [
 'infix: * mul',
 'infix: / div',
 '',
+'-- these need more thought...',
 'infix: == eq',
 'infix: != ne',
 'infix: > gt',
