@@ -72,6 +72,25 @@
 	opacity: 0.8;
 }
 
+
+/* syntax... */
+
+pre .comment {
+	font-style: italic;
+	color: gray;
+}
+pre :not(.comment) {
+	font-weight: bold;
+}
+pre :not(.comment) .string {
+	font-style: italic;
+	color: blue;
+}
+pre :not(.comment) .word {
+	font-weight: bold;
+	color: blue;
+}
+
 </style>
 <script src="slang.js"></script>
 
@@ -210,10 +229,28 @@ function showAvailableWords(){
 	<div id="stack"></div>
 </body>
 <script>
-document.getElementById('bootstrap').innerHTML='<pre>'+BOOTSTRAP
-		.replace(/&/g, '&amp;')
-		.replace(/>/g, '&gt;')
-		.replace(/</g, '&lt;')+'</pre>'
+var bootstrap = BOOTSTRAP
+	// basic HTML compatibility stuff...
+	.replace(/&/g, '&amp;')
+	.replace(/>/g, '&gt;')
+	.replace(/</g, '&lt;')
+	// very basic syntax highlighting...
+	// comments...
+	.replace(/(\(.*)-(.*\))/g, '<span class="comment">$1&minus;$2</span>')
+	.replace(/(\([^\)]*\))/g, '<span class="comment">$1</span>')
+	.replace(/(\s*--.*\n)/g, '<span class="comment">$1</span>')
+/*
+Object.keys(NAMESPACE).forEach(function(k){
+	bootstrap = bootstrap.replace(
+		RegExp('('+k
+			.replace('&', '&amp;')
+			.replace('<', '&lt;')
+			.replace('>', '&gt;')
+			.replace(/([\|\[\]\.\*\/\\\?\+\-])/g, '\\$1')+')', 'g'), 
+		'<span class="word">$1</span>')
+})
+*/
+document.getElementById('bootstrap').innerHTML='<pre>'+bootstrap+'</pre>'
 
 document.getElementById('console')
 	.addEventListener("keyup", function(e) {
