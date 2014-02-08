@@ -60,6 +60,7 @@ function run(context){
 	return context
 }
 
+// XXX make this add '\n' / EOL words to the stream...
 var SPLITTER = /\s*\([^\)]*\)\s*|\s*--.*[\n$]|\s*"([^"]*)"\s*|\s*'([^']*)'\s*|\s+/m
 
 
@@ -96,6 +97,20 @@ var PRE_NAMESPACE = {
 
 		this[ident] = cur[0]
 	},
+
+	// comment...
+	// drop everything until '\n'
+	//
+	// NOTE: this depends on explicit '\n' words...
+	'--': function(context){
+		var code = context.code
+		var cur = code.splice(0, 1)[0]
+		while(cur != '\n' && code.length > 0){
+			cur = code.splice(0, 1)[0]
+		}
+	},
+	// a no op...
+	'\n': function(){},
 }
 
 

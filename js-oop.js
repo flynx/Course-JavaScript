@@ -57,7 +57,8 @@
 // The 'new' expression returns the context object after it has been
 // populated by the constructor function.
 //
-// NOTE: when using 'new', the function return value is ignored.
+// NOTE: when using 'new', the function/constructor return value is 
+// 		ignored.
 //
 //
 // The values set on 'this' by the constructor are instance attributes,
@@ -68,10 +69,10 @@
 // 		populate the object. i.e. no instance values will be created.
 // 
 //
-// The instance has another type of attribute accessible through it that
-// is not stored in it, but rather in it's prototype (o.__proto__), or 
-// rather the constructor's prototype (o.constructor.prototype). For 
-// more details see the next section.
+// The instance has another type of attribute accessible through it, an 
+// attribute that's not stored in the object, but rather in it's 
+// prototype (o.__proto__), or rather the constructor's prototype 
+// (o.constructor.prototype). For more details see the next section.
 //
 //
 //
@@ -98,7 +99,7 @@
 
 //
 // Since the prototype is a JS object that adheres to the same rules as 
-// any other object, if the attr is not resolved in it directly it will 
+// any other object, if the attr is not resolved in it directly, it will 
 // be searched in its prototype, and so on.
 // This principle enables us to implement inheritance.
 //
