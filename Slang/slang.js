@@ -365,7 +365,7 @@ var NAMESPACE = {
 		return context.stack.pop() * context.stack.pop()
 	},
 	'div': function(context){
-		return context.stack.pop() / context.stack.pop()
+		return 1/context.stack.pop() * context.stack.pop()
 	},
 
 	// block/list operations...
@@ -709,13 +709,12 @@ var BOOTSTRAP = [
 '	-- empty list, sum is 0...',
 '	[ len 0 eq ] ?',
 '		[ . 0 ]',
+'	-- sum of list of len 1 is it\'s content, so just pop it...',
+'	else [ [ len 1 eq ] ?',
+'		[ pop swap . ]',
+'	-- and now recursively sum up elements till the list is 1 in length...',
 '	else',
-'		-- sum of list of len 1 is it\'s content, so just pop it...',
-'		[ [ len 1 eq ] ?',
-'			[ pop swap . ]',
-'		-- and now recursively sum up elements till the list is 1 in length...',
-'		else',
-'			[ pop rot pop tor add push sum ] ] ]',
+'		[ pop rot pop tor add push sum ] ] ]',
 '',
 '',
 '',
@@ -728,7 +727,7 @@ var BOOTSTRAP = [
 '	[',
 '		-- format the word definition...',
 '		--		NAME WORD	->	:: NAME WORD',
-'		s2b \\ :: -3 before b2s',
+'		s2b \\ :: -2 before b2s',
 '',
 '		-- our template...',
 '		-- exec the left side...',
