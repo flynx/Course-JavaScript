@@ -120,6 +120,7 @@ function runCommand(){
 		var c = commands[commands.length-1]
 		c.innerText = command.innerText
 		c.focus()
+		window.scrollTo(0,document.body.scrollHeight)
 	}, false)
 	
 	try{
