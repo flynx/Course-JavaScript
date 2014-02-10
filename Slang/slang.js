@@ -110,22 +110,26 @@ var PRE_NAMESPACE = {
 		var block = []
 		var code = context.code
 		var cur = code.splice(0, 1)[0]
-		//while(cur != ']' && cur != ']]' && code.length > 0){
-		while(cur != ']' && code.length > 0){
+		while(cur != ']' && cur != ']]' && code.length > 0){
+		//while(cur != ']' && code.length > 0){
 			if(cur == '['){
 				cur = this['['](context)
 			}
 			block.push(cur)
 			cur = code.splice(0, 1)[0]
 		}
-		//if(code.length == 0 && cur != ']' && cur != ']]'){
-		if(code.length == 0 && cur != ']'){
+		// we need this to be able to jump out of all the nested blocks...
+		if(cur == ']]'){
+			code.splice(0, 0, cur)
+		}
+		if(code.length == 0 && cur != ']' && cur != ']]'){
 			console.error('Did not find expected "]".')
 		} 
 		return block
 	},
+	// drop the closing words...
+	']]': function(context){},
 	']': function(context){ console.error('Unexpected "]".') },
-	']]': function(context){ console.error('Unexpected "]]".') },
 
 	// XXX macros are not recursive...
 	'macro:': function(context){
@@ -719,7 +723,7 @@ var BOOTSTRAP = [
 '	dup [ -1 eq ] ?',
 '		[ . push ]',
 '	else',
-'		[ inc before ] ]',
+'		[ inc before ]]',
 '',
 '-- push element to tail of block...',
 ':: push ( b e -- b ) [ swap len rot swap tor to ]',
@@ -750,7 +754,7 @@ var BOOTSTRAP = [
 '		[ drop ]',
 '	-- dec push new and continue...',
 '	else',
-'		[ 1 sub 0 before range ] ]',
+'		[ 1 sub 0 before range ]]',
 '',
 '-- Sum up the elements of a block...',
 ':: sum ( L -- s ) [',
@@ -763,7 +767,7 @@ var BOOTSTRAP = [
 '		[ pop swap . ]',
 '	-- and now recursively sum up elements till the list is 1 in length...',
 '	else',
-'		[ pop rot pop tor add push sum ] ] ]',
+'		[ pop rot pop tor add push sum ]]',
 '',
 '',
 '',
