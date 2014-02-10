@@ -106,22 +106,26 @@ var PRE_NAMESPACE = {
 	// XXX use the real reader...
 	// block...
 	// syntax: [ ... ]
+	// NOTE: we can also terminate several blocks with a single ]]
 	'[': function(context){
 		var block = []
 		var code = context.code
 		var cur = code.splice(0, 1)[0]
-		while(cur != ']' && code.length > 0){
+		while(cur != ']' && cur != ']]' && code.length > 0){
 			if(cur == '['){
 				cur = this['['](context)
 			}
 			block.push(cur)
 			cur = code.splice(0, 1)[0]
 		}
-		if(code.length == 0 && cur != ']'){
+		if(code.length == 0 && cur != ']' && cur != ']]'){
 			console.error('Did not find expected "]".')
 		} 
 		return block
 	},
+	']': function(context){ console.error('Unexpected "]".') },
+	']]': function(context){ console.error('Unexpected "]]".') },
+
 	// XXX macros are not recursive...
 	'macro:': function(context){
 		var ident = context.code.splice(0, 1)
