@@ -143,6 +143,8 @@ function runCommand(){
 	next.setAttribute('contenteditable', true)
 	console.appendChild(next)
 	next.focus()
+
+	window.scrollTo(0,document.body.scrollHeight)
 }
 
 NAMESPACE.print = function(context){

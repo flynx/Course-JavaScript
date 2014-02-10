@@ -61,11 +61,48 @@ function run(context){
 }
 
 // XXX make this add '\n' / EOL words to the stream...
-var SPLITTER = /\s*\([^\)]*\)\s*|\s*--.*[\n$]|\s*"([^"]*)"\s*|\s*'([^']*)'\s*|\s+/m
+//var SPLITTER = /\s*\([^\)]*\)\s*|\s*--.*[\n$]|\s*"([^"]*)"\s*|\s*'([^']*)'\s*|\s+/m
+var SPLITTER = RegExp([
+			// terms to keep in the stream...
+			/*'('+[
+				'\\n',
+				'--',
+			].join('|')+')',*/
+
+			// comments...
+			'\\s*\\([^\\)]*\\)\\s*',
+			'\\s*--.*[\\n$]',
+
+			// quoted strings...
+			'\\s*"([^"]*)"\\s*',
+			"\\s*'([^']*)'\\s*",
+
+			// whitespace...
+			'\\s+',
+		].join('|'),
+		'm')
 
 
 // pre-processor namespace...
 var PRE_NAMESPACE = {
+	// comment...
+	// syntax: -- ... \n
+	//
+	// drop everything until '\n'
+	//
+	// NOTE: this depends on explicit '\n' words...
+	'--': function(context){
+		var res = ['--']
+		var code = context.code
+		var cur = code.splice(0, 1)[0]
+		res.push(cur)
+		while(cur != '\n' && code.length > 0){
+			cur = code.splice(0, 1)[0]
+			res.push(cur)
+		}
+		console.log(res.join(' '))
+	},
+	
 	// XXX use the real reader...
 	// block...
 	// syntax: [ ... ]
@@ -98,19 +135,10 @@ var PRE_NAMESPACE = {
 		this[ident] = cur[0]
 	},
 
-	// comment...
-	// drop everything until '\n'
-	//
-	// NOTE: this depends on explicit '\n' words...
-	'--': function(context){
-		var code = context.code
-		var cur = code.splice(0, 1)[0]
-		while(cur != '\n' && code.length > 0){
-			cur = code.splice(0, 1)[0]
-		}
-	},
 	// a no op...
-	'\n': function(){},
+	'\n': function(){
+		console.log('NL')
+	},
 }
 
 
