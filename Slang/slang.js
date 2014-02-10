@@ -106,20 +106,30 @@ var PRE_NAMESPACE = {
 	// XXX use the real reader...
 	// block...
 	// syntax: [ ... ]
+	// NOTE: the shorthand ']]' will close ALL the open blocks.
+	// XXX should ']]' be smart enough to look ahead and close only the 
+	// 		blocks not explicitly closed later???
+	// 		..see below for more...
 	'[': function(context){
 		var block = []
 		var code = context.code
 		var cur = code.splice(0, 1)[0]
 		while(cur != ']' && cur != ']]' && code.length > 0){
-		//while(cur != ']' && code.length > 0){
 			if(cur == '['){
 				cur = this['['](context)
 			}
 			block.push(cur)
 			cur = code.splice(0, 1)[0]
 		}
-		// we need this to be able to jump out of all the nested blocks...
+		// we need this to be able to jump out of all the nested blocks, 
+		// thus we'll keep the ']]' in code and remove it explicitly 
+		// later...
 		if(cur == ']]'){
+			// XXX should we look ahead and count the explicitly closed
+			// 		via ']' and ']]' blocks???
+			// 		...at this point this seems a bit complex...
+			// 		...of there are more than one ']]' in a structure
+			//		this might stop being deterministic...
 			code.splice(0, 0, cur)
 		}
 		if(code.length == 0 && cur != ']' && cur != ']]'){
@@ -725,6 +735,10 @@ var BOOTSTRAP = [
 '	else',
 '		[ inc before ]]',
 '',
+'-- NOTE: the "]]" in the last definition, it\'s a shorthand, it closes',
+'--	ALL the open blocks to this point.',
+'--	...thus it can be used ONLY as the very last word in a set.',
+'',
 '-- push element to tail of block...',
 ':: push ( b e -- b ) [ swap len rot swap tor to ]',
 '',
@@ -908,4 +922,4 @@ function rslang(code, context){
 
 
 /**********************************************************************
-* vim:set ts=4 sw=4 :                                                */
+* vim:set ts=4 sw=4 spell :                                                */
