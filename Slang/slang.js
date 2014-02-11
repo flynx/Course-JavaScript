@@ -368,9 +368,16 @@ var NAMESPACE = {
 		context.stack.pop()
 	},
 
+	// a -- b
+	// NOTE: all names are also strings so moo string? and 'moo' string?
+	// 		are the same...
+	'string?': function(context){
+		return typeof(context.stack.pop()) == typeof('str')
+	},
+
 	// basic number operations...
 	// a -- b
-	'isNumber': function(context){
+	'number?': function(context){
 		return typeof(context.stack.pop()) == typeof(123)
 	},
 	// a b -- c
@@ -388,7 +395,7 @@ var NAMESPACE = {
 	},
 
 	// block/list operations...
-	'isBlock': function(context){
+	'block?': function(context){
 		var e = context.stack.pop()
 		return typeof(e) == typeof([]) && e.constructor.name == 'Array'
 	},
@@ -775,14 +782,14 @@ var BOOTSTRAP = [
 '-- Create a block containing a range of numbers form 0 to n-1...',
 ':: range ( n -- b ) [',
 '	-- initial state...',
-'	[ dup isNumber ] ? ',
+'	[ dup number? ] ? ',
 '		[ [] swap ]',
 '	-- get first elem...',
 '	else',
 '		[ 0 at ]',
 '	-- we got to the end...',
 '	[ dup 0 eq ] ? ',
-'		[ drop ]',
+'		drop',
 '	-- dec push new and continue...',
 '	else',
 '		[ 1 sub 0 before range ]]',
@@ -795,7 +802,7 @@ var BOOTSTRAP = [
 '		[ . 0 ]',
 '	-- sum of list of len 1 is it\'s content, so just pop it...',
 '	else [ [ len 1 eq ] ?',
-'		[ pop swap . ]',
+'		b2s',
 '	-- and now recursively sum up elements till the list is 1 in length...',
 '	else',
 '		[ pop rot pop tor add push sum ]]',
