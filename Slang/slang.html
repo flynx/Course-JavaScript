@@ -254,15 +254,34 @@ Object.keys(NAMESPACE).forEach(function(k){ommands[0]
 */
 document.getElementById('bootstrap').innerHTML='<pre>'+bootstrap+'</pre>'
 
+var historyIndex = 0
+
 document.getElementById('console')
 	.addEventListener("keyup", function(e) {
 		if(e.keyCode == 13 && e.ctrlKey){
+			historyIndex = 0
 			runCommand()
 			showAvailableWords()
+		} else if (e.keyCode == 38 && e.ctrlKey){
+			e.preventDefault()
+			moveHistory(1)
+		} else if (e.keyCode == 40 && e.ctrlKey){
+			e.preventDefault()
+			moveHistory(-1)
 		}
 	}, false);
 
 showAvailableWords()
+
+function moveHistory(step){
+	var commands = document.getElementsByClassName('command')
+	  , next = historyIndex + step
+	if (next >= commands.length || next < 0) {
+		return
+	}
+	historyIndex = next
+	commands[historyIndex].click()
+}
 
 </script>
 </html>
