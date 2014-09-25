@@ -4,6 +4,10 @@
 *
 *
 **********************************************************************/
+
+
+
+/*********************************************************************/
 //
 // The basic prototype inheritance
 // -------------------------------
@@ -66,8 +70,8 @@
 
 // Another way to test if the attribute is own/local
 
-	b.isOwnProperty('z')	// -> true
-	b.isOwnProperty('x')	// -> false
+	b.hasOwnProperty('z')	// -> true
+	b.hasOwnProperty('x')	// -> false
 
 
 // What happens under the hood is very simple:
@@ -483,15 +487,15 @@
 // 		In quirks mode a function call is always done in the root 
 // 		context, it's like implicitly calling a method of the global
 // 		object:
-			f() === window.f()	
-						// -> true
+//			f() === window.f()	
+//						// -> true
 //		In strict mode these are two different things, a function call
 //		is done without a context ('this' is undefined) while calling
 //		the same function via the global object is essentially a method
 //		call, setting 'this' to what is to the left of the attribute 
 //		access operator:
-			strict_f() !== window.strict_f()	
-						// -> true
+//			strict_f() !== window.strict_f()	
+//						// -> true
 
 
 
