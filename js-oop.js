@@ -423,7 +423,7 @@
 // A simple way to think about this is that 'this' always points to the 
 // "context" of the function call.
 //
-// And there are two distinct cases here:
+// There are three distinct cases here:
 // 	- function call / implicit context
 // 	- new call / implicit context
 // 	- method call / explicit context
