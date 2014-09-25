@@ -149,9 +149,9 @@
 //
 // Let's look at a number of attributes that new sets:
 
-	a.__proto__		// -> {} 
+	a.__proto__			// -> {} 
 
-	a.constructor	// -> [Function A]
+	a.constructor		// -> [Function A]
 
 
 // These are what makes this fun, lets write a more complete new 
@@ -202,18 +202,18 @@
 	a.x = 'a!'
 	b.x = 'b!'
 
-	a.x				// -> 'a!'
-	a.y				// -> 321
-	a.z				// -> 333
+	a.x					// -> 'a!'
+	a.y					// -> 321
+	a.z					// -> 333
 
 
 // These values are accessible from all objects constructed by A since
 // all of them point to A with both the .constructor and .__proto__ 
 // attributes
 
-	b.x				// -> 'b!'
-	b.y				// -> 321
-	b.z				// -> 333
+	b.x					// -> 'b!'
+	b.y					// -> 321
+	b.z					// -> 333
 
 
 
@@ -246,8 +246,8 @@
 
 // Now we can access both attributes inherited from 'O' and 'A'...
 
-	a.o				// -> 0
-	a.a				// -> 1
+	a.o					// -> 0
+	a.a					// -> 1
 
 
 // The check is done specifically in this order, thus attributes can 
@@ -259,7 +259,7 @@
 	O.x = 'came from O'
 	A.prototype.x = 'came from A'
 
-	a.x				// -> 'came from O'
+	a.x					// -> 'came from O'
 
 
 // In both inheritance mechanisms, each step is checked via the same 
@@ -276,8 +276,8 @@
 	b.y = 2
 	var c = Object.create(b)
 	
-	c.x				// -> 1
-	c.y				// -> 2
+	c.x					// -> 1
+	c.y					// -> 2
 
 
 // Creating an inheritance chain via the constructor mechanism is a bit
@@ -306,8 +306,8 @@
 
 	var c = new C()
 
-	c.x				// -> 1
-	c.y				// -> 2
+	c.x					// -> 1
+	c.y					// -> 2
 
 
 
@@ -317,11 +317,10 @@
 // An object is considered an instance of its' constructor and all other 
 // constructors in the inheritance chain.
 
-	c instanceof C	// -> true
-	c instanceof B	// -> true
-	c instanceof A	// -> true
-	c instanceof Object
-					// -> true
+	c instanceof C		// -> true
+	c instanceof B		// -> true
+	c instanceof A		// -> true
+	c instanceof Object // -> true
 
 
 // This also works for manually created objects
@@ -396,6 +395,11 @@
 	typeof function(){}	// -> 'function'
 
 
+// NOTE: the "non-object" term is not entirely correct here, they can
+// 		be called "frozen" objects in ES5 speak, but that is outside the
+// 		scope of this document.
+
+
 
 // Methods and the value of 'this'
 // -------------------------------
@@ -403,8 +407,7 @@
 // A method is simply an attribute that references a function.
 
  	function f(){
- 		console.log(this)
- 		this.a = 1
+		return this
  	}
 
 	var o = { f: f }
@@ -420,79 +423,75 @@
 // A simple way to think about this is that 'this' always points to the 
 // "context" of the function call.
 //
-// This context can be:
-// 	- implicit
-// 		- root context
- 			f()
-						// 'window', 'global' or 'module' is implied, 
-						// in strict mode this is null.
-						// the same as:
-						// 		window.f()
-// 		- 'new' context
- 			new f()		// here a context will be created and passed to
- 						// 'f's 'this', for more details on what 'new'
- 						// does see: "The Constructor Mechanism" section.
-// 	- explicit:
-// 		- the object on the left side of "." or the [ ] operators:
- 			o.f()		// o is the context
- 			o['f']()	// the same as the above
-// 		- the object explicitly passed to .call(..) or .apply(..) methods
-// 		  as first argument:
- 		  	f.call(o)	// o is the context
- 		  	f.apply(o)	// o is the context
-
-
-
-// Properties
-// ----------
+// And there are two distinct cases here:
+// 	- function call / implicit context
+// 	- new call / implicit context
+// 	- method call / explicit context
 //
-// A property is a special attribute that has a getter, setter methods
-// and/or other optional configuration.
 //
-// A good property example is .length of Array objects.
+// 1) function call (implicit)
+//	In the first case the context is either global/window/module which 
+//	ever is the root context in a given implementation or null in ES5
+//	strict mode
 
-	var o = {
-		get x(){
-			return this.data || 123
-		},
-		set x(value){
-			this.data = value
-		},
+	f()					// -> window/global/module
+
+//	Strict mode example:
+//
+	function strict_f(){
+		'use strict'
+		return this
 	}
 
-	o.x				// -> 123
-	o.x = 4
-	o.x				// -> 4
-	o.x = undefined
-	o.x				// -> 123
-
-// As for any other attribute, deleting a local property x will remove
-// it from the containing  object...
-
-	delete o.x
-	o.x				// -> undefined
+	strict_f()			// -> undefined
 
 
-// The above code is a shorthand for:
+// 2) new call (implicit)
+// 	Here as we have discussed before, this is assigned a new object with
+// 	some attributes set.
 
-	Object.defineProperty(o, 'y', {
-		get: function() {
-			return this.data || 123
-		},
-		set: function(name) {
-			this.data = value
-		}
-	})
+	new f()				// -> {}
 
-// XXX other property attributes...
-// 		get
-// 		set
-// 		value
-// 			if set get/set are not possible...
-// 		writable (false)
-// 		configurable (false)
-// 			is it possible to change this configurations later...
-// 		enumerable (false)
+
+// 3) method call (explicit)
+// 	In the method call context this is set to the object from which the
+// 	method is called, i.e. the object left of the '.' or [ ] attribute 
+// 	access operators...
+
+	o.f()				// -> o
+	o['f']()			// -> o
+
+
+// 	...or an explicitly passed to .call(..) / .apply(..) object
+
+	f.call(o)			// -> o
+	f.apply(o)			// -> o
+
+// ES5 also defines a third way to make method calls: Object.bind which
+// creates a new function where 'there' is bound to the supplied object
+
+	var ff = f.bind(o)
+	ff()				// -> o
+
+
+// NOTE: all of the above 5 calls are the same.
+// NOTE: the resulting from .bind(..) function will ignore subsequent
+// 		.bind(..), .call(..) and .apply(..) method calls and this will 
+// 		always be the original bound object.
+// NOTE: the difference between strict and "quirks" modes is in the 
+// 		following:
+// 		In quirks mode a function call is always done in the root 
+// 		context, it's like implicitly calling a method of the global
+// 		object:
+			f() === window.f()	
+						// -> true
+//		In strict mode these are two different things, a function call
+//		is done without a context ('this' is undefined) while calling
+//		the same function via the global object is essentially a method
+//		call, setting 'this' to what is to the left of the attribute 
+//		access operator:
+			strict_f() !== window.strict_f()	
+						// -> true
 
 
 
@@ -501,6 +500,22 @@
 
 
 
-// 				
+/*********************************************************************/
+//
+// NOTE: several topics available in ES5 are intentionally excluded 
+// 		from this document, these include:
+// 			- properties
+// 			- freezing/sealing
+// 		The general motivation for this is simple: they introduce 
+// 		complexity and restrictions without giving any real benefits 
+// 		in the common case.
+//
+// 		Cases where these features "might" be useful are:
+// 			- language design / language extending
+// 			- library code
+// 		Neither of these is a common case and the use of these features
+// 		for library code is debatable.
+//
+//
 /**********************************************************************
 * vim:set ts=4 sw=4 :                                                */
