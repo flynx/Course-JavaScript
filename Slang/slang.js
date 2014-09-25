@@ -128,7 +128,7 @@ var PRE_NAMESPACE = {
 			// XXX should we look ahead and count the explicitly closed
 			// 		via ']' and ']]' blocks???
 			// 		...at this point this seems a bit complex...
-			// 		...of there are more than one ']]' in a structure
+			// 		...if there are more than one ']]' in a structure
 			//		this might stop being deterministic...
 			code.splice(0, 0, cur)
 		}
