@@ -30,17 +30,41 @@
 // object it resolves to the object's "prototype" and so on, these 
 // chians can of any length.
 //
-// NOTE: there is also a second mechanism available but we'll discuss 
-// 		it a bit later in 
+// Note that this works for reading, when writing or deleting we are 
+// affecting ONLY the local object and attributes explicitly defined in
+// it, or its' "own" attributes.
+
+	b.x = 321
+	b.x					// -> 321
+	a.x					// -> 1
+
+// Notice that a.x is no longer visible from b, this is called "shadowing"
+// and a.x is shadowed by b.x, now let us delete x from b to reveal the 
+// shadowed a.x
+
+	delete b.x
+	b.x					// -> 1
+
+// Trying to delete .x from b again will have no effect, this is because
+// .x no longer exists in b
+
+	delete b.x
+	b.x					// -> 1
+
+
+// Now back to the mechanism that makes all of this work...
 //
-// A couple of easy ways to see these sets of attributes:
+// A couple of easy ways to see the local and non-local sets of 
+// attributes:
 	
+	// show local or "own" only attribute names (keys)...
 	Object.keys(b)		// -> z
 
+	// show all accessible keys...
 	for(var k in b){ console.log(k) }
 						// -> x, y, z
 
-// Another way to test if the attribute is "local" ("own"):
+// Another way to test if the attribute is own/local
 
 	b.isOwnProperty('z')	// -> true
 	b.isOwnProperty('x')	// -> false
@@ -51,6 +75,10 @@
 	b.__proto__ === a	// -> true
 
 
+// NOTE: we did not see .__proto__ in the list of accessible attributes
+// 		because it is a special attributes, it is implemented internally
+// 		and is not enumerable.
+//
 // Thus, we could define our own create function like this:
 
 	function clone(from){
@@ -60,6 +88,7 @@
 	}
 
 	var c = clone(b)
+
 
 // Out of curiosity let's see if .__proto__ is defined on a basic object
 
@@ -74,18 +103,18 @@
 
 // We will discuss what this means and how we can use this in the next 
 // sections...
-//
-//
-//
+
+
+
 // The Constructor Mechanism
 // -------------------------
 //
 // JavaScript provides a second, complementary mechanism to inherit 
 // attributes, it resembles the class/object relationship in languages
-// like C++ but this resemblance is on the surface only as it still 
+// like C++ but this resemblance is on the surface only, as it still 
 // uses the same prototype mechanism as the above.  
 //
-// We will start by creating a constructor:
+// We will start by creating a "constructor":
 	
 	function A(){
 		this.x = 1
@@ -93,43 +122,40 @@
 	}
 
 // Technically a constructor is just a function, what makes it a 
-// "constructor" is how we use it...
+// "constructor" is only how we use it...
 
 	var a = new A()
 
 
 // what 'new' does here is:
 // 	1) creates an empty object
-// 	2) sets a bunch of attributes on it
-// 	3) passes it to the constructor via 'this'
-// 	4) after the constructor returns, this object is returned
+// 	2) sets a bunch of attributes on it, we'll skim this part for now
+// 	3) passes the new object to the constructor via 'this'
+// 	4) after the constructor finishes, this object is returned
 //
 // We could write an equivalent (simplified) function:
 
 	function construct(func){
 		var obj = {}
-
-		// set some special attributes on obj...
-
 		return func.apply(obj)
 	}
 
 	var b = construct(A)
 
-// But what makes this interesting? At this point this all looks like 
-// all we did is moved attribute from a literal object notation to a 
-// constructor function, effectively adding complexity. What are we 
+// But what does make this interesting? At this point this all looks like 
+// all we did is move attribute definition from a literal object notation 
+// into a constructor function, effectively adding complexity. What are we 
 // getting back from this?
 //
-// Let's look at a number of attributes:
+// Let's look at a number of attributes that new sets:
 
 	a.__proto__		// -> {} 
 
 	a.constructor	// -> [Function A]
 
 
-// The answer lies in the attributes that are set on the object, lets 
-// write a more complete reference implementation:
+// These are what makes this fun, lets write a more complete new 
+// implementation:
 	
 	function construct(func, args){
 		var obj = {}
@@ -147,6 +173,7 @@
 
 	var b = construct(A)
 
+
 // Notice that we return the resulting object in a more complicated
 // way, this will come in handy later.
 // 
@@ -155,8 +182,8 @@
 // First let us cover the default. Each time a function is created in
 // JavaScript it will get a new empty object assigned to it's .prototype
 // attribute.
-// On the function level, in general, this is not used, but this is used
-// when we use the function as a constructor.
+// On the function level, in general, this is not used, but this is very
+// useful when the function is used as a constructor.
 //
 // As we can see from the code above, the resulting object's .__proto__
 // points to the constructor's .prototype, from the previous section 
@@ -179,6 +206,7 @@
 	a.y				// -> 321
 	a.z				// -> 333
 
+
 // These values are accessible from all objects constructed by A since
 // all of them point to A with both the .constructor and .__proto__ 
 // attributes
@@ -189,10 +217,8 @@
 
 
 
-// Double inheritance:
-// -------------------
-//
-// NOTE: this might be implementation specific. Tested and works in IE11, V8
+// "Double" inheritance
+// --------------------
 //
 // There are actually three sources where JavaScript looks for attributes:
 // 	1) the actual object
@@ -200,9 +226,16 @@
 // 		as coverd in the first section
 // 	3) .constructor.prototype 
 // 		as explained in the previous section
+//
+// Here is a basic inheritance structure (tree):
+//
+// 	O   A
+// 	 \ /
+// 	  a
+//
 
 	var O = { 
-		o: 0
+		o: 0,
 	}
 
 	function A(){}
@@ -218,7 +251,7 @@
 
 
 // The check is done specifically in this order, thus attributes can 
-// "shadow" other attributes defined later in the chain.
+// "shadow" other attributes defined by the other mechanism.
 //
 // To show this let us define an attribute with the same name on both 
 // 'O' and 'A':
@@ -230,9 +263,10 @@
 
 
 // In both inheritance mechanisms, each step is checked via the same 
-// rules recursively, this enables inheritance chains.
+// rules recursively, this enables inheritance chains and less 
+// conveniently inheritance trees (superposition of chains).
 //
-// We will create a cahin:
+// We will create a chain:
 //
 // 		c -> b -> a
 //
@@ -333,6 +367,7 @@
 						// -> false
 
 
+
 // Checking type (typeof)
 // ----------------------
 //
@@ -374,14 +409,15 @@
 
 	var o = { f: f }
 
-// Thus we call the attribute .f of object o a method.
+// Thus we call the attribute .f of object o a "method" of object o.
 //
 //
 // 'this' is a reserved word and is available in the context of a function
 // execution, not just in methods, but what value it references depends
 // on how that function is called...
+// This is mostly useful and used in methods.
 // 
-// a simple way to think about is that 'this' always points to the 
+// A simple way to think about this is that 'this' always points to the 
 // "context" of the function call.
 //
 // This context can be:
@@ -404,9 +440,67 @@
 // 		  as first argument:
  		  	f.call(o)	// o is the context
  		  	f.apply(o)	// o is the context
+
+
+
+// Properties
+// ----------
 //
+// A property is a special attribute that has a getter, setter methods
+// and/or other optional configuration.
 //
-//
+// A good property example is .length of Array objects.
+
+	var o = {
+		get x(){
+			return this.data || 123
+		},
+		set x(value){
+			this.data = value
+		},
+	}
+
+	o.x				// -> 123
+	o.x = 4
+	o.x				// -> 4
+	o.x = undefined
+	o.x				// -> 123
+
+// As for any other attribute, deleting a local property x will remove
+// it from the containing  object...
+
+	delete o.x
+	o.x				// -> undefined
+
+
+// The above code is a shorthand for:
+
+	Object.defineProperty(o, 'y', {
+		get: function() {
+			return this.data || 123
+		},
+		set: function(name) {
+			this.data = value
+		}
+	})
+
+// XXX other property attributes...
+// 		get
+// 		set
+// 		value
+// 			if set get/set are not possible...
+// 		writable (false)
+// 		configurable (false)
+// 			is it possible to change this configurations later...
+// 		enumerable (false)
+
+
+
+// Common use-cases
+// ----------------
+
+
+
 // 				
 /**********************************************************************
 * vim:set ts=4 sw=4 :                                                */
