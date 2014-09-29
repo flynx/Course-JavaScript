@@ -31,8 +31,11 @@
 	b.z					// -> 3
 
 // What we see is that if the attribute is not found in the current 
-// object it resolves to the object's "prototype" and so on, these 
-// chians can of any length.
+// object it resolves to the next object, and so on, this next object is
+// called "prototype". 
+// These prototype chains can be of any length.
+// Cycles in prototype chains are not allowed, see note further down for
+// an example.
 //
 // Note that this works for reading, when writing or deleting we are 
 // affecting ONLY the local object and attributes explicitly defined in
@@ -58,8 +61,8 @@
 
 // Now back to the mechanism that makes all of this work...
 //
-// A couple of easy ways to see the local and non-local sets of 
-// attributes:
+// First we'll try couple of easy ways to see the local and non-local 
+// sets of attributes:
 	
 	// show local or "own" only attribute names (keys)...
 	Object.keys(b)		// -> z
@@ -74,14 +77,23 @@
 	b.hasOwnProperty('x')	// -> false
 
 
-// What happens under the hood is very simple:
+// What happens under the hood is very simple: b references it's 
+// "prototype" via the .__proto__ attribute:
 
 	b.__proto__ === a	// -> true
 
 
+// We can read/set this special attribute just like any other attribute 
+// on most systems.
+//
 // NOTE: we did not see .__proto__ in the list of accessible attributes
-// 		because it is a special attributes, it is implemented internally
+// 		because it is a special attribute, it is implemented internally
 // 		and is not enumerable.
+// NOTE: cyclic prototype chains are actively not allowed, e.g. creating
+// 		a chain like the following will fail:
+// 			var a = {}
+// 			var b = Object.creating(a)
+// 			a.__proto__ = b
 //
 // Thus, we could define our own create function like this:
 
@@ -102,11 +114,18 @@
 
 // Turns out it is, and it points to Object's prototype
 
-	x.__proto__ === Object.prototye
+	x.__proto__ === Object.prototype
 						// -> true
 
 // We will discuss what this means and how we can use this in the next 
 // sections...
+//
+// As a side note, Object.prototype is the "root" most object in 
+// JavaScript and usually is "terminated" with null, i.e.:
+
+	Object.prototype.__proto__ === null
+
+// We'll also need this a bit later...
 
 
 
@@ -116,7 +135,7 @@
 // JavaScript provides a second, complementary mechanism to inherit 
 // attributes, it resembles the class/object relationship in languages
 // like C++ but this resemblance is on the surface only, as it still 
-// uses the same prototype mechanism as the above.  
+// uses the same prototype mechanism as basis as described above.  
 //
 // We will start by creating a "constructor":
 	
@@ -131,7 +150,17 @@
 	var a = new A()
 
 
-// what 'new' does here is:
+// Some terminology:
+// - in the above use-case A is called a constructor,
+// - the object returned by new is called an "instance" (in this case 
+//   assigned to a),
+// - the attributes set by the constructor (x and y) are called 
+//   "instance attributes" and are not shared (obviously) between 
+//   different instances, rather they are "constructed" for each 
+//   instance independently.
+//
+//
+// Let's look in more detail at what 'new' does here:
 // 	1) creates an empty object
 // 	2) sets a bunch of attributes on it, we'll skim this part for now
 // 	3) passes the new object to the constructor via 'this'
@@ -146,63 +175,74 @@
 
 	var b = construct(A)
 
-// But what does make this interesting? At this point this all looks like 
-// all we did is move attribute definition from a literal object notation 
-// into a constructor function, effectively adding complexity. What are we 
-// getting back from this?
+// But at this point this all looks like all we did is move the attribute
+// definition from a literal object notation into a constructor function,
+// effectively adding complexity. 
+// And now instead of "inheriting" attributes we make a new set for each
+// individual instance.
+// So hat are we getting back from this?
 //
-// Let's look at a number of attributes that new sets:
+// To answer this question we will need to look deeper under the hood,
+// specifically at a couple of special attributes:
 
+	// we saw this one before...
 	a.__proto__			// -> {} 
 
+	// this points back to the constructor...
 	a.constructor		// -> [Function A]
 
 
 // These are what makes this fun, lets write a more complete new 
-// implementation:
+// re-implementation:
 	
 	function construct(func, args){
 		var obj = {}
 
+		// set some special attributes...
 		obj.constructor = func
 		obj.__proto__ = func.prototype
 
+		// call the constructor...
 		var res = func.apply(obj, args)
+
+		// handle the return value of the constructor...
 		if(res instanceof Object){
 			return res
 		}
-
 		return obj
 	}
 
 	var b = construct(A)
 
 
-// Notice that we return the resulting object in a more complicated
-// way, this will come in handy later.
-// 
-// Also notice that 'prototype' from the end of the previous section.
+// There are two important things we added here:
+// 1) we now explicitly use the .prototype attribute that we saw earlier
+// 2) we return the resulting object in a more complicated way
 //
-// First let us cover the default. Each time a function is created in
-// JavaScript it will get a new empty object assigned to it's .prototype
-// attribute.
-// On the function level, in general, this is not used, but this is very
+// Each time a function is created in JavaScript it will get a new empty
+// object assigned to it's .prototype attribute.
+// On the function level, this is rarely used, but this object is very 
 // useful when the function is used as a constructor.
 //
 // As we can see from the code above, the resulting object's .__proto__
-// points to the constructor's .prototype, from the previous section 
-// this means that attributes accessed via that object are resolved to 
-// the prototype.
-// In the default case this is true.
+// points to the constructor's .prototype, this means not-own the 
+// attributes accessed via that object are resolved to the prototype.
+// In the default case this is true, but in general it's a bit more 
+// flexible, we'll see this in the next section.
 //
-// So if we add stuff to the constructor's .prototype they should get 
-// resolved from the object
+// And the way we handle the return value makes it possible for the 
+// constructor to return a custom object rather than use the one 
+// provided in its "this" by new.
+//
+//
+// So if we add stuff to the constructor's .prototype they should be 
+// accessible from the object
 
 	A.prototype.x = 123
 	a.constructor.prototype.y = 321
 	a.__proto__.z = 333
 
-	// for illustration, some object own attributes
+	// for illustration, we'll set some object own attributes
 	a.x = 'a!'
 	b.x = 'b!'
 
@@ -220,18 +260,43 @@
 	b.z					// -> 333
 
 
+// This works for any constructor, including built-in constructors and
+// since name resolution happens in runtime all instances will get the 
+// new functionality live, as it is defined:
+
+	// a "class method", like .keys(..) but return all available keys...
+	Object.allKeys = function(o){
+		var res = []
+		for(var k in o){
+			res.push(k)
+		}
+		return res
+	}
+	// now make these into real methods we can use from any object...
+	Object.prototype.keys = function(){ return Object.keys(this) }
+	Object.prototype.allKeys = function(){ return Object.allKeys(this) }
+
+	b.keys()			// -> ['x']
+	b.allKeys()			// -> ['x', 'y', 'z']
+
+
 
 // "Double" inheritance
 // --------------------
 //
 // There are actually three sources where JavaScript looks for attributes:
-// 	1) the actual object
+// 	1) own attributes (local object) 
 // 	2) .__proto__ 
 // 		as coverd in the first section
 // 	3) .constructor.prototype 
 // 		as explained in the previous section
 //
-// Here is a basic inheritance structure (tree):
+// Though in the general case both .__proto__ and .constructor.prototype 
+// point to the same object and are redundant, the two are independent 
+// and can be used in parallel, thus the title.
+//
+// Here is a basic inheritance structure (tree) with .__proto__ and 
+// .constructor.prototype split to separate objects:
 //
 // 	O   A
 // 	 \ /
@@ -242,7 +307,9 @@
 		o: 0,
 	}
 
-	function A(){}
+	function A(){
+		//...
+	}
 	A.prototype.a = 1
 
 	var a = new A()
@@ -276,10 +343,13 @@
 //
 
 	var a = {x: 1}
+
 	var b = Object.create(a)
 	b.y = 2
+
 	var c = Object.create(b)
 	
+
 	c.x					// -> 1
 	c.y					// -> 2
 
@@ -287,7 +357,7 @@
 // Creating an inheritance chain via the constructor mechanism is a bit
 // more involved, and there are multiple ways to do this...
 //
-// Here we will create a similar chian:
+// Here we will create a similar chain to the above for comparison:
 //
 // 		C -> B -> A
 //
@@ -325,6 +395,9 @@
 	c instanceof B		// -> true
 	c instanceof A		// -> true
 	c instanceof Object // -> true
+
+	c instanceof function X(){} 
+						// -> false
 
 
 // This also works for manually created objects
@@ -366,6 +439,7 @@
 	isInstanceOf(c, A)	// -> true
 	isInstanceOf(c, Object)
 						// -> true
+
 	isInstanceOf(c, function X(){})
 						// -> false
 
@@ -373,6 +447,9 @@
 
 // Checking type (typeof)
 // ----------------------
+//
+// This section is mainly here for completeness and to address several
+// gotcha's.
 //
 // What typeof returns in JavaScript is not too useful and sometimes 
 // even odd...
@@ -408,7 +485,7 @@
 // Methods and the value of 'this'
 // -------------------------------
 //
-// A method is simply an attribute that references a function.
+// A "method" is simply an attribute that references a function.
 
  	function f(){
 		return this
@@ -422,9 +499,9 @@
 // 'this' is a reserved word and is available in the context of a function
 // execution, not just in methods, but what value it references depends
 // on how that function is called...
-// This is mostly useful and used in methods.
+// 'this' is mostly useful and used in methods.
 // 
-// A simple way to think about this is that 'this' always points to the 
+// A simple way to think about it is that 'this' always points to the 
 // "context" of the function call.
 //
 // There are three distinct cases here:
@@ -435,10 +512,11 @@
 //
 // 1) function call (implicit)
 //	In the first case the context is either global/window/module which 
-//	ever is the root context in a given implementation or null in ES5
-//	strict mode
+//	ever is the root context in a given implementation or undefined in
+//	ES5 strict mode
 
 	f()					// -> window/global/module
+
 
 //	Strict mode example:
 //
@@ -451,8 +529,8 @@
 
 
 // 2) new call (implicit)
-// 	Here as we have discussed before, this is assigned a new object with
-// 	some attributes set.
+// 	Here as we have discussed before, 'this' is assigned a new object 
+// 	with some special attributes set.
 
 	new f()				// -> {}
 
@@ -466,13 +544,14 @@
 	o['f']()			// -> o
 
 
-// 	...or an explicitly passed to .call(..) / .apply(..) object
+// 	...or an explicitly passed to .call(..) / .apply(..) function methods
 
 	f.call(o)			// -> o
 	f.apply(o)			// -> o
 
-// ES5 also defines a third way to make method calls: Object.bind which
-// creates a new function where 'there' is bound to the supplied object
+
+// ES5 also defines a third way to make method calls: Function.bind which
+// creates a new function where 'this' is bound to the supplied object
 
 	var ff = f.bind(o)
 	ff()				// -> o
@@ -480,7 +559,7 @@
 
 // NOTE: all of the above 5 calls are the same.
 // NOTE: the resulting from .bind(..) function will ignore subsequent
-// 		.bind(..), .call(..) and .apply(..) method calls and this will 
+// 		.bind(..), .call(..) and .apply(..) method calls and 'this' will 
 // 		always be the original bound object.
 // NOTE: the difference between strict and "quirks" modes is in the 
 // 		following:
