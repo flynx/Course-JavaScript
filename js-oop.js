@@ -19,13 +19,13 @@
 		y: 2,
 	} 
 
-// Then we will create a new object using a as a "base" 
+// Then we will create a new object using 'a' as a "base" 
 
 	var b = Object.create(a)
 	b.z = 3
 
-// The object b now has both access to it's own attributes ('z') and 
-// attributes of a ('x' and 'y')
+// The object 'b' now has both access to it's own attributes ('z') and 
+// attributes of 'a' ('x' and 'y')
 
 	b.x					// -> 1
 	b.z					// -> 3
@@ -37,23 +37,23 @@
 // Cycles in prototype chains are not allowed, see note further down for
 // an example.
 //
-// Note that this works for reading, when writing or deleting we are 
-// affecting ONLY the local object and attributes explicitly defined in
-// it, or its' "own" attributes.
+// Note that this works for reading attributes, but when writing or 
+// deleting we are affecting ONLY the local object and attributes 
+// explicitly defined in it, or its' "own" attributes.
 
 	b.x = 321
 	b.x					// -> 321
 	a.x					// -> 1
 
-// Notice that a.x is no longer visible from b, this is called "shadowing"
-// and a.x is shadowed by b.x, now let us delete x from b to reveal the 
-// shadowed a.x
+// Notice also that a.x is no longer visible from 'b', this is called 
+// "shadowing", we say: a.x is shadowed by b.x, now let us delete 'x' 
+// from 'b' to reveal the shadowed a.x
 
 	delete b.x
 	b.x					// -> 1
 
-// Trying to delete .x from b again will have no effect, this is because
-// .x no longer exists in b
+// But, trying to delete .x from 'b' again will have no effect, this is 
+// because .x no longer exists in 'b'
 
 	delete b.x
 	b.x					// -> 1
@@ -95,7 +95,9 @@
 // 			var b = Object.creating(a)
 // 			a.__proto__ = b
 //
-// Thus, we could define our own create function like this:
+//
+// Thus, we could define our own equivalent to Object.create(..) like
+// this:
 
 	function clone(from){
 		var o = {}
@@ -126,6 +128,19 @@
 	Object.prototype.__proto__ === null
 
 // We'll also need this a bit later...
+//
+// And can create an object with a null prototype like this:
+
+	var raw_obj = Object.create(null)
+	var raw_obj = clone(null)
+
+	// or manually...
+	var raw_obj = {}
+	raw_obj.__proto__ = null
+
+// These "raw" objects differ from normal objects in that they do not 
+// inherit any interface methods, defined in the Object, like the 
+// .hasOwnProperty(..) we used above, this can be useful in some cases.
 
 
 
@@ -135,7 +150,7 @@
 // JavaScript provides a second, complementary mechanism to inherit 
 // attributes, it resembles the class/object relationship in languages
 // like C++ but this resemblance is on the surface only, as it still 
-// uses the same prototype mechanism as basis as described above.  
+// uses the same prototype mechanism as basis, as described above.  
 //
 // We will start by creating a "constructor":
 	
@@ -151,9 +166,9 @@
 
 
 // Some terminology:
-// - in the above use-case A is called a constructor,
+// - in the above use-case 'A' is called a constructor,
 // - the object returned by new is called an "instance" (in this case 
-//   assigned to a),
+//   assigned to 'a'),
 // - the attributes set by the constructor (x and y) are called 
 //   "instance attributes" and are not shared (obviously) between 
 //   different instances, rather they are "constructed" for each 
@@ -166,7 +181,7 @@
 // 	3) passes the new object to the constructor via 'this'
 // 	4) after the constructor finishes, this object is returned
 //
-// We could write an equivalent (simplified) function:
+// We could write a simplified equivalent function:
 
 	function construct(func){
 		var obj = {}
@@ -178,8 +193,8 @@
 // But at this point this all looks like all we did is move the attribute
 // definition from a literal object notation into a constructor function,
 // effectively adding complexity. 
-// And now instead of "inheriting" attributes we make a new set for each
-// individual instance.
+// And now instead of "inheriting" and reusing attributes we make a new
+// set for each individual instance.
 // So hat are we getting back from this?
 //
 // To answer this question we will need to look deeper under the hood,
@@ -192,7 +207,7 @@
 	a.constructor		// -> [Function A]
 
 
-// These are what makes this fun, lets write a more complete new 
+// These are what makes this fun, lets write a more complete 'new' 
 // re-implementation:
 	
 	function construct(func, args){
@@ -238,6 +253,8 @@
 // So if we add stuff to the constructor's .prototype they should be 
 // accessible from the object
 
+	// the following three lines actually add attributes to the same 
+	// object...
 	A.prototype.x = 123
 	a.constructor.prototype.y = 321
 	a.__proto__.z = 333
