@@ -375,13 +375,14 @@
 // equivalent to instanceof:
 	
 	function isInstanceOf(obj, proto){
-		return proto instanceof Function 
-			&& (obj.__proto__ === proto.prototype ? true
-				// NOTE: the last in this chain is Object.prototype.__proto__ 
-				// 		and it is null
-				: obj.__proto__ == null ? false
-				// go down the chain...
-				: isInstanceOf(obj.__proto__, proto))
+		return obj === Function && proto === Function ? true 
+			: (isInstanceOf(proto, Function)
+				&& (obj.__proto__ === proto.prototype ? true
+					// NOTE: the last in this chain is Object.prototype.__proto__ 
+					// 		and it is null
+					: obj.__proto__ == null ? false
+					// go down the chain...
+					: isInstanceOf(obj.__proto__, proto)))
 	}
 
 	isInstanceOf(c, C)	// -> true
