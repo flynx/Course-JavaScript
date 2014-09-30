@@ -385,6 +385,7 @@
 					: isInstanceOf(obj.__proto__, proto)))
 	}
 
+
 	isInstanceOf(c, C)	// -> true
 	isInstanceOf(c, B)	// -> true
 	isInstanceOf(c, A)	// -> true
@@ -393,6 +394,29 @@
 
 	isInstanceOf(c, function X(){})
 						// -> false
+					
+
+// Also take note of the following cases:
+
+	Object instanceof Function
+						// -> true
+	Function instanceof Object
+						// -> true
+	Object instanceof Object
+						// -> true
+	Function instanceof Function
+						// -> true
+
+
+// Now, the fact that a function object is both a function and an object
+// should be obvious:
+
+	function f(){}
+
+	f instanceof Function
+						// -> true
+	f instanceof Object
+						// -> true
 
 
 
