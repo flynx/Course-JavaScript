@@ -281,61 +281,11 @@
 
 
 
-// "Double" inheritance
-// --------------------
+// Inheritance chains
+// ------------------
 //
-// There are actually three sources where JavaScript looks for attributes:
-// 	1) own attributes (local object) 
-// 	2) .__proto__ 
-// 		as coverd in the first section
-// 	3) .constructor.prototype 
-// 		as explained in the previous section
-//
-// Though in the general case both .__proto__ and .constructor.prototype 
-// point to the same object and are redundant, the two are independent 
-// and can be used in parallel, thus the title.
-//
-// Here is a basic inheritance structure (tree) with .__proto__ and 
-// .constructor.prototype split to separate objects:
-//
-// 	O   A
-// 	 \ /
-// 	  a
-//
-
-	var O = { 
-		o: 0,
-	}
-
-	function A(){
-		//...
-	}
-	A.prototype.a = 1
-
-	var a = new A()
-	a.__proto__ = o
-
-// Now we can access both attributes inherited from 'O' and 'A'...
-
-	a.o					// -> 0
-	a.a					// -> 1
-
-
-// The check is done specifically in this order, thus attributes can 
-// "shadow" other attributes defined by the other mechanism.
-//
-// To show this let us define an attribute with the same name on both 
-// 'O' and 'A':
-
-	O.x = 'came from O'
-	A.prototype.x = 'came from A'
-
-	a.x					// -> 'came from O'
-
-
 // In both inheritance mechanisms, each step is checked via the same 
-// rules recursively, this enables inheritance chains and less 
-// conveniently inheritance trees (superposition of chains).
+// rules recursively, this makes it possible to build inheritance chains
 //
 // We will create a chain:
 //
@@ -430,7 +380,7 @@
 				// NOTE: the last in this chain is Object.prototype.__proto__ 
 				// 		and it is null
 				: obj.__proto__ == null ? false
-				// go down the chian...
+				// go down the chain...
 				: isInstanceOf(obj.__proto__, proto))
 	}
 
