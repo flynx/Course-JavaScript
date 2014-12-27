@@ -214,7 +214,6 @@
 		var obj = {}
 
 		// set some special attributes...
-		obj.constructor = func
 		obj.__proto__ = func.prototype
 
 		// call the constructor...
@@ -330,20 +329,31 @@
 //
 
 	function A(){}
+
 	A.prototype.x = 1
+
 
 	function B(){}
 	// NOTE: if this is done after an instance is created, that instances'
 	// 		.__proto__ will keep referencing the old prototype object.
 	// 		see the next constructor for a way around this...
 	B.prototype = Object.create(A.prototype)
+	// NOTE: we'll need to overwire this to B as the value inherited from
+	// 		A.prototype will obviously be A...
+	B.prototype.constructor = B
+
 	B.prototype.y = 2
+
 
 	function C(){}
 	// NOTE: this is safer than Object.create as it does not overwrite
-	// 		the original object and thus will affect all existing 
+	// 		the original C.prototype and thus will affect all existing 
 	// 		instances of C, if any were created before this point...
+	// NOTE: the C.prototype.constructor field is already set correctly 
+	// 		here as we are not replacing the object created by the 
+	// 		system...
 	C.prototype.__proto__ = B.prototype
+
 
 	var c = new C()
 
@@ -367,7 +377,7 @@
 						// -> false
 
 
-// This also works for manually created objects
+// This also works for our manually created objects
 
 	var cc = construct(C)
 
@@ -572,6 +582,103 @@
 
 // Common use-cases
 // ----------------
+//
+// Several common object construction patterns:
+//
+// * Literal objects...
+
+	var LiteralObject = {
+		x: 1,
+
+		method: function(a){
+			return this.x * a
+		},
+	}
+
+	var o = Object.create(LiteralObject)
+
+
+// 	Advantages:
+// 		- simple and non-verbose
+// 		- fully introspective
+// 		- flexible and non-restrictive
+// 		- supports basic inheritance
+// 	
+// 	Disadvantages:
+// 		- needs a seporate manual instance construction stage (no 
+// 		  constructor)
+// 		- does not provide support for some of the base language 
+// 		  infrastructure, like type and instance checking
+
+
+
+// * Constructor object...
+
+	function ConstructorObject(){
+		this.x = 1
+	}
+	ConstructorObject.prototype.method = function(a){
+		return this.x * a
+	}
+
+	var o = new ConstructorObject()
+
+// 	Advantages:
+// 		- flexible
+// 		- fully introspective
+// 		- supports language mechanisms for type and instance checking
+// 		- supports inheritance
+// 	
+// 	Disadvantages:
+// 		- more complicated than the literal notation
+// 		- needs manual work to support inheritance, making it more even
+// 		  complicated
+// 		- does not provide support for multiple inheritance
+
+
+
+// * Walled objects / Walled data
+
+	function ObjectConstructor(){
+		// private data and functions...
+		var x = 1
+
+		// the actual object defining both public data and methods...
+		return {
+			y: 2,
+
+			method: function(a){
+				// use the private and public data...
+				return this.y * x * a
+			},
+		}
+	}
+
+	var o = ObjectConstructor() 
+
+
+// 	Advantages:
+// 		- supports hiding data from the user
+// 	
+// 	Disadvantages:
+// 		- non-introspective
+// 		- added complexity
+// 		- makes inheritance and extending very complicated and in some
+// 		  cases impossible
+// 		- copies code rather than reuses it
+// 		- does not provide support for some of the base language 
+// 		  infrastructure, like type and instance checking
+//
+//	NOTE: mostly inspired by languages supporting internal strict data 
+// 		context restrictions (e.g. private data) from the C++ family, 
+// 		e.g. C++, Java, C# and friends...
+//	NOTE: this style is called "defensive" coding by some sources, 
+//		including this one ;)
+// 	NOTE: this approach has it's use-cases, mainly in code dealing with
+// 		security, though general use of this pattern is not recommended 
+// 		as it adds lots of limitations and complexity without giving 
+// 		back any real benefits in the general case.
+
 
 
 
