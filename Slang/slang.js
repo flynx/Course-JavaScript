@@ -15,11 +15,7 @@ Array.prototype.toString = function(){
 
 function run(context){
 
-	var stack = context.stack
-	stack = stack == null ? [] : stack
-	context.stack = stack
-
-	var ns = context.ns
+	context.stack = context.stack == null ? [] : context.stack
 
 	while(context.code.length > 0){
 
@@ -30,11 +26,11 @@ function run(context){
 			return context
 
 		// word
-		} else if(typeof(cur) == typeof('abc') && cur in ns){
-			var word = ns[cur]
+		} else if(typeof(cur) == typeof('abc') && cur in context.ns){
+			var word = context.ns[cur]
 			// low-level word...
 			if(typeof(word) == typeof(function(){})){
-				var res = ns[cur](context)
+				var res = context.ns[cur](context)
 
 			// hi-level word...
 			} else if(typeof(word) == typeof([]) && word.constructor.name == 'Array'){
@@ -171,6 +167,9 @@ var NAMESPACE = {
 
 	'nop': function(){}, 
 
+	'is?': function(context){ 
+		return context.stack.pop() === context.stack.pop() },
+
 	// XXX experimental...
 	// flip the code and stack...
 	// ... -- ...
@@ -270,16 +269,6 @@ var NAMESPACE = {
 		}).stack
 	},
 
-	// word definition...
-	// syntax: :: <ident> <block>
-	// --
-	'::': function(context){
-		var ident = context.code.splice(0, 1)
-		var cur = context.code.splice(0, 1)
-
-		this[ident] = cur[0]
-	},
-
 	// s c -- s
 	'_exec': function(context){
 		// block...
@@ -297,8 +286,11 @@ var NAMESPACE = {
 			// NOTE: this can have side-effects on the context...
 			ns: context.ns,
 			pre_ns: context.pre_ns
-		}).stack
-		return res
+		})
+		// XXX is this the right way to go?
+		context.ns = res.ns
+		context.pre_ns = res.pre_ns
+		return res.stack
 	},
 	// quote - push the next elem as-is to stack...
 	// -- x
@@ -460,6 +452,79 @@ var NAMESPACE = {
 				i += l - 1
 			}
 		}
+	},
+
+
+	// object stuff...
+	'{}': function(){ return {} }, 
+
+	'object?': function(context){
+		var o = context.stack[context.stack.length - 1]
+		return o.constructor === Object
+	},
+
+	// set item...
+	// o k v -- o
+	'item!': function(context){ 
+		var v = context.stack.pop()
+		var k = context.stack.pop()
+		var o = context.stack[context.stack.length - 1]
+
+		o[k] = v
+   	},
+
+	// get item...
+	// o k -- o v
+	'item': function(context){ 
+		var k = context.stack.pop()
+		return context.stack[context.stack.length - 1][k]
+   	},
+
+	// remove/pop item from object...
+	// o k -- o v
+	'popitem': function(context){ 
+		var k = context.stack.pop()
+		var o = context.stack[context.stack.length - 1]
+		
+		var v = o[k]
+		delete o[k]
+
+		return v
+   	},
+
+	// o -- k
+	'keys': function(context){
+		return Object.keys(context.stack.pop())
+	},
+
+	// make a prototype of b...
+	// a b -- b
+	// NOTE: if a is false, reset prototype...
+	'proto!': function(context){
+		var b = context.stack.pop()
+		var a = context.stack.pop()
+
+		b.__proto__ = a === false ? {}.__proto__ : a
+
+		return b
+	},
+
+	// o -- p
+	// XXX what should this be:
+	// 		{} getproto
+	'proto': function(context){
+		var o = context.stack.pop()
+
+		return o.__proto__
+	},
+
+	// -- o
+	'ns': function(context){
+		return context.ns
+	},
+	// o --
+	'ns!': function(context){
+		context.ns = context.stack.pop()
 	},
 }
 
@@ -659,11 +724,23 @@ var BOOTSTRAP = [
 '--',
 '-- With that out of the way, let\'s start with the bootstrap...',
 '',
+'-- prepare the basic syntax for defining words...',
+'ns',
+'	exec ( b -- ... )',
+'		[ s2b pop _exec b2s ] item!',
+'	-- Create a word...',
+'	word! ( w b -- )',
+'		[ rot rot ns tor tor item! drop ] item!',
+'	-- Word definition...',
+'	-- syntax:	:: <ident> <value>',
+'	:: ( -- )',
+'		[ \\ word! \\ exec 2 2 _swapN ] item!',
+'drop',
+'',
 '',
 '-- misc...',
 '',
 ':: . ( x -- ) [ drop ]',
-//':: .. ( x -- ) [ print drop ]',
 '',
 ':: true? ( a -- b ) [ not not true eq ]',
 ':: false? ( a -- b ) [ not true? ]',
@@ -686,7 +763,6 @@ var BOOTSTRAP = [
 ':: _push ( x |  -- | x ) [ 0 _swapN ]',
 ':: _pull (  | x -- x |  ) [ 0 swap _swapN ]',
 '',
-':: exec ( b -- ... ) [ s2b pop _exec b2s ]',
 ':: eval ( c -- ... ) [ lex prep exec ]',
 '-- like exec but will run a block in current context...',
 ':: b2c [ len rot b2s tor 0 _swapN ]',
@@ -848,6 +924,9 @@ var BOOTSTRAP = [
 'infix: <= le',
 'infix: >= ge',
 '',
+'-- experimental...',
+'infix: = word!',
+'',
 '',
 '-- Prefix operation definition...',
 '-- Example:',
@@ -882,6 +961,11 @@ var BOOTSTRAP = [
 '',
 //':: range/3 ( a n s -- b )',
 //'		[ swap range swap [] swap push \\ * 0 before map ]',
+'',
+'-- Execute block in a context...',
+'-- synctx: context: <block>',
+'prefix: context: [ ns {} proto! ns! exec ns proto ns! ]',
+'',
 '',
 ''].join('\n')
 
@@ -927,7 +1011,7 @@ function slang(code, context){
 
 
 /********************************************************** RSlang ***/
-
+/*
 var RS_PRE_NAMESPACE = {
 	// XXX using the ";" here just for the experiment, in the real thing
 	// 		if this thing pans out, that is, use indent... (a-la make/Python)
@@ -965,6 +1049,7 @@ function rslang(code, context){
 
 	return slang(code, context)
 }
+//*/
 
 
 
