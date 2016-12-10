@@ -102,7 +102,7 @@ function stringifySlangCode(code){
 	}
 	if(typeof(code) == typeof('str') && /\s/.test(code)){
 		return '\''+code+'\''
-	} else if(code.constructor.name == 'Array'){
+	} else if(code && code.constructor.name == 'Array'){
 		return '[ '+code.map(stringifySlangCode).join(' ')+' ]'
 	}
 	return code
@@ -198,7 +198,7 @@ function showAvailableWords(){
 		.map(function(e){
 			var code = NAMESPACE[e]
 			var type
-			if(code.constructor.name == 'Array'){
+			if(code && code.constructor.name == 'Array'){
 				type = 'word'
 				code = stringifySlangCode(code)
 			} else if(typeof(code) == typeof(function(){})){

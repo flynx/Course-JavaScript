@@ -33,17 +33,17 @@ function run(context){
 				var res = context.ns[cur](context)
 
 			// hi-level word...
-			} else if(typeof(word) == typeof([]) && word.constructor.name == 'Array'){
+			} else if(typeof(word) == typeof([]) && word && word.constructor.name == 'Array'){
 				// XXX add isolation with a continuation...
 				context.code.splice.apply(context.code, [0, 0].concat(word))
-				var res = null
+				var res = undefined
 
 			// variable...
 			} else {
-				res = word
+				var res = word
 			}
 
-			if(res != null){
+			if(res !== undefined){
 				context.stack.push(res)
 			}
 
@@ -72,6 +72,9 @@ var SPLITTER = RegExp([
 			// quoted strings...
 			'\\s*"([^"]*)"\\s*',
 			"\\s*'([^']*)'\\s*",
+
+			// quote...
+			'\\s*(\\\\)',
 
 			// whitespace...
 			'\\s+',
@@ -151,9 +154,7 @@ var PRE_NAMESPACE = {
 	},
 
 	// a no op...
-	'\n': function(){
-		console.log('NL')
-	},
+	'\n': function(){ console.log('NL') },
 }
 
 
@@ -162,8 +163,7 @@ var NAMESPACE = {
 	// constants...
 	'true': true,
 	'false': false,
-	// this is mutable, so we'll need to create a new instance each time
-	'[]': function(){ return [] }, 
+	'null': 'null',
 
 	'nop': function(){}, 
 
@@ -205,8 +205,7 @@ var NAMESPACE = {
 	// encapsulate stack to a block...
 	// ... -- [ ... ]
 	's2b': function(context){
-		context.stack = [ context.stack ]
-	},
+		context.stack = [ context.stack ] },
 	// expand block to stack... 
 	// NOTE: this will append the block contents to stack, w.o. replacing 
 	// 		stack contents. this is different to _s2b
@@ -217,8 +216,7 @@ var NAMESPACE = {
 		context.stack.splice.apply(context.stack, [context.stack.length, 0].concat(c))
 	},
 	'print': function(context){
-		console.log('>>>', context.stack[context.stack.length-1])
-	},
+		console.log('>>>', context.stack[context.stack.length-1]) },
 
 	// turn a sting into a lexical list...
 	// c -- b
@@ -273,7 +271,7 @@ var NAMESPACE = {
 	'_exec': function(context){
 		// block...
 		var b = context.stack.pop()
-		if(typeof(b) == typeof([]) && b.constructor.name == 'Array'){
+		if(typeof(b) == typeof([]) && b && b.constructor.name == 'Array'){
 			b = b.slice()
 		} else {
 			b = [ b ]
@@ -295,9 +293,7 @@ var NAMESPACE = {
 	// quote - push the next elem as-is to stack...
 	// -- x
 	'\\': function(context){
-		var code = context.code
-		return code.splice(0, 1)[0] 
-	},
+		return context.code.splice(0, 1)[0] },
 
 	// comparisons and logic...
 	// a b -- c
@@ -322,74 +318,59 @@ var NAMESPACE = {
 	},
 	// x -- b
 	'not': function(context){
-		return !context.stack.pop()
-	},
+		return !context.stack.pop() },
 	// a b -- c
 	'gt': function(context){
-		return context.stack.pop() < context.stack.pop()
-	},
+		return context.stack.pop() < context.stack.pop() },
 	// a b -- c
 	'eq': function(context){
-		return context.stack.pop() == context.stack.pop()
-	},
+		return context.stack.pop() == context.stack.pop() },
 
 	// stack operations...
 	// ... x -- x ...
 	'rot': function(context){
-		context.stack.splice(0, 0, context.stack.pop())
-	},
+		context.stack.splice(0, 0, context.stack.pop()) },
 	// x ... -- ... x
 	'tor': function(context){
-		context.stack.push(context.stack.shift())
-	},
+		context.stack.push(context.stack.shift()) },
 	// a b -- b a
 	'swap': function(context){
-		return context.stack.splice(context.stack.length-2, 1)[0]
-	},
+		return context.stack.splice(context.stack.length-2, 1)[0] },
 	// x -- x x
 	'dup': function(context){
-		return context.stack[context.stack.length-1]
-	},
+		return context.stack[context.stack.length-1] },
 	// x -- x'
 	// NOTE: this will do a deep copy...
 	'clone': function(context){
-		return JSON.parse(JSON.stringify(context.stack.pop()))
-	},
+		return JSON.parse(JSON.stringify(context.stack.pop())) },
 	// x --
 	'drop': function(context){
-		context.stack.pop()
-	},
+		context.stack.pop() },
 
 	// a -- b
 	// NOTE: all names are also strings so moo string? and 'moo' string?
 	// 		are the same...
 	'string?': function(context){
-		return typeof(context.stack.pop()) == typeof('str')
-	},
+		return typeof(context.stack.pop()) == typeof('str') },
 
 	// basic number operations...
 	// a -- b
 	'number?': function(context){
-		return typeof(context.stack.pop()) == typeof(123)
-	},
+		return typeof(context.stack.pop()) == typeof(123) },
 	// a b -- c
 	'add': function(context){
-		return context.stack.pop() + context.stack.pop()
-	},
+		return context.stack.pop() + context.stack.pop() },
 	'sub': function(context){
-		return - context.stack.pop() + context.stack.pop()
-	},
+		return - context.stack.pop() + context.stack.pop() },
 	'mul': function(context){
-		return context.stack.pop() * context.stack.pop()
-	},
+		return context.stack.pop() * context.stack.pop() },
 	'div': function(context){
-		return 1/context.stack.pop() * context.stack.pop()
-	},
+		return 1/context.stack.pop() * context.stack.pop() },
 
 	// block/list operations...
 	'block?': function(context){
 		var e = context.stack.pop()
-		return typeof(e) == typeof([]) && e.constructor.name == 'Array'
+		return typeof(e) == typeof([]) && e && e.constructor.name == 'Array'
 	},
 	// b n -- b e
 	'at': function(context){
@@ -424,12 +405,10 @@ var NAMESPACE = {
 	},
 	// b -- b e
 	'pop': function(context){
-		return context.stack[context.stack.length-1].pop()
-	},
+		return context.stack[context.stack.length-1].pop() },
 	// b -- b l
 	'len': function(context){
-		return context.stack[context.stack.length-1].length
-	},
+		return context.stack[context.stack.length-1].length },
 	// b c -- b
 	'map': function(context){
 		var c = context.stack.pop()
@@ -437,7 +416,7 @@ var NAMESPACE = {
 		for(var i=0; i < b.length; i++){
 			// exec block in a separate context...
 			var res = run({
-				//stack: [i, b[i], c],
+				//stack: [b, i, b[i], c],
 				stack: [b[i], c],
 				code: ['exec'],
 				// NOTE: this can have side-effects on the context...
@@ -460,7 +439,7 @@ var NAMESPACE = {
 
 	'object?': function(context){
 		var o = context.stack[context.stack.length - 1]
-		return o.constructor === Object
+		return o && o.constructor === Object
 	},
 
 	// set item...
@@ -473,12 +452,15 @@ var NAMESPACE = {
 		o[k] = v
    	},
 
+	// test item...
+	// o k -- o t
+	'item?': function(context){ 
+		return context.stack.pop() in context.stack[context.stack.length - 1] },
+
 	// get item...
 	// o k -- o v
 	'item': function(context){ 
-		var k = context.stack.pop()
-		return context.stack[context.stack.length - 1][k]
-   	},
+		return context.stack[context.stack.length - 1][context.stack.pop()] },
 
 	// remove/pop item from object...
 	// o k -- o v
@@ -493,9 +475,8 @@ var NAMESPACE = {
    	},
 
 	// o -- k
-	'keys': function(context){
-		return Object.keys(context.stack.pop())
-	},
+	'keys': function(context){ 
+		return Object.keys(context.stack.pop()) },
 
 	// make a prototype of b...
 	// a b -- b
@@ -503,29 +484,22 @@ var NAMESPACE = {
 	'proto!': function(context){
 		var b = context.stack.pop()
 		var a = context.stack.pop()
-
 		b.__proto__ = a === false ? {}.__proto__ : a
-
 		return b
 	},
 
 	// o -- p
 	// XXX what should this be:
 	// 		{} getproto
-	'proto': function(context){
-		var o = context.stack.pop()
-
-		return o.__proto__
-	},
+	'proto': function(context){ 
+		return context.stack.pop().__proto__ },
 
 	// -- o
-	'ns': function(context){
-		return context.ns
-	},
+	'ns': function(context){ 
+		return context.ns },
 	// o --
-	'ns!': function(context){
-		context.ns = context.stack.pop()
-	},
+	'ns!': function(context){ 
+		context.ns = context.stack.pop() },
 }
 
 
@@ -717,6 +691,57 @@ var BOOTSTRAP = [
 '		[ 1 2 3 4 ] [ 2 gt ] filter',
 '				->	[ 3 4 ]',
 '',
+' Reduce enables us to take a list and "reduce" it to a single value...',
+'',
+'		[ 1 2 3 4 ] \\add reduce',
+'				->	10',
+'',
+'',
+'-------------------------------------------------------------------------------',
+'',
+' Objects and namespaces:',
+'',
+' Create a variable word o and p and set them to empty objects...',
+'',
+'		ns',
+'			o {} item!',
+'			p {} item!',
+'		.',
+'',
+' Set attribute (key-value pair) on object...',
+'',
+'		o x 123 item!',
+'				-> o',
+'',
+' Get attribute x value...',
+'',
+'		o x item',
+'				-> 123',
+'',
+' Test if attribute x exists...',
+'',
+'		o x item?',
+'				-> true',
+'',
+' Get block of attribute idents...',
+'',
+'		o keys',
+'				-> [ ... ]',
+'',
+' Get and remove an attribute value from o...',
+'',
+'		o x popitem',
+'				-> 123',
+'',
+' Set prototype of o to p',
+'',
+'		o p proto!',
+'				-> o',
+'',
+' Get prototype of o',
+'',
+'		o proto',
+'				-> p',
 '',
 '',
 '-------------------------------------------------------------------------------',
@@ -726,21 +751,28 @@ var BOOTSTRAP = [
 '',
 '-- prepare the basic syntax for defining words...',
 'ns',
+'	-- Some sorthands...',
+'	. ( x -- )',
+'		[ drop ] item!',
+'	rot2 ( .. x y -- x y .. )',
+'		[ rot rot ] item!',
+'	tor2 ( x y .. -- .. x y )',
+'		[ tor tor ] item!',
+'',
+'	-- Friendly exec...',
 '	exec ( b -- ... )',
 '		[ s2b pop _exec b2s ] item!',
 '	-- Create a word...',
 '	word! ( w b -- )',
-'		[ rot rot ns tor tor item! drop ] item!',
+'		[ rot2 ns tor2 item! . ] item!',
 '	-- Word definition...',
-'	-- syntax:	:: <ident> <value>',
+'	-- syntax: :: <ident> <value>',
 '	:: ( -- )',
-'		[ \\ word! \\ exec 2 2 _swapN ] item!',
-'drop',
+'		[ \\word! \\exec 2 2 _swapN ] item!',
+'.',
 '',
 '',
 '-- misc...',
-'',
-':: . ( x -- ) [ drop ]',
 '',
 ':: true? ( a -- b ) [ not not true eq ]',
 ':: false? ( a -- b ) [ not true? ]',
@@ -792,13 +824,13 @@ var BOOTSTRAP = [
 '-- run then block and drop \'else B\' if it exists...',
 ':: _run_then ( a x | -- ... | x  )',
 '	( a else | b -- ... | )',
-'		[ \\ exec swap dup \\ else eq [ (drop else) drop \\ drop _swap 6 ] and',
+'		[ \\exec swap dup \\else eq [ (drop else) drop \\drop _swap 6 ] and',
 '				[ (run as-is) 1 _push 4 ] or',
 '				b2s 0 _swapN ]',
 '-- if \'else B\' exists, run it, else cleanup...',
 ':: _run_else ( a | --  | a  )',
 '	( b else | b -- ... | )',
-'		[ drop dup \\ else eq [ drop \\ exec _swap 4 ] and',
+'		[ drop dup \\else eq [ drop \\exec _swap 4 ] and',
 '				[ 1 _push 2 ] or',
 '				b2s 0 _swapN ]',
 '-- And now the main operator...',
@@ -834,11 +866,11 @@ var BOOTSTRAP = [
 '-- NOTE: this will replace ALL patterns...',
 ':: replace ( l v p -- l ) [',
 '	swap',
-'	[ . \\ VALUE ] clone',
+'	[ . \\VALUE ] clone',
 '		swap 2 to',
 '		rot',
 '	-- XXX for some reason ? without else messes things up...',
-'	[ dup \\ PATTERN eq ? VALUE_BLOCK else [ ] ] clone',
+'	[ dup \\PATTERN eq ? VALUE_BLOCK else [ ] ] clone',
 '		swap 2 to', 
 '		tor 5 to',
 '	map ]',
@@ -848,12 +880,31 @@ var BOOTSTRAP = [
 '-- the condition block must have the folowing stack effect: elem -- bool',
 ':: filter ( b c -- b ) [',
 '	-- prepare the condition...',
-'	[ dup \\ TEST exec ] clone',
+'	[ dup \\TEST exec ] clone',
 '		swap TEST replace',
 '	-- prepare the template...',
 '	[ TEST ? [  ] else [ . ] ] clone',
 '		swap TEST replace',
 '	map ]',
+'',
+':: reduce ( L b -- s ) [',
+'	rot clone',
+'	-- empty list, reduction is null...',
+'	[ len 0 eq ] ?',
+'		[ . tor . null ]',
+'	-- reduction of list of len 1 is it\'s content, so just pop it...',
+'	else [ [ len 1 eq ] ?',
+'		[ tor . b2s ]',
+'	-- and now recursively reduce the elements till the list is 1 in length...',
+'	-- XXX ugly',
+'	else [',
+'		pop rot pop rot',
+'			[] tor push tor push',
+'		-- get and run the block...',
+'		tor dup clone rot _exec',
+'		-- process the result...',
+'		pop rot . tor push tor',
+'			reduce ]]',
 '',
 '-- Create a block containing a range of numbers form 0 to n-1...',
 ':: range ( n -- b ) [',
@@ -871,43 +922,32 @@ var BOOTSTRAP = [
 '		[ 1 sub 0 before range ]]',
 '',
 '-- Sum up the elements of a block...',
-':: sum ( L -- s ) [',
-'	clone',
-'	-- empty list, sum is 0...',
-'	[ len 0 eq ] ?',
-'		[ . 0 ]',
-'	-- sum of list of len 1 is it\'s content, so just pop it...',
-'	else [ [ len 1 eq ] ?',
-'		b2s',
-'	-- and now recursively sum up elements till the list is 1 in length...',
-'	else',
-'		[ pop rot pop tor add push sum ]]',
-'',
+':: sum ( L -- s ) [ [ add ] reduce ]',
 '',
 '',
 '-- Meta-word examples (experimental)...',
 '',
 '-- Here is an infix operator example...',
-'-- 	:: + ( a | b -- c |  ) [ \\ exec 2 0 _swapN \\ exec \\ add 2 1 _swapN ]',
+'-- 	:: + ( a | b -- c |  ) [ \\exec 2 0 _swapN \\exec \\add 2 1 _swapN ]',
 '-- now let\'s make a meta function to make things shorter...',
 ':: infix: ( | op word -- | ) [',
 '	[',
 '		-- format the word definition...',
-'		--		NAME WORD	->	:: NAME WORD',
-'		s2b \\ :: -2 before b2s',
+'		--     NAME WORD  ->  :: NAME WORD',
+'		s2b \\:: -2 before b2s',
 '',
 '		-- our template...',
 '		-- exec the left side...',
-'		[ \\ exec 2 0 _swapN',
+'		[ \\exec 2 0 _swapN',
 '				-- exec the right side and arragne the args for WORD...',
-'				\\ exec \\ WORD 2 1 _swapN ] clone',
+'				\\exec \\WORD 2 1 _swapN ] clone',
 '			-- get the WORD and insert it into the template above (opsition 8)...',
 '			swap WORD replace',
 '',
 '		-- push to code / run',
 '		3 0 _swapN ',
 '	-- swap the arguments and the code to be executed...',
-'	] \\ exec 2 2 _swapN ]',
+'	] \\exec 2 2 _swapN ]',
 '',
 '-- Now making a word/2 an infix operator is trivial...',
 '-- NOTE: these are at this point stupid and do not support priorities...',
@@ -930,20 +970,20 @@ var BOOTSTRAP = [
 '',
 '-- Prefix operation definition...',
 '-- Example:',
-'--		:: echo: ( | txt -- | ) [ \\ _flip \\ print _flip ]',
+'--		:: echo: ( | txt -- | ) [ \\_flip \\print _flip ]',
 '-- swap stack and code untill the block finishes and consumes it\'s arguments',
 '-- then swap them back...',
 ':: prefix: ( | op word -- | ) [',
 '	[',
 '		-- format the word definition...',
-'		--		NAME WORD	->	:: NAME WORD',
-'		s2b \\ :: -2 before b2s',
+'		--     NAME WORD  ->  :: NAME WORD',
+'		s2b \\:: -2 before b2s',
 '',
 '		-- the code template',
-'		[ \\ _flip \\ exec \\ WORD _flip ] clone',
+'		[ \\_flip \\exec \\WORD _flip ] clone',
 '			swap WORD replace',
 '			3 0 _swapN',
-'	] \\ exec 2 2 _swapN ]',
+'	] \\exec 2 2 _swapN ]',
 '',
 '',
 '',
@@ -954,13 +994,13 @@ var BOOTSTRAP = [
 '',
 '-- Create a block containg a range of numbers from f to t, inclusive...',
 ':: range/2 ( f t -- b )',
-'		[ dup2 swap sub swap . inc range swap [] swap push \\ + 0 before map ]',
+'		[ dup2 swap sub swap . inc range swap [] swap push \\+ 0 before map ]',
 '',
 '-- this will enable us to create ranges via 0 .. 4',
 'infix: .. range/2',
 '',
 //':: range/3 ( a n s -- b )',
-//'		[ swap range swap [] swap push \\ * 0 before map ]',
+//'		[ swap range swap [] swap push \\* 0 before map ]',
 '',
 '-- Execute block in a context...',
 '-- synctx: context: <block>',
