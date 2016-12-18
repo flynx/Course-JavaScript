@@ -460,7 +460,8 @@ var NAMESPACE = {
 	// get item...
 	// o k -- o v
 	'item': function(context){ 
-		return context.stack[context.stack.length - 1][context.stack.pop()] },
+		var k = context.stack.pop()
+		return context.stack[context.stack.length - 1][k] },
 
 	// remove/pop item from object...
 	// o k -- o v
@@ -507,7 +508,7 @@ var NAMESPACE = {
 var BOOTSTRAP = [
 '-------------------------------------------------------------------------------',
 '',
-' Slang is a simple and complete [S]tack [lang]uage.',
+' [S]lang is a [s]imple and complete [S]tack [lang]uage.',
 '',
 ' Slang was designed for three main reasons:',
 '	- a means to experiment with several aspects of language design,',
@@ -745,7 +746,8 @@ var BOOTSTRAP = [
 '',
 '',
 '-------------------------------------------------------------------------------',
-'s2b drop',
+'s2b drop               -- cleanup after docs...',
+'ns {} proto! ns! .     -- keep new words in a seporate context...',
 '--',
 '-- With that out of the way, let\'s start with the bootstrap...',
 '',
@@ -767,7 +769,7 @@ var BOOTSTRAP = [
 '		[ rot2 ns tor2 item! . ] item!',
 '	-- Word definition...',
 '	-- syntax: :: <ident> <value>',
-'	:: ( -- )',
+'	:: ( | w b -- | )',
 '		[ \\word! \\exec 2 2 _swapN ] item!',
 '.',
 '',
