@@ -59,15 +59,21 @@ function run(context){
 // XXX make this add '\n' / EOL words to the stream...
 //var SPLITTER = /\s*\([^\)]*\)\s*|\s*--.*[\n$]|\s*"([^"]*)"\s*|\s*'([^']*)'\s*|\s+/m
 var SPLITTER = RegExp([
+			/* XXX there are two ways to deal with comments:
+			//			1) lexer-based -- this section commented, next uncommented...
+			//			2) macro-based -- this section uncommented, next commented...
+			//		#2 is a bit buggy...
 			// terms to keep in the stream...
-			/*'('+[
+			'\\s*('+[
 				'\\n',
 				'--',
-			].join('|')+')',*/
+			].join('|')+')',
+			//*/
 
-			// comments...
+			//* lexer comments...
 			'\\s*\\([^\\)]*\\)\\s*',
 			'\\s*--.*[\\n$]',
+			//*/
 
 			// quoted strings...
 			'\\s*"([^"]*)"\\s*',
@@ -82,6 +88,27 @@ var SPLITTER = RegExp([
 		'm')
 
 
+// helpers...
+// XXX should these skip quoted ends?
+var collectUntil = function(end){
+	return function(context){
+		var res = ['--']
+		var code = context.code
+		var cur = code.shift()
+		res.push(cur)
+		while(cur != end && code.length > 0){
+			cur = code.splice(0, 1)[0]
+			res.push(cur)
+		}
+		return res
+	}
+}
+var dropUntil = function(end){
+	var collector = collectUntil(end)
+	return function(context){ collector(context) }
+}
+
+
 // pre-processor namespace...
 var PRE_NAMESPACE = {
 	// comment...
@@ -90,17 +117,8 @@ var PRE_NAMESPACE = {
 	// drop everything until '\n'
 	//
 	// NOTE: this depends on explicit '\n' words...
-	'--': function(context){
-		var res = ['--']
-		var code = context.code
-		var cur = code.splice(0, 1)[0]
-		res.push(cur)
-		while(cur != '\n' && code.length > 0){
-			cur = code.splice(0, 1)[0]
-			res.push(cur)
-		}
-		console.log(res.join(' '))
-	},
+	'--': dropUntil('\n'),
+	//'(': dropUntil(')'),
 	
 	// XXX use the real reader...
 	// block...
@@ -154,7 +172,7 @@ var PRE_NAMESPACE = {
 	},
 
 	// a no op...
-	'\n': function(){ console.log('NL') },
+	'\n': function(){ },
 }
 
 
