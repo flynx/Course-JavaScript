@@ -90,22 +90,23 @@ var SPLITTER = RegExp([
 
 // helpers...
 // XXX should these skip quoted ends?
-var collectUntil = function(end){
+var collect = function(start, end){
 	return function(context){
-		var res = ['--']
+		var res = start ? [start] : []
 		var code = context.code
 		var cur = code.shift()
 		res.push(cur)
 		while(cur != end && code.length > 0){
-			cur = code.splice(0, 1)[0]
+			cur = code.shift()
 			res.push(cur)
 		}
 		return res
 	}
 }
-var dropUntil = function(end){
-	var collector = collectUntil(end)
-	return function(context){ collector(context) }
+var drop = function(start, end){
+	var collector = collect(start, end)
+	//return function(context){ collector(context) }
+	return function(context){ console.log('XXX', collector(context).join(' ')) }
 }
 
 
@@ -117,8 +118,8 @@ var PRE_NAMESPACE = {
 	// drop everything until '\n'
 	//
 	// NOTE: this depends on explicit '\n' words...
-	'--': dropUntil('\n'),
-	//'(': dropUntil(')'),
+	//'--': drop('--', '\n'),
+	'(': drop('(', ')'),
 	
 	// XXX use the real reader...
 	// block...
