@@ -524,511 +524,511 @@ var NAMESPACE = {
 
 
 // NOTE: hate how JS handles multi-line strings...
-var BOOTSTRAP = [
-'-------------------------------------------------------------------------------',
-'',
-' [S]lang is a [s]imple and complete [S]tack [lang]uage.',
-'',
-' Slang was designed for three main reasons:',
-'	- a means to experiment with several aspects of language design,',
-'	- an educational tool, to illustrate several programming language',
-'	  concepts in a simple, hands-on manner,',
-'	- fun!',
-'',
-'',
-'',
-'-------------------------------------------------------------------------------',
-'',
-' The system consists of:',
-'	- Stack',
-'	- Code',
-'	- Namespace',
-'	- basic runtime',
-'',
-' 	                 { NAMESPACE }',
-'	                       ^',
-'	                       |',
-' 	[ .. STACK .. ] <-- runtime -- [ .. CODE .. ]',
-'',
-'',
-' A namespace is a basic key/value store.',
-'',
-' The runtime "reads" entities from the code stream one by one and depending on',
-' whether an entity exists in the namespace it is either pushed on the stack',
-' or evaluated.',
-'',
-' The evaluated entity is traditionally called a "word" (function in non-stack',
-' languages). The only thing that makes a word different from any other entity',
-' is that it matches a key in the namespace, as mentioned above.',
-'',
-' In Slang evaluation is done simply by executing the value of the matched',
-' key/value pair in the namespace. An over-simplified way to explain',
-' evaluation is to say that the content of the value is pushed to the',
-' code stream to be read right away, that\'s almost it, if we skip a',
-' couple of details (see: _exec, exec and for details see: eval)',
-'',
-' The system contains two types of words:',
-'	- Host words -- defined by the host system,',
-'	- User words -- defined within the system (like this bootstrap code).',
-'',
-' Words may read and affect any of the three system parts:',
-'	- Stack',
-'	- Code',
-'	- Namespace (not yet fully implemented)',
-'',
-' Traditioannly, in stack languages words affect only the stack, this is',
-' one of the motivations to implement Slang, that is, to experiment with',
-' different ways to go with stack languages.',
-'',
-'',
-' TODO: add a complete word-set for work with lists/blocks',
-' TODO: add a complete word-set for work with dicts/namespaces',
-' TODO: add topological comparison/diff',
-'',
-'',
-'',
-'-----------------------------------------------------------------------------',
-'',
-' Traditionally, stack languages use a "stack effect" notation to document how',
-' words affect the stack state, a kind of before-after transformation. here is',
-' a basic example showing how the word "add" works:',
-'',
-'		stack   code',
-'		      | 1 2 add',
-'		    1 | 2 add',
-'		  1 2 | add',
-'		1 2 [add]			(a)',
-'		    3 |				(b)',
-'',
-'',
-' Here the stack effect represents the difference between two states: the',
-' moment when the word is "read" (a) and the stack state after it is',
-' evaluated (b) and is written like this:',
-'',
-'		( a b -- c )',
-'',
-'',
-' But, due to the fact that in Slang all three of the stack, code and namespace',
-' can be affected by words, we need an extended stack effect notation. to',
-' include at least the second most common case, the "code effect".',
-' To illustrate, here is an example of a word that has a simple code effect,',
-' the "+":',
-'',
-'		stack   code',
-'		      | 1 + 2',
-'		    1 | + 2',
-'		   1 [+] 2			(a)',
-'		    3 |				(b)',
-'',
-'',
-' Here we see that in addition to affecting the stack, 2 is "pulled" from the',
-' code stream. To indicate this we will use "|" that splits the stack (left)',
-' and code (right) states, and write the stack effect for the word "+" like',
-' this:',
-'',
-'		( a | b -- c |  )',
-'',
-'',
-' NOTE: this notation is currently used as a means to documenting words and is',
-' not interpreted in any way.',
-'',
-'',
-'',
-'-------------------------------------------------------------------------------',
-'',
-' Basic words for block manipulation:',
-'',
-' Get block length',
-'',
-'		[ 1 2 3 ] len',
-'				->	[ 1 2 3 ] 3',
-'',
-'',
-' Pop element form block tail',
-'',
-'		[ 1 2 3 ] pop',
-'				->	[ 1 2 ] 3',
-'',
-'',
-' Push element to block tail',
-'',
-'		[ 1 2 3 ] 4 push',
-'				->	[ 1 2 3 4 ]',
-'',
-'',
-' NOTE: all indexes can be negative values, these will indicate the',
-'	position relative to the tail, -1 being the last element.',
-'',
-' Get element at position (0)',
-'',
-'		[ 1 2 3 ] -1 at',
-'				->	[ 1 2 3 ] 3',
-'',
-'',
-' Put element (123) at position (0)',
-'',
-'		[ 1 2 3 ] 123 0 to',
-'				->	[ 123 2 3 ]',
-'',
-'',
-' Put element (123) before position (0)',
-'',
-'		[ 1 2 3 ] 123 0 before',
-'				->	[ 123 1 2 3 ]',
-'',
-'',
-' Like before but puts the element after position',
-'',
-'		[ 1 2 3 ] 123 0 after',
-'				->	[ 1 123 2 3 ]',
-'',
-'',
-' Expand block to stack -- "block 2 stack"',
-'',
-'		[ 1 2 3 ] b2s',
-'				->	1 2 3',
-'',
-'',
-' Map a block/word to each element in a block',
-'',
-'		[ 1 2 3 ] [ 1 add ] map',
-'				->	[ 2 3 4 ]',
-'',
-' the returned value (stack) of the input block is put into the result',
-' block, this enables us to both remove (empty stack) and expand (more',
-' than one value) the resulting list...',
-'',
-'		[ 1 2 3 4 ] [ dup ] map',
-'				->	[ 1 1 2 2 3 3 4 4 ]',
-'',
-'		[ 1 2 3 4 ] [ dup 2 gt ? [ ] else [ . ] ] map',
-'				->	[ 3 4 ]',
-'',
-'',
-' this enables us to construct words like filter, which makes the code',
-' in the last example more readable:',
-'',
-'		[ 1 2 3 4 ] [ 2 gt ] filter',
-'				->	[ 3 4 ]',
-'',
-' Reduce enables us to take a list and "reduce" it to a single value...',
-'',
-'		[ 1 2 3 4 ] \\add reduce',
-'				->	10',
-'',
-'',
-'-------------------------------------------------------------------------------',
-'',
-' Objects and namespaces:',
-'',
-' Create a variable word o and p and set them to empty objects...',
-'',
-'		ns',
-'			o {} item!',
-'			p {} item!',
-'		.',
-'',
-' Set attribute (key-value pair) on object...',
-'',
-'		o x 123 item!',
-'				-> o',
-'',
-' Get attribute x value...',
-'',
-'		o x item',
-'				-> 123',
-'',
-' Test if attribute x exists...',
-'',
-'		o x item?',
-'				-> true',
-'',
-' Get block of attribute idents...',
-'',
-'		o keys',
-'				-> [ ... ]',
-'',
-' Get and remove an attribute value from o...',
-'',
-'		o x popitem',
-'				-> 123',
-'',
-' Set prototype of o to p',
-'',
-'		o p proto!',
-'				-> o',
-'',
-' Get prototype of o',
-'',
-'		o proto',
-'				-> p',
-'',
-'',
-'-------------------------------------------------------------------------------',
-'s2b drop               -- cleanup after docs...',
-'ns {} proto! ns! .     -- keep new words in a seporate context...',
-'--',
-'-- With that out of the way, let\'s start with the bootstrap...',
-'',
-'-- prepare the basic syntax for defining words...',
-'ns',
-'	-- Some sorthands...',
-'	. ( x -- )',
-'		[ drop ] item!',
-'	rot2 ( .. x y -- x y .. )',
-'		[ rot rot ] item!',
-'	tor2 ( x y .. -- .. x y )',
-'		[ tor tor ] item!',
-'',
-'	-- Friendly exec...',
-'	exec ( b -- ... )',
-'		[ s2b pop _exec b2s ] item!',
-'	-- Create a word...',
-'	word! ( w b -- )',
-'		[ rot2 ns tor2 item! . ] item!',
-'	-- Word definition...',
-'	-- syntax: :: <ident> <value>',
-'	:: ( | w b -- | )',
-'		[ \\word! \\exec 2 2 _swapN ] item!',
-'.',
-'',
-'',
-'-- misc...',
-'',
-':: true? ( a -- b ) [ not not true eq ]',
-':: false? ( a -- b ) [ not true? ]',
-'',
-'-- we already have gt and eq, now let\'s define the rest...',
-':: ne ( a b -- c ) [ eq not ]',
-':: lt ( a b -- c ) [ swap gt ]',
-':: ge ( a b -- c ) [ lt not ]',
-':: le ( a b -- c ) [ gt not ]',
-'',
-':: inc ( a -- b ) [ 1 add ]',
-':: dec ( a -- b ) [ 1 sub ]',
-':: ! ( a -- b ) [ [ dup 1 ne ] ? [ dup 1 sub ! mul ] ]',
-'',
-'',
-'',
-'-- Stack/code manipulation...',
-'',
-':: _swap ( x | y -- y | x ) [ 1 1 _swapN ]',
-':: _push ( x |  -- | x ) [ 0 _swapN ]',
-':: _pull (  | x -- x |  ) [ 0 swap _swapN ]',
-'',
-':: eval ( c -- ... ) [ lex prep exec ]',
-'-- like exec but will run a block in current context...',
-':: b2c [ len rot b2s tor 0 _swapN ]',
-'',
-':: swap2 ( a _ b -- b _ a ) [ swap rot swap tor swap ]',
-':: dup2 ( a b -- a b a b ) [ dup swap2 dup rot swap2 tor swap ]',
-'',
-'-- this is here for devel use only',
-':: _clear ( ... -- ) [ s2b print drop ] ',
-':: _stack_size ( -- l ) [ s2b len swap b2s tor ] ',
-'',
-'',
-'',
-'-- Flow control...',
-'',
-'-- Classic conditional word:',
-'--   [ cond ] [ A ] [ B ] if',
-'--',
-'-- A bit too "polish" in my view ;)',
-':: if ( cond a b -- ... ) [ rot rot exec true? tor and tor or exec ]',
-'',
-'-- Ternary operator, this can take two forms:',
-'--   COND ? A',
-'--   COND ? A else B',
-'--',
-'-- We will define this in stages, first the helpers:',
-'-- run then block and drop \'else B\' if it exists...',
-':: _run_then ( a x | -- ... | x  )',
-'	( a else | b -- ... | )',
-'		[ \\exec swap dup \\else eq [ (drop else) drop \\drop _swap 6 ] and',
-'				[ (run as-is) 1 _push 4 ] or',
-'				b2s 0 _swapN ]',
-'-- if \'else B\' exists, run it, else cleanup...',
-':: _run_else ( a | --  | a  )',
-'	( b else | b -- ... | )',
-'		[ drop dup \\else eq [ drop \\exec _swap 4 ] and',
-'				[ 1 _push 2 ] or',
-'				b2s 0 _swapN ]',
-'-- And now the main operator...',
-'-- NOTE: this may actually have one of three stack effects...',
-':: ? ( c | a -- | )',
-'	( c | a -- ... | )',
-'	( c | a else b -- ... | )',
-'		[ exec [ _run_then 1 ] and [ swap _run_else 2 ] or b2s 2 _swapN ]',
-'',
-'',
-'',
-'-- List/block 2\'nd gen stuff...',
-'',
-'-- make a new block instance shorthand...',
-':: [] [ [ ] clone ]',
-'',
-'-- insert element after index...',
-':: after ( b e i -- b ) [',
-'	-- special case, when at end, need to push the alement after it...',
-'	dup [ -1 eq ] ?',
-'		[ . push ]',
-'	else',
-'		[ inc before ]]',
-'',
-'-- NOTE: the "]]" in the last definition, it\'s a shorthand, it closes',
-'--	ALL the open blocks to this point.',
-'--	...thus it can be used ONLY as the very last word in a set.',
-'',
-'-- push element to tail of block...',
-':: push ( b e -- b ) [ swap len rot swap tor to ]',
-'',
-'-- Replace a pattern (p) in block with value (v)...',
-'-- NOTE: this will replace ALL patterns...',
-':: replace ( l v p -- l ) [',
-'	swap',
-'	[ . \\VALUE ] clone',
-'		swap 2 to',
-'		rot',
-'	-- XXX for some reason ? without else messes things up...',
-'	[ dup \\PATTERN eq ? VALUE_BLOCK else [ ] ] clone',
-'		swap 2 to', 
-'		tor 5 to',
-'	map ]',
-'',
-'-- Filter the block via a condition...',
-'--',
-'-- the condition block must have the folowing stack effect: elem -- bool',
-':: filter ( b c -- b ) [',
-'	-- prepare the condition...',
-'	[ dup \\TEST exec ] clone',
-'		swap TEST replace',
-'	-- prepare the template...',
-'	[ TEST ? [  ] else [ . ] ] clone',
-'		swap TEST replace',
-'	map ]',
-'',
-':: reduce ( L b -- s ) [',
-'	rot clone',
-'	-- empty list, reduction is null...',
-'	[ len 0 eq ] ?',
-'		[ . tor . null ]',
-'	-- reduction of list of len 1 is it\'s content, so just pop it...',
-'	else [ [ len 1 eq ] ?',
-'		[ tor . b2s ]',
-'	-- and now recursively reduce the elements till the list is 1 in length...',
-'	-- XXX ugly',
-'	else [',
-'		pop rot pop rot',
-'			[] tor push tor push',
-'		-- get and run the block...',
-'		tor dup clone rot _exec',
-'		-- process the result...',
-'		pop rot . tor push tor',
-'			reduce ]]',
-'',
-'-- Create a block containing a range of numbers form 0 to n-1...',
-':: range ( n -- b ) [',
-'	-- initial state...',
-'	[ dup number? ] ? ',
-'		[ [] swap ]',
-'	-- get first elem...',
-'	else',
-'		[ 0 at ]',
-'	-- we got to the end...',
-'	[ dup 0 eq ] ? ',
-'		drop',
-'	-- dec push new and continue...',
-'	else',
-'		[ 1 sub 0 before range ]]',
-'',
-'-- Sum up the elements of a block...',
-':: sum ( L -- s ) [ [ add ] reduce ]',
-'',
-'',
-'-- Meta-word examples (experimental)...',
-'',
-'-- Here is an infix operator example...',
-'-- 	:: + ( a | b -- c |  ) [ \\exec 2 0 _swapN \\exec \\add 2 1 _swapN ]',
-'-- now let\'s make a meta function to make things shorter...',
-':: infix: ( | op word -- | ) [',
-'	[',
-'		-- format the word definition...',
-'		--     NAME WORD  ->  :: NAME WORD',
-'		s2b \\:: -2 before b2s',
-'',
-'		-- our template...',
-'		-- exec the left side...',
-'		[ \\exec 2 0 _swapN',
-'				-- exec the right side and arragne the args for WORD...',
-'				\\exec \\WORD 2 1 _swapN ] clone',
-'			-- get the WORD and insert it into the template above (opsition 8)...',
-'			swap WORD replace',
-'',
-'		-- push to code / run',
-'		3 0 _swapN ',
-'	-- swap the arguments and the code to be executed...',
-'	] \\exec 2 2 _swapN ]',
-'',
-'-- Now making a word/2 an infix operator is trivial...',
-'-- NOTE: these are at this point stupid and do not support priorities...',
-'infix: + add',
-'infix: - sub',
-'infix: * mul',
-'infix: / div',
-'',
-'-- these need more thought...',
-'infix: == eq',
-'infix: != ne',
-'infix: > gt',
-'infix: < lt',
-'infix: <= le',
-'infix: >= ge',
-'',
-'-- experimental...',
-'infix: = word!',
-'',
-'',
-'-- Prefix operation definition...',
-'-- Example:',
-'--		:: echo: ( | txt -- | ) [ \\_flip \\print _flip ]',
-'-- swap stack and code untill the block finishes and consumes it\'s arguments',
-'-- then swap them back...',
-':: prefix: ( | op word -- | ) [',
-'	[',
-'		-- format the word definition...',
-'		--     NAME WORD  ->  :: NAME WORD',
-'		s2b \\:: -2 before b2s',
-'',
-'		-- the code template',
-'		[ \\_flip \\exec \\WORD _flip ] clone',
-'			swap WORD replace',
-'			3 0 _swapN',
-'	] \\exec 2 2 _swapN ]',
-'',
-'',
-'',
-'-- Tests and examples...',
-'',
-'-- Mandatory "hello word" word example...',
-':: hi ( -- ) [ "Hello World!" print drop ]',
-'',
-'-- Create a block containg a range of numbers from f to t, inclusive...',
-':: range/2 ( f t -- b )',
-'		[ dup2 swap sub swap . inc range swap [] swap push \\+ 0 before map ]',
-'',
-'-- this will enable us to create ranges via 0 .. 4',
-'infix: .. range/2',
-'',
-//':: range/3 ( a n s -- b )',
-//'		[ swap range swap [] swap push \\* 0 before map ]',
-'',
-'-- Execute block in a context...',
-'-- synctx: context: <block>',
-'prefix: context: [ ns {} proto! ns! exec ns proto ns! ]',
-'',
-'',
-''].join('\n')
+var BOOTSTRAP =
+`-------------------------------------------------------------------------------
+
+ [S]lang is a [s]imple and complete [S]tack [lang]uage.
+
+ Slang was designed for three main reasons:
+	- a means to experiment with several aspects of language design,
+	- an educational tool, to illustrate several programming language
+	  concepts in a simple, hands-on manner,
+	- fun!
+
+
+
+-------------------------------------------------------------------------------
+
+ The system consists of:
+	- Stack
+	- Code
+	- Namespace
+	- basic runtime
+
+ 	                 { NAMESPACE }
+	                       ^
+	                       |
+ 	[ .. STACK .. ] <-- runtime -- [ .. CODE .. ]
+
+
+ A namespace is a basic key/value store.
+
+ The runtime "reads" entities from the code stream one by one and depending on
+ whether an entity exists in the namespace it is either pushed on the stack
+ or evaluated.
+
+ The evaluated entity is traditionally called a "word" (function in non-stack
+ languages). The only thing that makes a word different from any other entity
+ is that it matches a key in the namespace, as mentioned above.
+
+ In Slang evaluation is done simply by executing the value of the matched
+ key/value pair in the namespace. An over-simplified way to explain
+ evaluation is to say that the content of the value is pushed to the
+ code stream to be read right away, that\'s almost it, if we skip a
+ couple of details (see: _exec, exec and for details see: eval)
+
+ The system contains two types of words:
+	- Host words -- defined by the host system,
+	- User words -- defined within the system (like this bootstrap code).
+
+ Words may read and affect any of the three system parts:
+	- Stack
+	- Code
+	- Namespace (not yet fully implemented)
+
+ Traditioannly, in stack languages words affect only the stack, this is
+ one of the motivations to implement Slang, that is, to experiment with
+ different ways to go with stack languages.
+
+
+ TODO: add a complete word-set for work with lists/blocks
+ TODO: add a complete word-set for work with dicts/namespaces
+ TODO: add topological comparison/diff
+
+
+
+-----------------------------------------------------------------------------
+
+ Traditionally, stack languages use a "stack effect" notation to document how
+ words affect the stack state, a kind of before-after transformation. here is
+ a basic example showing how the word "add" works:
+
+		stack   code
+		      | 1 2 add
+		    1 | 2 add
+		  1 2 | add
+		1 2 [add]			(a)
+		    3 |				(b)
+
+
+ Here the stack effect represents the difference between two states: the
+ moment when the word is "read" (a) and the stack state after it is
+ evaluated (b) and is written like this:
+
+		( a b -- c )
+
+
+ But, due to the fact that in Slang all three of the stack, code and namespace
+ can be affected by words, we need an extended stack effect notation. to
+ include at least the second most common case, the "code effect".
+ To illustrate, here is an example of a word that has a simple code effect,
+ the "+":
+
+		stack   code
+		      | 1 + 2
+		    1 | + 2
+		   1 [+] 2			(a)
+		    3 |				(b)
+
+
+ Here we see that in addition to affecting the stack, 2 is "pulled" from the
+ code stream. To indicate this we will use "|" that splits the stack (left)
+ and code (right) states, and write the stack effect for the word "+" like
+ this:
+
+		( a | b -- c |  )
+
+
+ NOTE: this notation is currently used as a means to documenting words and is
+ not interpreted in any way.
+
+
+
+-------------------------------------------------------------------------------
+
+ Basic words for block manipulation:
+
+ Get block length
+
+		[ 1 2 3 ] len
+				->	[ 1 2 3 ] 3
+
+
+ Pop element form block tail
+
+		[ 1 2 3 ] pop
+				->	[ 1 2 ] 3
+
+
+ Push element to block tail
+
+		[ 1 2 3 ] 4 push
+				->	[ 1 2 3 4 ]
+
+
+ NOTE: all indexes can be negative values, these will indicate the
+	position relative to the tail, -1 being the last element.
+
+ Get element at position (0)
+
+		[ 1 2 3 ] -1 at
+				->	[ 1 2 3 ] 3
+
+
+ Put element (123) at position (0)
+
+		[ 1 2 3 ] 123 0 to
+				->	[ 123 2 3 ]
+
+
+ Put element (123) before position (0)
+
+		[ 1 2 3 ] 123 0 before
+				->	[ 123 1 2 3 ]
+
+
+ Like before but puts the element after position
+
+		[ 1 2 3 ] 123 0 after
+				->	[ 1 123 2 3 ]
+
+
+ Expand block to stack -- "block 2 stack"
+
+		[ 1 2 3 ] b2s
+				->	1 2 3
+
+
+ Map a block/word to each element in a block
+
+		[ 1 2 3 ] [ 1 add ] map
+				->	[ 2 3 4 ]
+
+ the returned value (stack) of the input block is put into the result
+ block, this enables us to both remove (empty stack) and expand (more
+ than one value) the resulting list...
+
+		[ 1 2 3 4 ] [ dup ] map
+				->	[ 1 1 2 2 3 3 4 4 ]
+
+		[ 1 2 3 4 ] [ dup 2 gt ? [ ] else [ . ] ] map
+				->	[ 3 4 ]
+
+
+ this enables us to construct words like filter, which makes the code
+ in the last example more readable:
+
+		[ 1 2 3 4 ] [ 2 gt ] filter
+				->	[ 3 4 ]
+
+ Reduce enables us to take a list and "reduce" it to a single value...
+
+		[ 1 2 3 4 ] \\add reduce
+				->	10
+
+
+-------------------------------------------------------------------------------
+
+ Objects and namespaces:
+
+ Create a variable word o and p and set them to empty objects...
+
+		ns
+			o {} item!
+			p {} item!
+		.
+
+ Set attribute (key-value pair) on object...
+
+		o x 123 item!
+				-> o
+
+ Get attribute x value...
+
+		o x item
+				-> 123
+
+ Test if attribute x exists...
+
+		o x item?
+				-> true
+
+ Get block of attribute idents...
+
+		o keys
+				-> [ ... ]
+
+ Get and remove an attribute value from o...
+
+		o x popitem
+				-> 123
+
+ Set prototype of o to p
+
+		o p proto!
+				-> o
+
+ Get prototype of o
+
+		o proto
+				-> p
+
+
+-------------------------------------------------------------------------------
+s2b drop               -- cleanup after docs...
+ns {} proto! ns! .     -- keep new words in a seporate context...
+--
+-- With that out of the way, let\'s start with the bootstrap...
+
+-- prepare the basic syntax for defining words...
+ns
+	-- Some sorthands...
+	. ( x -- )
+		[ drop ] item!
+	rot2 ( .. x y -- x y .. )
+		[ rot rot ] item!
+	tor2 ( x y .. -- .. x y )
+		[ tor tor ] item!
+
+	-- Friendly exec...
+	exec ( b -- ... )
+		[ s2b pop _exec b2s ] item!
+	-- Create a word...
+	word! ( w b -- )
+		[ rot2 ns tor2 item! . ] item!
+	-- Word definition...
+	-- syntax: :: <ident> <value>
+	:: ( | w b -- | )
+		[ \\word! \\exec 2 2 _swapN ] item!
+.
+
+
+-- misc...
+
+:: true? ( a -- b ) [ not not true eq ]
+:: false? ( a -- b ) [ not true? ]
+
+-- we already have gt and eq, now let\'s define the rest...
+:: ne ( a b -- c ) [ eq not ]
+:: lt ( a b -- c ) [ swap gt ]
+:: ge ( a b -- c ) [ lt not ]
+:: le ( a b -- c ) [ gt not ]
+
+:: inc ( a -- b ) [ 1 add ]
+:: dec ( a -- b ) [ 1 sub ]
+:: ! ( a -- b ) [ [ dup 1 ne ] ? [ dup 1 sub ! mul ] ]
+
+
+
+-- Stack/code manipulation...
+
+:: _swap ( x | y -- y | x ) [ 1 1 _swapN ]
+:: _push ( x |  -- | x ) [ 0 _swapN ]
+:: _pull (  | x -- x |  ) [ 0 swap _swapN ]
+
+:: eval ( c -- ... ) [ lex prep exec ]
+-- like exec but will run a block in current context...
+:: b2c [ len rot b2s tor 0 _swapN ]
+
+:: swap2 ( a _ b -- b _ a ) [ swap rot swap tor swap ]
+:: dup2 ( a b -- a b a b ) [ dup swap2 dup rot swap2 tor swap ]
+
+-- this is here for devel use only
+:: _clear ( ... -- ) [ s2b print drop ] 
+:: _stack_size ( -- l ) [ s2b len swap b2s tor ] 
+
+
+
+-- Flow control...
+
+-- Classic conditional word:
+--   [ cond ] [ A ] [ B ] if
+--
+-- A bit too "polish" in my view ;)
+:: if ( cond a b -- ... ) [ rot rot exec true? tor and tor or exec ]
+
+-- Ternary operator, this can take two forms:
+--   COND ? A
+--   COND ? A else B
+--
+-- We will define this in stages, first the helpers:
+-- run then block and drop \'else B\' if it exists...
+:: _run_then ( a x | -- ... | x  )
+	( a else | b -- ... | )
+		[ \\exec swap dup \\else eq [ (drop else) drop \\drop _swap 6 ] and
+				[ (run as-is) 1 _push 4 ] or
+				b2s 0 _swapN ]
+-- if \'else B\' exists, run it, else cleanup...
+:: _run_else ( a | --  | a  )
+	( b else | b -- ... | )
+		[ drop dup \\else eq [ drop \\exec _swap 4 ] and
+				[ 1 _push 2 ] or
+				b2s 0 _swapN ]
+-- And now the main operator...
+-- NOTE: this may actually have one of three stack effects...
+:: ? ( c | a -- | )
+	( c | a -- ... | )
+	( c | a else b -- ... | )
+		[ exec [ _run_then 1 ] and [ swap _run_else 2 ] or b2s 2 _swapN ]
+
+
+
+-- List/block 2\'nd gen stuff...
+
+-- make a new block instance shorthand...
+:: [] [ [ ] clone ]
+
+-- insert element after index...
+:: after ( b e i -- b ) [
+	-- special case, when at end, need to push the alement after it...
+	dup [ -1 eq ] ?
+		[ . push ]
+	else
+		[ inc before ]]
+
+-- NOTE: the "]]" in the last definition, it\'s a shorthand, it closes
+--	ALL the open blocks to this point.
+--	...thus it can be used ONLY as the very last word in a set.
+
+-- push element to tail of block...
+:: push ( b e -- b ) [ swap len rot swap tor to ]
+
+-- Replace a pattern (p) in block with value (v)...
+-- NOTE: this will replace ALL patterns...
+:: replace ( l v p -- l ) [
+	swap
+	[ . \\VALUE ] clone
+		swap 2 to
+		rot
+	-- XXX for some reason ? without else messes things up...
+	[ dup \\PATTERN eq ? VALUE_BLOCK else [ ] ] clone
+		swap 2 to
+		tor 5 to
+	map ]
+
+-- Filter the block via a condition...
+--
+-- the condition block must have the folowing stack effect: elem -- bool
+:: filter ( b c -- b ) [
+	-- prepare the condition...
+	[ dup \\TEST exec ] clone
+		swap TEST replace
+	-- prepare the template...
+	[ TEST ? [  ] else [ . ] ] clone
+		swap TEST replace
+	map ]
+
+:: reduce ( L b -- s ) [
+	rot clone
+	-- empty list, reduction is null...
+	[ len 0 eq ] ?
+		[ . tor . null ]
+	-- reduction of list of len 1 is it\'s content, so just pop it...
+	else [ [ len 1 eq ] ?
+		[ tor . b2s ]
+	-- and now recursively reduce the elements till the list is 1 in length...
+	-- XXX ugly
+	else [
+		pop rot pop rot
+			[] tor push tor push
+		-- get and run the block...
+		tor dup clone rot _exec
+		-- process the result...
+		pop rot . tor push tor
+			reduce ]]
+
+-- Create a block containing a range of numbers form 0 to n-1...
+:: range ( n -- b ) [
+	-- initial state...
+	[ dup number? ] ? 
+		[ [] swap ]
+	-- get first elem...
+	else
+		[ 0 at ]
+	-- we got to the end...
+	[ dup 0 eq ] ? 
+		drop
+	-- dec push new and continue...
+	else
+		[ 1 sub 0 before range ]]
+
+-- Sum up the elements of a block...
+:: sum ( L -- s ) [ [ add ] reduce ]
+
+
+-- Meta-word examples (experimental)...
+
+-- Here is an infix operator example...
+-- 	:: + ( a | b -- c |  ) [ \\exec 2 0 _swapN \\exec \\add 2 1 _swapN ]
+-- now let\'s make a meta function to make things shorter...
+:: infix: ( | op word -- | ) [
+	[
+		-- format the word definition...
+		--     NAME WORD  ->  :: NAME WORD
+		s2b \\:: -2 before b2s
+
+		-- our template...
+		-- exec the left side...
+		[ \\exec 2 0 _swapN
+				-- exec the right side and arragne the args for WORD...
+				\\exec \\WORD 2 1 _swapN ] clone
+			-- get the WORD and insert it into the template above (opsition 8)...
+			swap WORD replace
+
+		-- push to code / run
+		3 0 _swapN 
+	-- swap the arguments and the code to be executed...
+	] \\exec 2 2 _swapN ]
+
+-- Now making a word/2 an infix operator is trivial...
+-- NOTE: these are at this point stupid and do not support priorities...
+infix: + add
+infix: - sub
+infix: * mul
+infix: / div
+
+-- these need more thought...
+infix: == eq
+infix: != ne
+infix: > gt
+infix: < lt
+infix: <= le
+infix: >= ge
+
+-- experimental...
+infix: = word!
+
+
+-- Prefix operation definition...
+-- Example:
+--		:: echo: ( | txt -- | ) [ \\_flip \\print _flip ]
+-- swap stack and code untill the block finishes and consumes it's arguments
+-- then swap them back...
+:: prefix: ( | op word -- | ) [
+	[
+		-- format the word definition...
+		--     NAME WORD  ->  :: NAME WORD
+		s2b \\:: -2 before b2s
+
+		-- the code template
+		[ \\_flip \\exec \\WORD _flip ] clone
+			swap WORD replace
+			3 0 _swapN
+	] \\exec 2 2 _swapN ]
+
+
+
+-- Tests and examples...
+
+-- Mandatory "hello word" word example...
+:: hi ( -- ) [ "Hello World!" print drop ]
+
+-- Create a block containg a range of numbers from f to t, inclusive...
+:: range/2 ( f t -- b )
+		[ dup2 swap sub swap . inc range swap [] swap push \\+ 0 before map ]
+
+-- this will enable us to create ranges via 0 .. 4
+infix: .. range/2
+
+--:: range/3 ( a n s -- b )
+--		[ swap range swap [] swap push \\* 0 before map ]
+
+-- Execute block in a context...
+-- synctx: context: <block>
+prefix: context: [ ns {} proto! ns! exec ns proto ns! ]
+
+
+`
 
 
 var STARTUP = [[], BOOTSTRAP, 'lex', 'prep', '_exec', 'drop']
