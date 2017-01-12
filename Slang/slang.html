@@ -31,7 +31,7 @@
 .command:focus:after {
 	opacity: 0.2;
 }
-.command:last-child {
+.command:first-child {
 	border: red 2px solid;
 	border-radius: 5px;
 	box-shadow: 2px 2px 5px 0px silver;
@@ -112,12 +112,12 @@ function runCommand(){
 	var stack = document.getElementById('stack')
 	var console = document.getElementById('console')
 	var commands = document.getElementsByClassName('command')
-	var command = commands[commands.length-1]
+	var command = commands[0]
 	command.removeAttribute('contenteditable')
 
 	command.addEventListener('click', function(e){
 		var commands = document.getElementsByClassName('command')
-		var c = commands[commands.length-1]
+		var c = commands[0]
 		c.innerText = command.innerText
 		c.focus()
 		window.scrollTo(0,document.body.scrollHeight)
@@ -135,17 +135,15 @@ function runCommand(){
 		} else {
 			err.innerText = e
 		}
-		console.appendChild(err)
+		console.insertBefore(err, console.firstChild)
 	}
 
 	// create the next element...
 	var next = document.createElement('div')
 	next.classList.add('command')
 	next.setAttribute('contenteditable', true)
-	console.appendChild(next)
+	console.insertBefore(next, console.firstChild)
 	next.focus()
-
-	window.scrollTo(0,document.body.scrollHeight)
 }
 
 NAMESPACE.print = function(context){
@@ -156,7 +154,7 @@ NAMESPACE.print = function(context){
 	var data = document.createElement('div')
 	data.classList.add('output')
 	data.innerHTML = stringifySlangCode(o)
-	c.appendChild(data)
+	c.insertBefore(data, c.firstChild)
 }
 
 // XXX should this break exec?
@@ -172,7 +170,7 @@ NAMESPACE.err = function(context){
 	} else {
 		err.innerText = e
 	}
-	c.appendChild(err)
+	c.insertBefore(err, c.firstChild)
 }
 
 
@@ -226,10 +224,10 @@ function showAvailableWords(){
 	</p>
 	<p id="words"></p>
 	<h2>Slang Console</h2>
+	<div id="stack"></div>
 	<div id="console">
 		<div class="command" contenteditable="true"></div>
-	</div>
-	<div id="stack"></div>
+	</div>	
 </body>
 <script>
 var bootstrap = BOOTSTRAP
@@ -243,7 +241,9 @@ var bootstrap = BOOTSTRAP
 	.replace(/(\([^\)]*\))/g, '<span class="comment">$1</span>')
 	.replace(/(\s*--.*\n)/g, '<span class="comment">$1</span>')
 /*
-Object.keys(NAMESPACE).forEach(function(k){
+Object.keys(NAMESPACE).forEach(function(k){ommands[0]
+			c.innerText = command.innerText
+			c.focus()
 	bootstrap = bootstrap.replace(
 		RegExp('('+k
 			.replace('&', '&amp;')
@@ -255,15 +255,34 @@ Object.keys(NAMESPACE).forEach(function(k){
 */
 document.getElementById('bootstrap').innerHTML='<pre>'+bootstrap+'</pre>'
 
+var historyIndex = 0
+
 document.getElementById('console')
 	.addEventListener("keyup", function(e) {
 		if(e.keyCode == 13 && e.ctrlKey){
+			historyIndex = 0
 			runCommand()
 			showAvailableWords()
+		} else if (e.keyCode == 38 && e.ctrlKey){
+			e.preventDefault()
+			moveHistory(1)
+		} else if (e.keyCode == 40 && e.ctrlKey){
+			e.preventDefault()
+			moveHistory(-1)
 		}
 	}, false);
 
 showAvailableWords()
+
+function moveHistory(step){
+	var commands = document.getElementsByClassName('command')
+	  , next = historyIndex + step
+	if (next >= commands.length || next < 0) {
+		return
+	}
+	historyIndex = next
+	commands[historyIndex].click()
+}
 
 </script>
 </html>
