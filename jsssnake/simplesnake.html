@@ -25,6 +25,9 @@ var Snake = {
 	_field: null,
 	_cells: null,
 
+	// XXX BUG: going down into bottom left corner breaks the snake...
+	//		...check other corner cases!
+	//			...looks like the only corner case...
 	_tick: function(){
 		var that = this
 
@@ -81,15 +84,18 @@ var Snake = {
 					}
 
 					// apples...
+					// XXX TEST
 					var age = cell.age
 					if(next.style.backgroundColor == that.config.apple_color){
 						age += 1
 
 					// special case: other snake's head -- kill both...
+					// XXX TEST
 					} else if(next.direction){
 						next.style.backgroundColor = ''
 						// NOTE: we are not deleteing .direction here as 
 						//		we can have upto 4 snakes colliding...
+						next.direction = ''
 						delete next.age
 
 					// empty...
@@ -125,7 +131,7 @@ var Snake = {
 		return this
 	},
 
-	player: function(color, x, y, direction, age){
+	snake: function(color, x, y, direction, age){
 		var head = this._cells[x + y * this.field_size.width]
 
 		head.style.backgroundColor = color
