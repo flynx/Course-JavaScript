@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<style>
+
+.snake.field {
+	width: 500px;
+	height: 500px;
+	border: solid 1px silver;
+}
+
+
+</style>
+
+<script>
+
+var Snake = {
+	config: {
+		apple_color: 'red',
+
+		interval: 200,
+	},
+
+	field_size: null,
+
+	_field: null,
+	_cells: null,
+
+	_tick: function(){
+		var that = this
+
+		var l = this._cells.length
+		var w = this.field_size.width
+		var h = this.field_size.height
+
+		var tick = this.__tick = (this.__tick + 1 || 0)
+		var directions = 'neswn'
+
+		this._cells.forEach(function(cell, i){
+			var color = cell.style.backgroundColor
+
+			// skip cells we touched...
+			if(cell.tick == tick){
+				return
+			}
+
+			// snake...
+			if(cell.age != null){
+				// handle cell age...
+				if(cell.age == 0){
+					delete cell.age
+					cell.style.backgroundColor = ''
+
+				} else {
+					cell.age -= 1
+				}
+
+				// head...
+				var direction = cell.direction
+				var next = 
+					direction == 'n' ?
+						(i < w ? l - w + i : i - w)
+					: direction == 's' ?
+						(i > (l-w) ? i - (l-w) : i + w)
+					: direction == 'e' ?
+						((i+1)%w == 0 ? i - (w-1) : i + 1)
+					: direction == 'w' ?
+						(i%w == 0 ? i + (w-1) : i - 1)
+					: null 
+
+				if(next != null){
+					next = that._cells[next]
+
+					// turn...
+					var turn = that.players[color] || ''
+					if(turn != ''){
+						var j = turn == 'left' ? directions.indexOf(direction) - 1
+							: directions.indexOf(direction) + 1
+						j = j < 0 ? 3 : j
+						direction = directions[j]
+						that.players[color] = ''
+					}
+
+					// apples...
+					var age = cell.age
+					if(next.style.backgroundColor == that.config.apple_color){
+						age += 1
+
+					// special case: other snake's head -- kill both...
+					} else if(next.direction){
+						next.style.backgroundColor = ''
+						// NOTE: we are not deleteing .direction here as 
+						//		we can have upto 4 snakes colliding...
+						delete next.age
+
+					// empty...
+					// NOTE: anything but an apple will kill the snake...
+					} else if(next.style.backgroundColor == ''){
+						next.tick = tick
+						next.style.backgroundColor = color
+						next.age = age + 1
+						next.direction = direction
+					}
+
+					delete cell.direction
+				}
+			}
+
+			cell.tick = tick
+		})
+	},
+
+	setup: function(field){
+		field = field || this._field
+		field = this._field = typeof(field) == typeof('str') ? document.querySelector(field)
+			: field
+		this._cells = [].slice.call(field.querySelectorAll('td'))
+
+		this.field_size = {
+			width: field.querySelector('tr').querySelectorAll('td').length,
+			height: field.querySelectorAll('tr').length,
+		}
+
+		this.players = {}
+
+		return this
+	},
+
+	player: function(color, x, y, direction, age){
+		var head = this._cells[x + y * this.field_size.width]
+
+		head.style.backgroundColor = color
+		head.direction = direction
+		head.age = (age || 5) - 1
+
+		this.players[color] = ''
+
+		return this
+	},
+
+	// actions...
+	start: function(){
+		this.__timer = this.__timer 
+			|| setInterval(this._tick.bind(this), this.config.interval || 200)
+		return this
+	},
+	stop: function(){
+		clearInterval(this.__timer)
+		delete this.__timer
+		delete this.__tick
+		return this
+	},
+
+	left: function(color){ 
+		this.players[color || Object.keys(this.players)[0]] = 'left' 
+		return this
+	},
+	right: function(color){
+		this.players[color || Object.keys(this.players)[0]] = 'right' 
+		return this
+	},
+}
+
+
+</script>
+
+<body>
+
+<table class="snake field">
+	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
+		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
+		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
+		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
+		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+
+	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
+		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
+		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
+		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
+		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+
+	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
+		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
+		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
+		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
+		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+
+	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
+		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
+		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
+		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
+		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+</table>
+
+</body>
+</html>
+<!-- vim:set ts=4 sw=4 : -->
