@@ -27,6 +27,22 @@ var Snake = {
 	players: null,
 	field_size: null,
 
+	// utils...
+	random_point: function(){
+		var cells = this._cells
+		var l = cells.length
+		var w = this.field_size.width
+
+		do {
+			var i = Math.floor(Math.random() * l)
+		} while(cells[i].style.backgroundColor != '')
+
+		return {
+			x: i%w,
+			y: Math.floor(i/w),
+		}
+	},
+
 	// XXX BUG: going down into bottom left corner breaks the snake...
 	//		...check other corner cases!
 	//			...looks like the only corner case...
@@ -136,9 +152,9 @@ var Snake = {
 
 	// constructors...
 	// XXX normalize input x/y...
-	snake: function(color, x, y, direction, age){
-		var head = this._cells[x + y * this.field_size.width]
-
+	snake: function(color, point, direction, age){
+		point = point || this.random_point()
+		var head = this._cells[point.x + point.y * this.field_size.width]
 		head.style.backgroundColor = color
 		head.direction = direction
 		head.age = (age || 5) - 1
@@ -147,12 +163,16 @@ var Snake = {
 
 		return this
 	},
-	apple: function(x, y){
-		this._cells[x + y * this.field_size.width]
+	apple: function(point){
+		point = point || this.random_point()
+		this._cells[point.x + point.y * this.field_size.width]
 			.style.backgroundColor = this.config.apple_color
 		return this
 	},
-	wall: function(x, y, direction, length){
+	wall: function(point, direction, length){
+		point = point || this.random_point()
+		var x = point.x
+		var y = point.y
 		length = length || 1
 		while(length > 0){
 			this._cells[x + y * this.field_size.width]
@@ -175,9 +195,9 @@ var Snake = {
 	},
 
 	// actions...
-	start: function(){
+	start: function(t){
 		this.__timer = this.__timer 
-			|| setInterval(this._tick.bind(this), this.config.interval || 200)
+			|| setInterval(this._tick.bind(this), t || this.config.interval || 200)
 		return this
 	},
 	stop: function(){
@@ -202,15 +222,15 @@ function test(game){
 		.setup(game || '.snake')
 
 		// XXX BUG: this will break as soon as it reaches the corner...
-		.snake('blue', 0, 0, 's', 5)
+		.snake('blue', {x:0, y:0}, 's', 5)
 
 		// hit an apple...
-		.snake('green', 5, 3, 's', 5)
-		.apple(5, 5)
+		.snake('green', {x:5, y:3}, 's', 5)
+		.apple({x:5, y:5})
 
 		// hit a wall...
-		.snake('silver', 14, 3, 'w', 5)
-		.wall(2, 14, 's', 7)
+		.snake('silver', {x:14, y:3}, 'w', 5)
+		.wall({x:2, y:14}, 's', 7)
 
 		.start()
 }
@@ -228,15 +248,32 @@ function kbHandler(event){
 }
 
 
+var Levels = {
+	basicLevel: function(){
+		return this
+			.wall({x:3, y:10}, 's', 11)
+			.wall({x:3, y:5}, 'e', 5)
+			.wall({x:3+5, y:5}, 's', 5)
+			.wall({x:3+5, y:5+4}, 'e', 12) },
+	randomLevel: function(){
+		return this
+			.wall(null, 's', 11)
+			.wall(null, 's', 11)
+			.wall(null, 'e', 11)
+			.wall(null, 'e', 11) },
+}
+Snake.__proto__ = Levels
+
 
 function setup(){
 	Snake
 		.setup('.snake')
-		// setup base level...
-		.wall(2, 10, 's', 11)
-		.wall(2, 5, 'e', 5)
-		.wall(2+5, 5, 's', 5)
-		.wall(2+5, 5+4, 'e', 12)
+
+		//.randomLevel()
+		.basicLevel()
+
+		.apple()
+		.apple()
 
 		.start()
 
