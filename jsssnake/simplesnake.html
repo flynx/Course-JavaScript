@@ -230,8 +230,10 @@ function setup(){
 	Snake
 		.setup('.snake')
 		// setup base level...
-		// XXX
 		.wall(2, 14, 's', 7)
+		.wall(2, 5, 'e', 5)
+		.wall(2+5, 5, 's', 5)
+		.wall(2+5, 5+4, 'e', 12)
 
 		.start()
 
