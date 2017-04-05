@@ -216,6 +216,10 @@ function test(game){
 // XXX keyboard controller...
 //		- press two buttons in under N milliseconds to launch a snake
 //		- first button pressed is left, second is right
+// XXX should the cfg be global or local to Snake???
+//		...at this point global seems simpler...
+var KEY_CONFIG = {
+}
 function kbHandler(event){
 	// XXX
 }
@@ -226,6 +230,7 @@ function setup(){
 	Snake('.snake')
 		// setup base level...
 		// XXX
+		.wall(2, 14, 's', 7)
 
 		.start()
 
