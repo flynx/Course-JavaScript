@@ -194,9 +194,9 @@ var Snake = {
 }
 
 
-function test(){
+function test(game){
 	return Snake
-		.setup('.snake')
+		.setup(game || '.snake')
 
 		// XXX BUG: this will break as soon as it reaches the corner...
 		.snake('blue', 0, 0, 's', 5)
