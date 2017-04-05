@@ -16,7 +16,7 @@
 var Snake = {
 	config: {
 		apple_color: 'red',
-
+		wall_color: 'gray',
 		interval: 200,
 	},
 
@@ -83,24 +83,28 @@ var Snake = {
 						that.players[color] = ''
 					}
 
-					// apples...
-					// XXX TEST
 					var age = cell.age
-					if(next.style.backgroundColor == that.config.apple_color){
-						age += 1
-
+					var move = false
 					// special case: other snake's head -- kill both...
-					// XXX TEST
-					} else if(next.direction){
+					if(next.direction){
 						next.style.backgroundColor = ''
 						// NOTE: we are not deleteing .direction here as 
 						//		we can have upto 4 snakes colliding...
 						next.direction = ''
 						delete next.age
 
+					// apples...
+					} else if(next.style.backgroundColor == that.config.apple_color){
+						age += 1
+						move = true
+
 					// empty...
 					// NOTE: anything but an apple will kill the snake...
 					} else if(next.style.backgroundColor == ''){
+						move = true
+					}
+
+					if(move){
 						next.tick = tick
 						next.style.backgroundColor = color
 						next.age = age + 1
@@ -120,17 +124,15 @@ var Snake = {
 		field = this._field = typeof(field) == typeof('str') ? document.querySelector(field)
 			: field
 		this._cells = [].slice.call(field.querySelectorAll('td'))
-
 		this.field_size = {
 			width: field.querySelector('tr').querySelectorAll('td').length,
 			height: field.querySelectorAll('tr').length,
 		}
-
 		this.players = {}
-
 		return this
 	},
 
+	// constructors...
 	snake: function(color, x, y, direction, age){
 		var head = this._cells[x + y * this.field_size.width]
 
@@ -140,6 +142,32 @@ var Snake = {
 
 		this.players[color] = ''
 
+		return this
+	},
+	apple: function(x, y){
+		this._cells[x + y * this.field_size.width]
+			.style.backgroundColor = this.config.apple_color
+		return this
+	},
+	wall: function(x, y, direction, length){
+		length = length || 1
+		while(length > 0){
+			this._cells[x + y * this.field_size.width]
+				.style.backgroundColor = this.config.wall_color
+
+			x += direction == 'e' ? 1
+				: direction == 'w' ? -1
+				: 0
+			x = x < 0 ? this.field_size.width + x
+				: x % this.field_size.width
+			y += direction == 'n' ? -1
+				: direction == 's' ? 1
+				: 0
+			y = y < 0 ? this.field_size.height + y
+				: y % this.field_size.height
+
+			length -= 1
+		}
 		return this
 	},
 
@@ -155,7 +183,6 @@ var Snake = {
 		delete this.__tick
 		return this
 	},
-
 	left: function(color){ 
 		this.players[color || Object.keys(this.players)[0]] = 'left' 
 		return this
@@ -164,6 +191,25 @@ var Snake = {
 		this.players[color || Object.keys(this.players)[0]] = 'right' 
 		return this
 	},
+}
+
+
+function test(){
+	return Snake
+		.setup('.snake')
+
+		// XXX BUG: this will break as soon as it reaches the corner...
+		.snake('blue', 0, 0, 's', 5)
+
+		// hit an apple...
+		.snake('green', 5, 3, 's', 5)
+		.apple(5, 5)
+
+		// hit a wall...
+		.snake('silver', 14, 3, 'w', 5)
+		.wall(2, 14, 's', 7)
+
+		.start()
 }
 
 
