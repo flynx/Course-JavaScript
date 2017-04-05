@@ -11,6 +11,24 @@
 </style>
 <script>
 
+// XXX automate clearing of handlers...
+function makeEvent(handler_attr){
+	return function(func){
+		if(func instanceof Function){
+			var handlers = this[handler_attr] = this[handler_attr] || []
+			handlers.push(func)
+
+		} else {
+			var that = this
+			var args = [].slice.call(arguments)
+			this[handler_attr]
+				&& this[handler_attr]
+					.forEach(function(handler){ handler.apply(that, args) })
+		}
+		return this
+	}
+}
+
 // XXX normalize x/y everywhere we input coordinates...
 var Snake = {
 	config: {
@@ -102,11 +120,14 @@ var Snake = {
 					var move = false
 					// special case: other snake's head -- kill both...
 					if(next.direction){
+						var other = next.style.backgroundColor
 						next.style.backgroundColor = ''
 						// NOTE: we are not deleteing .direction here as 
 						//		we can have upto 4 snakes colliding...
 						next.direction = ''
 						delete next.age
+						that.snakeKilled(other)
+						that.snakeKilled(color)
 
 					// apples...
 					} else if(next.style.backgroundColor == that.config.apple_color){
@@ -118,8 +139,13 @@ var Snake = {
 					// NOTE: anything but an apple will kill the snake...
 					} else if(next.style.backgroundColor == ''){
 						move = true
+
+					// kill...
+					} else {
+						that.snakeKilled(color)
 					}
 
+					// do the move...
 					if(move){
 						next.tick = tick
 						next.style.backgroundColor = color
@@ -152,6 +178,7 @@ var Snake = {
 		this._cells.forEach(function(c){ c.style.backgroundColor = '' }) 
 		this.players = {}
 		delete this.__appleEatenHandlers
+		delete this.__killHandlers
 		return this
 	},
 
@@ -200,21 +227,8 @@ var Snake = {
 	},
 
 	// events...
-	appleEaten: function(func){
-		if(func){
-			var handlers = this.__appleEatenHandlers = this.__appleEatenHandlers || []
-			handlers.push(func)
-
-		} else {
-			var that = this
-			this.__appleEatenHandlers
-				&& this.__appleEatenHandlers
-					.forEach(function(handler){
-						handler.call(that)
-					})
-		}
-		return this
-	},
+	appleEaten: makeEvent('__appleEatenHandlers'),
+	snakeKilled: makeEvent('__killHandlers'),
 
 	// actions...
 	start: function(t){
@@ -236,10 +250,8 @@ var Snake = {
 		this.players[color || Object.keys(this.players)[0]] = 'right' 
 		return this
 	},
-}
 
-
-var Levels = {
+	// levels...
 	basicLevel: function(){
 		return this
 			.wall({x:3, y:10}, 's', 11)
@@ -253,7 +265,6 @@ var Levels = {
 			.wall(null, 'e', 11)
 			.wall(null, 'e', 11) },
 }
-Snake.__proto__ = Levels
 
 
 var HANDLER_SET = false
@@ -278,12 +289,14 @@ function setup(){
 		.clear()
 
 		//.randomLevel()
-		//.basicLevel()
+		.basicLevel()
 
 		.appleEaten(function(){ this.apple() })
 		.apple()
 		.apple()
 
+		// XXX do something better with direction...
+		.snakeKilled(function(color){ this.snake(color, null, 's', 3) })
 		.snake('blue', null, 's', 3)
 
 		.start(300)
