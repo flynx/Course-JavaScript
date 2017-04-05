@@ -8,12 +8,9 @@
 	border: solid 1px silver;
 }
 
-
 </style>
-
 <script>
 
-// XXX add random apple and snake placement + avoid walls and other stuff...
 // XXX normalize x/y everywhere we input coordinates...
 var Snake = {
 	config: {
@@ -115,6 +112,7 @@ var Snake = {
 					} else if(next.style.backgroundColor == that.config.apple_color){
 						age += 1
 						move = true
+						that.appleEaten()
 
 					// empty...
 					// NOTE: anything but an apple will kill the snake...
@@ -147,6 +145,13 @@ var Snake = {
 			height: field.querySelectorAll('tr').length,
 		}
 		this.players = {}
+		return this
+	},
+	clear: function(){
+		this.setup()
+		this._cells.forEach(function(c){ c.style.backgroundColor = '' }) 
+		this.players = {}
+		delete this.__appleEatenHandlers
 		return this
 	},
 
@@ -194,6 +199,23 @@ var Snake = {
 		return this
 	},
 
+	// events...
+	appleEaten: function(func){
+		if(func){
+			var handlers = this.__appleEatenHandlers = this.__appleEatenHandlers || []
+			handlers.push(func)
+
+		} else {
+			var that = this
+			this.__appleEatenHandlers
+				&& this.__appleEatenHandlers
+					.forEach(function(handler){
+						handler.call(that)
+					})
+		}
+		return this
+	},
+
 	// actions...
 	start: function(t){
 		this.__timer = this.__timer 
@@ -217,6 +239,63 @@ var Snake = {
 }
 
 
+var Levels = {
+	basicLevel: function(){
+		return this
+			.wall({x:3, y:10}, 's', 11)
+			.wall({x:3, y:5}, 'e', 5)
+			.wall({x:3+5, y:5}, 's', 5)
+			.wall({x:3+5, y:5+4}, 'e', 12) },
+	randomLevel: function(){
+		return this
+			.wall(null, 's', 11)
+			.wall(null, 's', 11)
+			.wall(null, 'e', 11)
+			.wall(null, 'e', 11) },
+}
+Snake.__proto__ = Levels
+
+
+var HANDLER_SET = false
+var KEY_CONFIG = {
+	ArrowLeft: 'left',
+	ArrowRight: 'right',
+}
+function kbHandler(event){
+	var action = KEY_CONFIG[event.key]
+	action 
+		&& action in Snake 
+		&& Snake[action]()
+}
+
+
+function setup(){
+	Snake
+		.setup('.snake')
+
+		// make setup(..) re-enterable..
+		.stop()
+		.clear()
+
+		//.randomLevel()
+		//.basicLevel()
+
+		.appleEaten(function(){ this.apple() })
+		.apple()
+		.apple()
+
+		.snake('blue', null, 's', 3)
+
+		.start(300)
+
+	// setup kb handler (only once)...
+	if(!HANDLER_SET){
+		document.addEventListener('keydown', kbHandler)
+		HANDLER_SET = true
+	}
+}
+
+
 function test(game){
 	return Snake
 		.setup(game || '.snake')
@@ -235,53 +314,9 @@ function test(game){
 		.start()
 }
 
-
-// XXX keyboard controller...
-//		- press two buttons in under N milliseconds to launch a snake
-//		- first button pressed is left, second is right
-// XXX should the cfg be global or local to Snake???
-//		...at this point global seems simpler...
-var KEY_CONFIG = {
-}
-function kbHandler(event){
-	// XXX
-}
-
-
-var Levels = {
-	basicLevel: function(){
-		return this
-			.wall({x:3, y:10}, 's', 11)
-			.wall({x:3, y:5}, 'e', 5)
-			.wall({x:3+5, y:5}, 's', 5)
-			.wall({x:3+5, y:5+4}, 'e', 12) },
-	randomLevel: function(){
-		return this
-			.wall(null, 's', 11)
-			.wall(null, 's', 11)
-			.wall(null, 'e', 11)
-			.wall(null, 'e', 11) },
-}
-Snake.__proto__ = Levels
-
-
-function setup(){
-	Snake
-		.setup('.snake')
-
-		//.randomLevel()
-		.basicLevel()
-
-		.apple()
-		.apple()
-
-		.start()
-
-	// XXX setup kb handler...
-	// XXX
-}
-
 </script>
+
+<head> <title>Simple Snake</title> </head>
 
 <body onload="setup()">
 
