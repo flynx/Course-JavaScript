@@ -227,7 +227,8 @@ function kbHandler(event){
 
 
 function setup(){
-	Snake('.snake')
+	Snake
+		.setup('.snake')
 		// setup base level...
 		// XXX
 		.wall(2, 14, 's', 7)
