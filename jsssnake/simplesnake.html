@@ -213,9 +213,26 @@ function test(game){
 }
 
 
+// XXX keyboard controller...
+//		- press two buttons in under N milliseconds to launch a snake
+//		- first button pressed is left, second is right
+
+
+
+function setup(){
+	Snake('.snake')
+		// setup base level...
+		// XXX
+
+		.start()
+
+	// XXX setup kb handler...
+	// XXX
+}
+
 </script>
 
-<body>
+<body onload="setup()">
 
 <table class="snake field" cellspacing="0">
 	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
@@ -255,6 +272,10 @@ function test(game){
 		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
 </table>
 
+<p>
+XXX basic instructions...
+</p>
+
 </body>
 </html>
-<!-- vim:set ts=4 sw=4 : -->
+<!-- vim:set ts=4 sw=4 spell : -->
