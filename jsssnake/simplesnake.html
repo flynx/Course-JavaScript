@@ -10,6 +10,7 @@
 
 </style>
 <script>
+//---------------------------------------------------------------------
 
 // XXX automate clearing of handlers...
 function makeEvent(handler_attr){
@@ -93,14 +94,10 @@ var Snake = {
 				// head...
 				var direction = cell.direction
 				var next = 
-					direction == 'n' ?
-						(i < w ? l - w + i : i - w)
-					: direction == 's' ?
-						(i > (l-w) ? i - (l-w) : i + w)
-					: direction == 'e' ?
-						((i+1)%w == 0 ? i - (w-1) : i + 1)
-					: direction == 'w' ?
-						(i%w == 0 ? i + (w-1) : i - 1)
+					direction == 'n' ?  (i < w ? l - w + i : i - w)
+					: direction == 's' ?  (i > (l-w) ? i - (l-w) : i + w)
+					: direction == 'e' ?  ((i+1)%w == 0 ? i - (w-1) : i + 1)
+					: direction == 'w' ?  (i%w == 0 ? i + (w-1) : i - 1)
 					: null 
 
 				if(next != null){
@@ -267,18 +264,22 @@ var Snake = {
 }
 
 
+//---------------------------------------------------------------------
+
 var HANDLER_SET = false
 var KEY_CONFIG = {
-	ArrowLeft: 'left',
-	ArrowRight: 'right',
+	ArrowLeft: ['left'],
+	ArrowRight: ['right'],
 }
 function kbHandler(event){
 	var action = KEY_CONFIG[event.key]
 	action 
 		&& action in Snake 
-		&& Snake[action]()
+		&& Snake[action[0]].apply(Snake, action.slice(1))
 }
 
+
+//---------------------------------------------------------------------
 
 function setup(){
 	Snake
@@ -309,6 +310,8 @@ function setup(){
 }
 
 
+//---------------------------------------------------------------------
+
 function test(game){
 	return Snake
 		.setup(game || '.snake')
@@ -327,6 +330,8 @@ function test(game){
 		.start()
 }
 
+
+//---------------------------------------------------------------------
 </script>
 
 <head> <title>Simple Snake</title> </head>
