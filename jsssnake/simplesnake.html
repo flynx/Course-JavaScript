@@ -64,11 +64,9 @@ var Snake = {
 	//			...looks like the only corner case...
 	_tick: function(){
 		var that = this
-
 		var l = this._cells.length
 		var w = this.field_size.width
 		var h = this.field_size.height
-
 		var tick = this.__tick = (this.__tick + 1 || 0)
 		var directions = 'neswn'
 
@@ -94,12 +92,12 @@ var Snake = {
 				// head...
 				var direction = cell.direction
 				var next = 
-					direction == 'n' ?  (i < w ? l - w + i : i - w)
-					: direction == 's' ?  (i > (l-w) ? i - (l-w) : i + w)
-					: direction == 'e' ?  ((i+1)%w == 0 ? i - (w-1) : i + 1)
-					: direction == 'w' ?  (i%w == 0 ? i + (w-1) : i - 1)
+					direction == 'n' ? (i < w ? l - w + i : i - w)
+					// XXX BUG: this returns 256 when at x = 0...
+					: direction == 's' ? (i > (l-w) ? i - (l-w) : i + w)
+					: direction == 'e' ? ((i+1)%w == 0 ? i - (w-1) : i + 1)
+					: direction == 'w' ? (i%w == 0 ? i + (w-1) : i - 1)
 					: null 
-
 				if(next != null){
 					next = that._cells[next]
 
@@ -115,6 +113,7 @@ var Snake = {
 
 					var age = cell.age
 					var move = false
+
 					// special case: other snake's head -- kill both...
 					if(next.direction){
 						var other = next.style.backgroundColor
@@ -171,7 +170,9 @@ var Snake = {
 		return this
 	},
 	clear: function(){
+		// this resets the cell object attrs...
 		this.setup()
+		// reset the actual cells...
 		this._cells.forEach(function(c){ c.style.backgroundColor = '' }) 
 		this.players = {}
 		delete this.__appleEatenHandlers
@@ -239,6 +240,8 @@ var Snake = {
 		delete this.__tick
 		return this
 	},
+	pause: function(){
+		return this.__timer ? this.stop() : this.start() },
 	left: function(color){ 
 		this.players[color || Object.keys(this.players)[0]] = 'left' 
 		return this
@@ -270,11 +273,12 @@ var HANDLER_SET = false
 var KEY_CONFIG = {
 	ArrowLeft: ['left'],
 	ArrowRight: ['right'],
+	' ': ['pause'],
 }
 function kbHandler(event){
 	var action = KEY_CONFIG[event.key]
 	action 
-		&& action in Snake 
+		&& action[0] in Snake 
 		&& Snake[action[0]].apply(Snake, action.slice(1))
 }
 
