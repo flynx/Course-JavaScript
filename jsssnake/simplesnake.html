@@ -204,6 +204,7 @@ var Snake = {
 		var x = point.x
 		var y = point.y
 		length = length || 1
+
 		while(length > 0){
 			this._cells[x + y * this.field_size.width]
 				.style.backgroundColor = this.config.wall_color
@@ -218,9 +219,9 @@ var Snake = {
 				: 0
 			y = y < 0 ? this.field_size.height + y
 				: y % this.field_size.height
-
 			length -= 1
 		}
+
 		return this
 	},
 
@@ -271,11 +272,15 @@ var Snake = {
 
 var HANDLER_SET = false
 var KEY_CONFIG = {
-	ArrowLeft: ['left'],
-	ArrowRight: ['right'],
 	' ': ['pause'],
+	ArrowLeft: ['left'],
+	ArrowRight: ['right'], 
+	// IE compatibility...
+	Left: ['left'],
+	Right: ['right'],
 }
 function kbHandler(event){
+	console.log('KEY:', event.key)
 	var action = KEY_CONFIG[event.key]
 	action 
 		&& action[0] in Snake 
