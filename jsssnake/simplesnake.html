@@ -91,25 +91,27 @@ var Snake = {
 
 				// head...
 				var direction = cell.direction
-				var next = 
-					direction == 'n' ? (i < w ? l - w + i : i - w)
-					// XXX BUG: this returns 256 when at x = 0...
-					: direction == 's' ? (i > (l-w-1) ? i - (l-w) : i + w)
-					: direction == 'e' ? ((i+1)%w == 0 ? i - (w-1) : i + 1)
-					: direction == 'w' ? (i%w == 0 ? i + (w-1) : i - 1)
-					: null 
-				if(next != null){
-					next = that._cells[next]
-
+				if(directions.indexOf(direction) >= 0){
 					// turn...
-					var turn = that.players[color] || ''
-					if(turn != ''){
+					if(that.players[color] != ''){
+						var turn = that.players[color] || ''
 						var j = turn == 'left' ? directions.indexOf(direction) - 1
 							: directions.indexOf(direction) + 1
 						j = j < 0 ? 3 : j
 						direction = directions[j]
 						that.players[color] = ''
 					}
+
+					// next cell index...
+					var next = 
+						direction == 'n' ? 
+							(i < w ? l - w + i : i - w)
+						: direction == 's' ? 
+							(i > (l-w-1) ? i - (l-w) : i + w)
+						: direction == 'e' ? 
+							((i+1)%w == 0 ? i - (w-1) : i + 1)
+						: (i%w == 0 ? i + (w-1) : i - 1)
+					next = that._cells[next]
 
 					var age = cell.age
 					var move = false
@@ -254,11 +256,12 @@ var Snake = {
 
 	// levels...
 	basicLevel: function(){
+		var a = this.field_size.width/8
 		return this
-			.wall({x:3, y:10}, 's', 11)
-			.wall({x:3, y:5}, 'e', 5)
-			.wall({x:3+5, y:5}, 's', 5)
-			.wall({x:3+5, y:5+4}, 'e', 12) },
+			.wall({x:a*3, y:a*4}, 's', a*6)
+			.wall({x:a*3, y:a*2}, 'e', a*2)
+			.wall({x:a*5, y:a*2}, 's', a*2)
+			.wall({x:a*5, y:a*4}, 'e', a*6) },
 	randomLevel: function(){
 		return this
 			.wall(null, 's', 11)
@@ -280,11 +283,18 @@ var KEY_CONFIG = {
 	Right: ['right'],
 }
 function kbHandler(event){
-	console.log('KEY:', event.key)
+	//console.log('KEY:', event.key)
 	var action = KEY_CONFIG[event.key]
 	action 
 		&& action[0] in Snake 
 		&& Snake[action[0]].apply(Snake, action.slice(1))
+}
+
+
+//---------------------------------------------------------------------
+
+function filed_generator(w){
+	// XXX
 }
 
 
@@ -306,10 +316,14 @@ function setup(){
 		.apple()
 
 		// XXX do something better with direction...
-		.snakeKilled(function(color){ this.snake(color, null, 's', 3) })
+		.snakeKilled(function(color){ 
+			this
+				.pause()
+				.snake(color, null, 's', 3) 
+		})
 		.snake('blue', null, 's', 3)
 
-		.start(300)
+		.start(150)
 
 	// setup kb handler (only once)...
 	if(!HANDLER_SET){
@@ -327,6 +341,7 @@ function test(game){
 
 		// XXX BUG: this will break as soon as it reaches the corner...
 		.snake('blue', {x:0, y:0}, 's', 5)
+		.snake('blue', {x:Snake.field_size.width-1, y:0}, 's', 5)
 
 		// hit an apple...
 		.snake('green', {x:5, y:3}, 's', 5)
@@ -348,41 +363,77 @@ function test(game){
 <body onload="setup()">
 
 <table class="snake field" cellspacing="0">
-	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
-		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
-	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
-		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
-	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
-		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
-	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
-		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
 
-	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
-		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
-	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
-		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
-	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
-		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
-	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
-		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
 
-	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
-		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
-	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
-		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
-	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
-		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
-	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
-		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
 
-	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
-		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
-	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
-		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
-	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
-		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
-	<tr> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td>
-		<td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
+	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
+		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
 </table>
 
 <p>
