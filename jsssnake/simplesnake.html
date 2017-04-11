@@ -258,10 +258,10 @@ var Snake = {
 	basicLevel: function(){
 		var a = this.field_size.width/8
 		return this
-			.wall({x:a*3, y:a*4}, 's', a*6)
-			.wall({x:a*3, y:a*2}, 'e', a*2)
-			.wall({x:a*5, y:a*2}, 's', a*2)
-			.wall({x:a*5, y:a*4}, 'e', a*6) },
+			.wall({x:a*3, y:a*5}, 's', a*6)
+			.wall({x:a*3, y:a*3}, 'e', a*2)
+			.wall({x:a*5, y:a*3}, 's', a*2)
+			.wall({x:a*5, y:a*5}, 'e', a*6) },
 	randomLevel: function(){
 		return this
 			.wall(null, 's', 11)
@@ -288,13 +288,6 @@ function kbHandler(event){
 	action 
 		&& action[0] in Snake 
 		&& Snake[action[0]].apply(Snake, action.slice(1))
-}
-
-
-//---------------------------------------------------------------------
-
-function filed_generator(w){
-	// XXX
 }
 
 
