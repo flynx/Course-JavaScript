@@ -270,12 +270,15 @@ var Snake = {
 			.wall({x:a*3, y:a*3}, 'e', a*2)
 			.wall({x:a*5, y:a*3}, 's', a*2)
 			.wall({x:a*5, y:a*5}, 'e', a*6) },
+	// XXX need to avoid blocked sections...
 	randomLevel: function(){
+		var a = this.field_size.width/8
+		var b = this.field_size.height/8
 		return this
-			.wall(null, 's', 11)
-			.wall(null, 's', 11)
-			.wall(null, 'e', 11)
-			.wall(null, 'e', 11) },
+			.wall(null, 's', b*6)
+			.wall(null, 's', b*6)
+			.wall(null, 'e', a*6)
+			.wall(null, 'e', a*6) },
 }
 
 
@@ -309,8 +312,8 @@ function setup(){
 		.stop()
 		.clear()
 
-		//.randomLevel()
-		.basicLevel()
+		.randomLevel()
+		//.basicLevel()
 
 		.appleEaten(function(){ this.apple() })
 		.apple()
