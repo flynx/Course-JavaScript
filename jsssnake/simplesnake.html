@@ -30,7 +30,6 @@ function makeEvent(handler_attr){
 	}
 }
 
-// XXX normalize x/y everywhere we input coordinates...
 var Snake = {
 	config: {
 		apple_color: 'red',
@@ -44,6 +43,19 @@ var Snake = {
 	field_size: null,
 
 	// utils...
+	normalize_point: function(point){
+		point = point || {}
+
+		var w = this.field_size.width
+		var x = point.x % w
+		x = x < 0 ? (x + w) : x
+
+		var h = this.field_size.height
+		var y = point.y % h
+		y = y < 0 ? (y + h) : y
+
+		return { x: x, y: y }
+	},
 	random_point: function(){
 		var cells = this._cells
 		var l = cells.length
@@ -59,9 +71,6 @@ var Snake = {
 		}
 	},
 
-	// XXX BUG: going down into bottom left corner breaks the snake...
-	//		...check other corner cases!
-	//			...looks like the only corner case...
 	_tick: function(){
 		var that = this
 		var l = this._cells.length
@@ -116,7 +125,7 @@ var Snake = {
 					var age = cell.age
 					var move = false
 
-					// special case: other snake's head -- kill both...
+					// special case: other snake's head -> kill both...
 					if(next.direction){
 						var other = next.style.backgroundColor
 						next.style.backgroundColor = ''
@@ -127,18 +136,18 @@ var Snake = {
 						that.snakeKilled(other)
 						that.snakeKilled(color)
 
-					// apples...
+					// apple -> grow age...
 					} else if(next.style.backgroundColor == that.config.apple_color){
 						age += 1
 						move = true
 						that.appleEaten()
 
-					// empty...
-					// NOTE: anything but an apple will kill the snake...
+					// empty -> just move...
 					} else if(next.style.backgroundColor == ''){
 						move = true
 
-					// kill...
+					// other -> kill...
+					// NOTE: anything but an apple or empty will kill the snake...
 					} else {
 						that.snakeKilled(color)
 					}
@@ -183,9 +192,8 @@ var Snake = {
 	},
 
 	// constructors...
-	// XXX normalize input x/y...
 	snake: function(color, point, direction, age){
-		point = point || this.random_point()
+		point = this.normalize_point(point || this.random_point())
 		var head = this._cells[point.x + point.y * this.field_size.width]
 		head.style.backgroundColor = color
 		head.direction = direction
@@ -196,13 +204,13 @@ var Snake = {
 		return this
 	},
 	apple: function(point){
-		point = point || this.random_point()
+		point = this.normalize_point(point || this.random_point())
 		this._cells[point.x + point.y * this.field_size.width]
 			.style.backgroundColor = this.config.apple_color
 		return this
 	},
 	wall: function(point, direction, length){
-		point = point || this.random_point()
+		point = this.normalize_point(point || this.random_point())
 		var x = point.x
 		var y = point.y
 		length = length || 1
