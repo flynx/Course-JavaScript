@@ -264,7 +264,7 @@ var Snake = {
 
 	// levels...
 	basicLevel: function(){
-		var a = this.field_size.width/8
+		var a = Math.round(this.field_size.width/8)
 		return this
 			.wall({x:a*3, y:a*5}, 's', a*6)
 			.wall({x:a*3, y:a*3}, 'e', a*2)
@@ -272,8 +272,8 @@ var Snake = {
 			.wall({x:a*5, y:a*5}, 'e', a*6) },
 	// XXX need to avoid blocked sections...
 	randomLevel: function(){
-		var a = this.field_size.width/8
-		var b = this.field_size.height/8
+		var a = Math.round(this.field_size.width/8)
+		var b = Math.round(this.field_size.height/8)
 		return this
 			.wall(null, 's', b*6)
 			.wall(null, 's', b*6)
@@ -353,27 +353,6 @@ function setup(){
 }
 
 
-//---------------------------------------------------------------------
-
-function test(game){
-	return Snake
-		.setup(game || '.snake')
-
-		// XXX BUG: this will break as soon as it reaches the corner...
-		.snake('blue', {x:0, y:0}, 's', 5)
-		.snake('blue', {x:Snake.field_size.width-1, y:0}, 's', 5)
-
-		// hit an apple...
-		.snake('green', {x:5, y:3}, 's', 5)
-		.apple({x:5, y:5})
-
-		// hit a wall...
-		.snake('silver', {x:14, y:3}, 'w', 5)
-		.wall({x:2, y:14}, 's', 7)
-
-		.start()
-}
-
 
 //---------------------------------------------------------------------
 </script>
@@ -382,8 +361,7 @@ function test(game){
 
 <body onload="setup()">
 
-<div class="simplesnake">
-</div>
+<div class="simplesnake"> </div>
 
 <p>
 XXX basic instructions...
