@@ -42,7 +42,7 @@ var Snake = {
 		field_size: 32,
 		apple_color: 'red',
 		wall_color: 'silver',
-		interval: 200,
+		interval: 150,
 	},
 
 	_field: null,
@@ -190,13 +190,13 @@ var Snake = {
 	},
 
 	// constructors...
-	snake: function(color, point, direction, age){
+	snake: function(color, age, point, direction){
 		point = this.normalize_point(point || this.random_point)
+
 		var head = this._cells[point.x + point.y * this.field_size.width]
 		head.style.backgroundColor = color
 		head.direction = direction || this.random_direction
 		head.age = (age || 5) - 1
-
 		this.players[color] = ''
 
 		return this
@@ -306,14 +306,14 @@ var KEY_CONFIG = {
 	Left: ['left'],
 	Right: ['right'],
 }
-function kbHandler(snake){
+function makeKeyboardHandler(snake){
 	return function(event){
 	//console.log('KEY:', event.key)
 	var action = KEY_CONFIG[event.key]
 	action 
 		&& action[0] in snake 
 		&& snake[action[0]].apply(snake, action.slice(1)) }}
-function tapHandler(snake){
+function makeTapHandler(snake){
 	return function(event){
 	// top of screen...
 	(event.clientY || event.changedTouches[0].pageY) <= (document.body.clientHeight / 8) ? 
@@ -329,24 +329,22 @@ function tapHandler(snake){
 
 //---------------------------------------------------------------------
 
-// XXX need to place the snake with some headroom in the 
-//		direction of travel...
-function setup(snake){
+// XXX need to place the snake with some headroom in the direction of 
+//		travel...
+function setup(snake, timer, size){
 	snake = snake || Snake
 
 	// setup kb handler (only once)...
 	if(!HANDLER_SET){
-		document.addEventListener('keydown', kbHandler(snake))
-		//document.addEventListener('click', tapHandler)
-		document.addEventListener('touchstart', tapHandler(snake))
+		document.addEventListener('keydown', makeKeyboardHandler(snake))
+		document.addEventListener('touchstart', makeTapHandler(snake))
 		HANDLER_SET = true
 	}
 
 	return snake
-		.setup('.simplesnake')
-		//.basicLevel()
+		.setup('.simplesnake', size)
 		.randomLevel()
-		.start(150)
+		.start(timer)
 		.pause()
 
 		// stuff...
@@ -358,9 +356,8 @@ function setup(snake){
 		.snakeKilled(function(color){ 
 			this
 				.pause()
-				.snake(color, null, null, 3) 
-		})
-		.snake('blue', null, null, 3)
+				.snake(color, 3) })
+		.snake('blue', 3)
 }
 
 
