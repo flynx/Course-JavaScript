@@ -306,14 +306,15 @@ var KEY_CONFIG = {
 	Left: ['left'],
 	Right: ['right'],
 }
-function kbHandler(event){
+function kbHandler(snake){
+	return function(event){
 	//console.log('KEY:', event.key)
 	var action = KEY_CONFIG[event.key]
 	action 
-		&& action[0] in Snake 
-		&& Snake[action[0]].apply(Snake, action.slice(1))
-}
-function tapHandler(event){
+		&& action[0] in snake 
+		&& snake[action[0]].apply(snake, action.slice(1)) }}
+function tapHandler(snake){
+	return function(event){
 	// top of screen...
 	(event.clientY || event.changedTouches[0].pageY) <= (document.body.clientHeight / 8) ? 
 		setup()
@@ -323,43 +324,43 @@ function tapHandler(event){
 	// left/right of screen...
 	: (event.clientX || event.changedTouches[0].pageX) <= (document.body.clientWidth / 2) ? 
 		Snake.left() 
-		: Snake.right() }
+		: Snake.right() }}
 
 
 //---------------------------------------------------------------------
 
+// XXX need to place the snake with some headroom in the 
+//		direction of travel...
 function setup(snake){
-	snake = (snake || Snake)
-		.setup('.simplesnake')
+	snake = snake || Snake
 
+	// setup kb handler (only once)...
+	if(!HANDLER_SET){
+		document.addEventListener('keydown', kbHandler(snake))
+		//document.addEventListener('click', tapHandler)
+		document.addEventListener('touchstart', tapHandler(snake))
+		HANDLER_SET = true
+	}
+
+	return snake
+		.setup('.simplesnake')
 		//.basicLevel()
 		.randomLevel()
+		.start(150)
+		.pause()
 
+		// stuff...
 		.appleEaten(function(){ this.apple() })
 		.apple()
 		.apple()
 
-		// XXX need to place the snake with some headroom in the 
-		//		direction of travel...
+		// players...
 		.snakeKilled(function(color){ 
 			this
 				.pause()
 				.snake(color, null, null, 3) 
 		})
 		.snake('blue', null, null, 3)
-
-		.start(150)
-		.pause()
-
-	// setup kb handler (only once)...
-	if(!HANDLER_SET){
-		document.addEventListener('keydown', kbHandler)
-		//document.addEventListener('click', tapHandler)
-		document.addEventListener('touchstart', tapHandler)
-		HANDLER_SET = true
-	}
-
-	return snake
 }
 
 
