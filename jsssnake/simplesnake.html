@@ -19,7 +19,10 @@
 // XXX automate clearing of handlers...
 function makeEvent(handler_attr){
 	return function(func){
-		if(func instanceof Function){
+		if(func === null){
+			delete this[handler_attr]
+
+		} else if(func instanceof Function){
 			var handlers = this[handler_attr] = this[handler_attr] || []
 			handlers.push(func)
 
@@ -250,16 +253,8 @@ var Snake = {
 		}
 		this.players = {}
 		return this
-	},
-	clear: function(){
-		// this resets the cell object attrs...
-		this.setup()
-		// reset the actual cells...
-		//this._cells.forEach(function(c){ c.style.backgroundColor = '' }) 
-		this.players = {}
-		delete this.__appleEatenHandlers
-		delete this.__killHandlers
-		return this
+			.appleEaten(null)
+			.snakeKilled(null)
 	},
 	start: function(t){
 		this.__timer = this.__timer 
@@ -320,7 +315,14 @@ function kbHandler(event){
 		&& Snake[action[0]].apply(Snake, action.slice(1))
 }
 function tapHandler(event){
-	(event.clientX || event.changedTouches[0].pageX) <= (document.body.clientWidth / 2) ? 
+	// top of screen...
+	(event.clientY || event.changedTouches[0].pageY) <= (document.body.clientHeight / 8) ? 
+		setup()
+	// bottom of screen...
+	: (event.clientY || event.changedTouches[0].pageY) >= (document.body.clientHeight / 5)*4 ? 
+		Snake.pause()
+	// left/right of screen...
+	: (event.clientX || event.changedTouches[0].pageX) <= (document.body.clientWidth / 2) ? 
 		Snake.left() 
 		: Snake.right() }
 
