@@ -2,6 +2,60 @@
 <html>
 <style>
 
+body.hints:before,
+body.hints:after {
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 12.5%;
+	bottom: 12.5%;
+	z-index: 100;
+}
+body.hints:before {
+	content: "";
+	width: 100%;
+	border-top: dashed 3pt red;
+	border-bottom: dashed 3pt red;
+}
+body.hints:after {
+	content: "↺↻";
+	width: 37vmin;
+	right: 50%;
+	left: auto;
+	overflow: visible;
+	border-right: dashed 3pt red;
+
+	color: red;
+	font-size: 100pt;
+	line-height: 70vmin;
+	white-space: pre;
+	letter-spacing: 50vmin;
+}
+.hints .simplesnake {
+	opacity: 0.3;
+}
+.hints .simplesnake:before,
+.hints .simplesnake:after {
+	position: absolute;
+	display: block;
+	text-align: center;
+	width: 100vmax;
+	color: red;
+	font-size: 30pt;
+	z-index: 100;
+}
+.hints .simplesnake:before {
+	content: "new level";
+}
+.hints .simplesnake:after {
+	content: "pause";
+}
+
+body {
+	font-family: sans-serif;
+	overflow: hidden;
+}
+
 .simplesnake .field {
 	position: relative;
 	left: 50%;
@@ -307,23 +361,27 @@ var KEY_CONFIG = {
 }
 function makeKeyboardHandler(snake){
 	return function(event){
-	//console.log('KEY:', event.key)
-	var action = KEY_CONFIG[event.key]
-	action 
-		&& action[0] in snake 
-		&& snake[action[0]].apply(snake, action.slice(1)) }}
+		clearHints()
+		var action = KEY_CONFIG[event.key]
+		action 
+			&& action[0] in snake 
+			&& snake[action[0]].apply(snake, action.slice(1)) }}
 function makeTapHandler(snake){
 	return function(event){
-	// top of screen...
-	(event.clientY || event.changedTouches[0].pageY) <= (document.body.clientHeight / 8) ? 
-		setup()
-	// bottom of screen...
-	: (event.clientY || event.changedTouches[0].pageY) >= (document.body.clientHeight / 5)*4 ? 
-		Snake.pause()
-	// left/right of screen...
-	: (event.clientX || event.changedTouches[0].pageX) <= (document.body.clientWidth / 2) ? 
-		Snake.left() 
-		: Snake.right() }}
+		clearHints()
+		// top of screen (1/8)...
+		;(event.clientY || event.changedTouches[0].pageY) <= (document.body.clientHeight / 8) ? 
+			setup()
+		// bottom of screen 1/8...
+		: (event.clientY || event.changedTouches[0].pageY) >= (document.body.clientHeight / 8)*8 ? 
+			Snake.pause()
+		// left/right of screen...
+		: (event.clientX || event.changedTouches[0].pageX) <= (document.body.clientWidth / 2) ? 
+			Snake.left() 
+			: Snake.right() }}
+function clearHints(){
+	document.body.classList.contains('hints')
+		&& document.body.classList.remove('hints') }
 
 
 //---------------------------------------------------------------------
@@ -367,7 +425,7 @@ function setup(snake, timer, size){
 <head> <title>Simple Snake</title> </head>
 
 
-<body onload="setup()">
+<body onload="setup()" onclick="clearHints()" class="hints">
 
 <div class="simplesnake"> </div>
 
