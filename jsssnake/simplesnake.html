@@ -3,6 +3,10 @@
 <style>
 
 .snake.field {
+	position: relative;
+	left: 50%;
+	margin-left: -250px;
+
 	width: 500px;
 	height: 500px;
 	border: solid 1px silver;
@@ -300,6 +304,10 @@ function kbHandler(event){
 		&& action[0] in Snake 
 		&& Snake[action[0]].apply(Snake, action.slice(1))
 }
+function tapHandler(event){
+	(event.clientX || event.changedTouches[0].pageX) <= (document.body.clientWidth / 2) ? 
+		Snake.left() 
+		: Snake.right() }
 
 
 //---------------------------------------------------------------------
@@ -348,6 +356,8 @@ function setup(){
 	// setup kb handler (only once)...
 	if(!HANDLER_SET){
 		document.addEventListener('keydown', kbHandler)
+		//document.addEventListener('click', tapHandler)
+		document.addEventListener('touchstart', tapHandler)
 		HANDLER_SET = true
 	}
 }
@@ -359,13 +369,10 @@ function setup(){
 
 <head> <title>Simple Snake</title> </head>
 
+
 <body onload="setup()">
 
 <div class="simplesnake"> </div>
-
-<p>
-XXX basic instructions...
-</p>
 
 </body>
 </html>
