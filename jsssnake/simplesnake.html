@@ -304,7 +304,23 @@ function kbHandler(event){
 
 //---------------------------------------------------------------------
 
+function makeFiled(w){
+	var l = []
+	l.length = w
+	l.fill('<td/>')
+	return `<table class="snake field" cellspacing="0">\n${ 
+			l.map(function(){ 
+				return `  <tr> ${ l.join('') } </tr>` 
+			}).join('\n') 
+		}\n</table>`
+}
+
+
+//---------------------------------------------------------------------
+
 function setup(){
+	document.querySelector('.simplesnake').innerHTML = makeFiled(32)
+
 	Snake
 		.setup('.snake')
 
@@ -366,79 +382,8 @@ function test(game){
 
 <body onload="setup()">
 
-<table class="snake field" cellspacing="0">
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-	<tr> <td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/>
-		<td/><td/><td/><td/><td/><td/><td/><td/> <td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-</table>
+<div class="simplesnake">
+</div>
 
 <p>
 XXX basic instructions...
