@@ -2,13 +2,13 @@
 <html>
 <style>
 
-.snake.field {
+.simplesnake .field {
 	position: relative;
 	left: 50%;
-	margin-left: -250px;
+	margin-left: -45vmin;
 
-	width: 500px;
-	height: 500px;
+	width: 90vmin;
+	height: 90vmin;
 	border: solid 1px silver;
 }
 
@@ -36,8 +36,9 @@ function makeEvent(handler_attr){
 
 var Snake = {
 	config: {
+		field_size: 32,
 		apple_color: 'red',
-		wall_color: 'gray',
+		wall_color: 'silver',
 		interval: 200,
 	},
 
@@ -45,6 +46,23 @@ var Snake = {
 	_cells: null,
 	players: null,
 	field_size: null,
+
+	get random_point(){
+		var cells = this._cells
+		var l = cells.length
+		var w = this.field_size.width
+
+		do {
+			var i = Math.floor(Math.random() * l)
+		} while(cells[i].style.backgroundColor != '')
+
+		return {
+			x: i%w,
+			y: Math.floor(i/w),
+		}
+	},
+	get random_direction(){
+		return ('nesw')[Math.floor(Math.random() * 4)] },
 
 	// utils...
 	normalize_point: function(point){
@@ -60,22 +78,18 @@ var Snake = {
 
 		return { x: x, y: y }
 	},
-	random_point: function(){
-		var cells = this._cells
-		var l = cells.length
-		var w = this.field_size.width
-
-		do {
-			var i = Math.floor(Math.random() * l)
-		} while(cells[i].style.backgroundColor != '')
-
-		return {
-			x: i%w,
-			y: Math.floor(i/w),
-		}
+	_make_field: function(w){
+		var l = []
+		l.length = w || this.config.field_size
+		l.fill('<td/>')
+		this._field.innerHTML = 
+			`<table class="field" cellspacing="0">\n${ 
+				l.map(function(){ 
+					return `  <tr> ${ l.join('') } </tr>` 
+				}).join('\n') 
+			}\n</table>`
 	},
-
-	_tick: function(){
+	_step: function(){
 		var that = this
 		var l = this._cells.length
 		var w = this.field_size.width
@@ -172,35 +186,12 @@ var Snake = {
 		})
 	},
 
-	setup: function(field){
-		field = field || this._field
-		field = this._field = typeof(field) == typeof('str') ? document.querySelector(field)
-			: field
-		this._cells = [].slice.call(field.querySelectorAll('td'))
-		this.field_size = {
-			width: field.querySelector('tr').querySelectorAll('td').length,
-			height: field.querySelectorAll('tr').length,
-		}
-		this.players = {}
-		return this
-	},
-	clear: function(){
-		// this resets the cell object attrs...
-		this.setup()
-		// reset the actual cells...
-		this._cells.forEach(function(c){ c.style.backgroundColor = '' }) 
-		this.players = {}
-		delete this.__appleEatenHandlers
-		delete this.__killHandlers
-		return this
-	},
-
 	// constructors...
 	snake: function(color, point, direction, age){
-		point = this.normalize_point(point || this.random_point())
+		point = this.normalize_point(point || this.random_point)
 		var head = this._cells[point.x + point.y * this.field_size.width]
 		head.style.backgroundColor = color
-		head.direction = direction
+		head.direction = direction || this.random_direction
 		head.age = (age || 5) - 1
 
 		this.players[color] = ''
@@ -208,13 +199,14 @@ var Snake = {
 		return this
 	},
 	apple: function(point){
-		point = this.normalize_point(point || this.random_point())
+		point = this.normalize_point(point || this.random_point)
 		this._cells[point.x + point.y * this.field_size.width]
 			.style.backgroundColor = this.config.apple_color
 		return this
 	},
 	wall: function(point, direction, length){
-		point = this.normalize_point(point || this.random_point())
+		direction = direction || this.random_direction
+		point = this.normalize_point(point || this.random_point)
 		var x = point.x
 		var y = point.y
 		length = length || 1
@@ -244,9 +236,34 @@ var Snake = {
 	snakeKilled: makeEvent('__killHandlers'),
 
 	// actions...
+	setup: function(field, size){
+		this.config.field_size = size || this.config.field_size
+		field = field || this._field
+		field = this._field = typeof(field) == typeof('str') ? document.querySelector(field)
+			: field
+		// XXX is it a good idea to re-make the field on every start???
+		this._make_field()
+		this._cells = [].slice.call(field.querySelectorAll('td'))
+		this.field_size = {
+			width: field.querySelector('tr').querySelectorAll('td').length,
+			height: field.querySelectorAll('tr').length,
+		}
+		this.players = {}
+		return this
+	},
+	clear: function(){
+		// this resets the cell object attrs...
+		this.setup()
+		// reset the actual cells...
+		//this._cells.forEach(function(c){ c.style.backgroundColor = '' }) 
+		this.players = {}
+		delete this.__appleEatenHandlers
+		delete this.__killHandlers
+		return this
+	},
 	start: function(t){
 		this.__timer = this.__timer 
-			|| setInterval(this._tick.bind(this), t || this.config.interval || 200)
+			|| setInterval(this._step.bind(this), t || this.config.interval || 200)
 		return this
 	},
 	stop: function(){
@@ -274,15 +291,13 @@ var Snake = {
 			.wall({x:a*3, y:a*3}, 'e', a*2)
 			.wall({x:a*5, y:a*3}, 's', a*2)
 			.wall({x:a*5, y:a*5}, 'e', a*6) },
-	// XXX need to avoid blocked sections...
 	randomLevel: function(){
 		var a = Math.round(this.field_size.width/8)
 		var b = Math.round(this.field_size.height/8)
 		return this
-			.wall(null, 's', b*6)
-			.wall(null, 's', b*6)
-			.wall(null, 'e', a*6)
-			.wall(null, 'e', a*6) },
+			.wall(null, null, b*6)
+			.wall(null, null, b*6)
+			.wall(null, null, b*6) },
 }
 
 
@@ -312,46 +327,28 @@ function tapHandler(event){
 
 //---------------------------------------------------------------------
 
-function makeFiled(w){
-	var l = []
-	l.length = w
-	l.fill('<td/>')
-	return `<table class="snake field" cellspacing="0">\n${ 
-			l.map(function(){ 
-				return `  <tr> ${ l.join('') } </tr>` 
-			}).join('\n') 
-		}\n</table>`
-}
+function setup(snake){
+	snake = (snake || Snake)
+		.setup('.simplesnake')
 
-
-//---------------------------------------------------------------------
-
-function setup(){
-	document.querySelector('.simplesnake').innerHTML = makeFiled(32)
-
-	Snake
-		.setup('.snake')
-
-		// make setup(..) re-enterable..
-		.stop()
-		.clear()
-
-		.randomLevel()
 		//.basicLevel()
+		.randomLevel()
 
 		.appleEaten(function(){ this.apple() })
 		.apple()
 		.apple()
 
-		// XXX do something better with direction...
+		// XXX need to place the snake with some headroom in the 
+		//		direction of travel...
 		.snakeKilled(function(color){ 
 			this
 				.pause()
-				.snake(color, null, 's', 3) 
+				.snake(color, null, null, 3) 
 		})
-		.snake('blue', null, 's', 3)
+		.snake('blue', null, null, 3)
 
 		.start(150)
+		.pause()
 
 	// setup kb handler (only once)...
 	if(!HANDLER_SET){
@@ -360,6 +357,8 @@ function setup(){
 		document.addEventListener('touchstart', tapHandler)
 		HANDLER_SET = true
 	}
+
+	return snake
 }
 
 
