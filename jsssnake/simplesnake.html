@@ -14,8 +14,8 @@ body.hints:after {
 body.hints:before {
 	content: "";
 	width: 100%;
-	border-top: dashed 3pt red;
-	border-bottom: dashed 3pt red;
+	border-top: dashed 0.5vmin red;
+	border-bottom: dashed 0.5vmin red;
 }
 body.hints:after {
 	content: "↺↻";
@@ -23,10 +23,10 @@ body.hints:after {
 	right: 50%;
 	left: auto;
 	overflow: visible;
-	border-right: dashed 3pt red;
+	border-right: dashed 0.5vmin red;
 
-	color: red;
-	font-size: 100pt;
+	color: rgba(255, 0, 0, 0.5);
+	font-size: 15vmin;
 	line-height: 70vmin;
 	white-space: pre;
 	letter-spacing: 50vmin;
@@ -39,15 +39,17 @@ body.hints:after {
 	position: absolute;
 	display: block;
 	text-align: center;
-	width: 100vmax;
+	width: 100vw;
 	color: red;
-	font-size: 30pt;
+	font-size: 5vh;
+	line-height: 10vh;
 	z-index: 100;
 }
 .hints .simplesnake:before {
 	content: "new level";
 }
 .hints .simplesnake:after {
+	bottom: 0;
 	content: "pause";
 }
 
@@ -394,7 +396,8 @@ function setup(snake, timer, size){
 	// setup kb handler (only once)...
 	if(!HANDLER_SET){
 		document.addEventListener('keydown', makeKeyboardHandler(snake))
-		document.addEventListener('touchstart', makeTapHandler(snake))
+		//document.addEventListener('touchstart', makeTapHandler(snake))
+		document.addEventListener('mousedown', makeTapHandler(snake))
 		HANDLER_SET = true
 	}
 
