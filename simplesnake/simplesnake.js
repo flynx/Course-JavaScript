@@ -379,9 +379,12 @@ function setup(snake, timer, size){
 		if(window.applicationCache){
 			applicationCache.update()
 
-			if(applicationCache.status == applicationCache.UPDATEREADY){
-				console.log('NEW VERSION')
-				applicationCache.swapCache()
+			applicationCache.addEventListener('updateready', function(){
+				if(applicationCache.status == applicationCache.UPDATEREADY){
+					console.log('NEW VERSION')
+					applicationCache.swapCache()
+					location.reload()
+				}
 			}
 		}
 	}
