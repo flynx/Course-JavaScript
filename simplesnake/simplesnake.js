@@ -375,6 +375,15 @@ function setup(snake, timer, size){
 		//document.addEventListener('touchstart', makeTapHandler(snake))
 		document.addEventListener('mousedown', makeTapHandler(snake))
 		HANDLER_SET = true
+
+		if(window.applicationCache){
+			applicationCache.update()
+
+			if(applicationCache.status == applicationCache.UPDATEREADY){
+				console.log('NEW VERSION')
+				applicationCache.swapCache()
+			}
+		}
 	}
 
 	return snake
