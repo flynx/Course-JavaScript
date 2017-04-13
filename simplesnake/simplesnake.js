@@ -4,7 +4,7 @@
 *
 * This code is designed to illustrate the non-intuitive approach to an
 * implementation, building a snake game as a cellular automaton rather
-* than the more intuitive, a set of entities (OOP) or a number of sets 
+* than the more obvious, set of entities (OOP) or a number of sets 
 * of procedures and data structures, directly emulating the "tactile" 
 * perception of the game, i.e. independent field, snakes, walls, apples
 * and their interactions.
@@ -25,6 +25,23 @@
 *
 * NOTE: that in the above description some details are omitted for 
 * 		clarity...
+*
+*
+* This code is structured in a scalable and introspective way:
+* 	- Snake object is reusable as a prototype enabling multiple games
+* 		to run at the same time
+* 	- Snake implements an open external control scheme, i.e. it does not 
+* 		impose a specific way to implementing the way to control the game
+* 	- Simple (but not trivial) code and code structure
+* 	- Introspective: no hidden/masked state or functionality
+* 	- No external dependencies
+*
+*
+* Goals:
+* 	- Show that the "intuitive" is not the only approach
+* 	- Show that the "intuitive" is not allways the simplest
+* 	- Show one approach to a scalable yet simple architecture
+*
 *
 *
 **********************************************************************/
@@ -104,7 +121,7 @@ var Snake = {
 				}).join('\n') 
 			}\n</table>`
 	},
-	_step: function(){
+	_tick: function(){
 		var that = this
 		var l = this._cells.length
 		var w = this.field_size.width
@@ -115,7 +132,7 @@ var Snake = {
 		this._cells.forEach(function(cell, i){
 			var color = cell.style.backgroundColor
 
-			// skip cells we touched...
+			// skip cells we touched on this tick...
 			if(cell.tick == tick){
 				return
 			}
@@ -131,7 +148,7 @@ var Snake = {
 					cell.age -= 1
 				}
 
-				// head...
+				// snake head -> move...
 				var direction = cell.direction
 				if(directions.indexOf(direction) >= 0){
 					// turn...
@@ -144,7 +161,7 @@ var Snake = {
 						that.players[color] = ''
 					}
 
-					// next cell index...
+					// get next cell index...
 					var next = 
 						direction == 'n' ? 
 							(i < w ? l - w + i : i - w)
@@ -169,7 +186,7 @@ var Snake = {
 						that.snakeKilled(other)
 						that.snakeKilled(color)
 
-					// apple -> grow age...
+					// apple -> increment age...
 					} else if(next.style.backgroundColor == that.config.apple_color){
 						age += 1
 						move = true
@@ -269,7 +286,7 @@ var Snake = {
 	},
 	start: function(t){
 		this.__timer = this.__timer 
-			|| setInterval(this._step.bind(this), t || this.config.interval || 200)
+			|| setInterval(this._tick.bind(this), t || this.config.interval || 200)
 		return this
 	},
 	stop: function(){
