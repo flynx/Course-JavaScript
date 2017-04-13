@@ -182,15 +182,15 @@ var Snake = {
 						// NOTE: we are not deleteing .direction here as 
 						//		we can have upto 4 snakes colliding...
 						next.direction = ''
+						that.snakeKilled(other, next.age+1)
+						that.snakeKilled(color, age+2)
 						delete next.age
-						that.snakeKilled(other)
-						that.snakeKilled(color)
 
 					// apple -> increment age...
 					} else if(next.style.backgroundColor == that.config.apple_color){
 						age += 1
 						move = true
-						that.appleEaten()
+						that.appleEaten(color, age+2)
 
 					// empty -> just move...
 					} else if(next.style.backgroundColor == ''){
@@ -199,7 +199,7 @@ var Snake = {
 					// other -> kill...
 					// NOTE: anything but an apple or empty will kill the snake...
 					} else {
-						that.snakeKilled(color)
+						that.snakeKilled(color, age+2)
 					}
 
 					// do the move...
@@ -384,12 +384,17 @@ function setup(snake, timer, size){
 		.pause()
 
 		// stuff...
-		.appleEaten(function(){ this.apple() })
+		.appleEaten(function(color, age){ 
+			// XXX show score...
+			console.log(`Apple eaten by: ${color}: ${age}`)
+			this.apple() 
+		})
 		.apple()
 		.apple()
 
 		// players...
-		.snakeKilled(function(color){ 
+		.snakeKilled(function(color, age){ 
+			console.log(`Killed: ${color}: ${age}`)
 			this
 				.pause()
 				.snake(color, 3) })
