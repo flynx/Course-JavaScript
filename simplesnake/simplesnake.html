@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head> 
+<title>Simple Snake</title> 
+
+<style>
+
+body.hints:before,
+body.hints:after {
+	display: block;
+	position: absolute;
+	left: 0;
+	top: 12.5%;
+	bottom: 12.5%;
+	z-index: 100;
+}
+body.hints:before {
+	content: "";
+	width: 100%;
+	border-top: dashed 0.5vmin red;
+	border-bottom: dashed 0.5vmin red;
+}
+body.hints:after {
+	content: "↺↻";
+	width: 37vmin;
+	right: 50%;
+	left: auto;
+	overflow: visible;
+	border-right: dashed 0.5vmin red;
+
+	color: rgba(255, 0, 0, 0.5);
+	font-size: 15vmin;
+	line-height: 70vmin;
+	white-space: pre;
+	letter-spacing: 50vmin;
+}
+.hints .simplesnake {
+	opacity: 0.3;
+}
+.hints .simplesnake:before,
+.hints .simplesnake:after {
+	position: absolute;
+	display: block;
+	text-align: center;
+	width: 100vw;
+	color: red;
+	font-size: 5vh;
+	line-height: 10vh;
+	z-index: 100;
+}
+.hints .simplesnake:before {
+	content: "new level";
+}
+.hints .simplesnake:after {
+	bottom: 0;
+	content: "pause";
+}
+
+body {
+	font-family: sans-serif;
+	overflow: hidden;
+}
+
+.simplesnake .field {
+	position: relative;
+	left: 50%;
+	margin-left: -45vmin;
+
+	width: 90vmin;
+	height: 90vmin;
+	border: solid 1px silver;
+}
+
+</style>
+
+<script src="simplesnake.js"></script>
+
+</head>
+<body onload="setup()" onclick="clearHints()" class="hints">
+
+<div class="simplesnake"> </div>
+
+</body>
+</html>
+<!-- vim:set ts=4 sw=4 spell : -->

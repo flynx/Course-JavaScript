@@ -1,76 +1,33 @@
-<!DOCTYPE html>
-<html>
-<style>
-
-body.hints:before,
-body.hints:after {
-	display: block;
-	position: absolute;
-	left: 0;
-	top: 12.5%;
-	bottom: 12.5%;
-	z-index: 100;
-}
-body.hints:before {
-	content: "";
-	width: 100%;
-	border-top: dashed 0.5vmin red;
-	border-bottom: dashed 0.5vmin red;
-}
-body.hints:after {
-	content: "↺↻";
-	width: 37vmin;
-	right: 50%;
-	left: auto;
-	overflow: visible;
-	border-right: dashed 0.5vmin red;
-
-	color: rgba(255, 0, 0, 0.5);
-	font-size: 15vmin;
-	line-height: 70vmin;
-	white-space: pre;
-	letter-spacing: 50vmin;
-}
-.hints .simplesnake {
-	opacity: 0.3;
-}
-.hints .simplesnake:before,
-.hints .simplesnake:after {
-	position: absolute;
-	display: block;
-	text-align: center;
-	width: 100vw;
-	color: red;
-	font-size: 5vh;
-	line-height: 10vh;
-	z-index: 100;
-}
-.hints .simplesnake:before {
-	content: "new level";
-}
-.hints .simplesnake:after {
-	bottom: 0;
-	content: "pause";
-}
-
-body {
-	font-family: sans-serif;
-	overflow: hidden;
-}
-
-.simplesnake .field {
-	position: relative;
-	left: 50%;
-	margin-left: -45vmin;
-
-	width: 90vmin;
-	height: 90vmin;
-	border: solid 1px silver;
-}
-
-</style>
-<script>
-//---------------------------------------------------------------------
+/**********************************************************************
+* 
+* Simple Snake 
+*
+* This code is designed to illustrate the non-intuitive approach to an
+* implementation, building a snake game as a cellular automaton rather
+* than the more intuitive, a set of entities (OOP) or a number of sets 
+* of procedures and data structures, directly emulating the "tactile" 
+* perception of the game, i.e. independent field, snakes, walls, apples
+* and their interactions.
+*
+* In this approach there are no entities, no snakes, no apples, no 
+* walls, just a set of cells in a field and cell behaviours per game 
+* step:
+* 	- empty cells, apples and walls just sit there
+* 	- "snake" cells:
+* 		- decrement age
+* 		- if age is 0 clear cell
+* 		- if cell has direction (i.e. snake head)
+* 			- if target cell is red (apple) increment age
+* 			- color new cell in direction:
+* 				- set age on to current age + 1
+* 				- set direction to current
+* 			- clear direction
+*
+* NOTE: that in the above description some details are omitted for 
+* 		clarity...
+*
+*
+**********************************************************************/
 
 function makeEvent(handler_attr){
 	return function(func){
@@ -350,7 +307,8 @@ var Snake = {
 }
 
 
-//---------------------------------------------------------------------
+
+/*********************************************************************/
 
 var HANDLER_SET = false
 var KEY_CONFIG = {
@@ -361,6 +319,7 @@ var KEY_CONFIG = {
 	Left: ['left'],
 	Right: ['right'],
 }
+
 function makeKeyboardHandler(snake){
 	return function(event){
 		clearHints()
@@ -422,16 +381,5 @@ function setup(snake, timer, size){
 
 
 
-//---------------------------------------------------------------------
-</script>
-
-<head> <title>Simple Snake</title> </head>
-
-
-<body onload="setup()" onclick="clearHints()" class="hints">
-
-<div class="simplesnake"> </div>
-
-</body>
-</html>
-<!-- vim:set ts=4 sw=4 spell : -->
+/**********************************************************************
+* vim:set ts=4 sw=4 :                                                */
