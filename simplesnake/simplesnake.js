@@ -369,13 +369,14 @@ function clearHints(){
 function setup(snake, timer, size){
 	snake = snake || Snake
 
-	// setup kb handler (only once)...
+	// setup event handlers (only once)...
 	if(!HANDLER_SET){
 		document.addEventListener('keydown', makeKeyboardHandler(snake))
 		//document.addEventListener('touchstart', makeTapHandler(snake))
 		document.addEventListener('mousedown', makeTapHandler(snake))
 		HANDLER_SET = true
 
+		/*/ cache updater...
 		// XXX needs more work...
 		if(window.applicationCache 
 				&& applicationCache.status != applicationCache.UNCACHED){
@@ -389,6 +390,7 @@ function setup(snake, timer, size){
 				}
 			})
 		}
+		//*/
 	}
 
 	return snake
