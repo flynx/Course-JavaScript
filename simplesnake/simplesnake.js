@@ -327,7 +327,10 @@ var Snake = {
 
 /*********************************************************************/
 
-var HANDLER_SET = false
+var __HANDLER_SET = false
+var __DEBOUNCE_TIMEOUT = 100
+var __DEBOUNCE = false
+
 var KEY_CONFIG = {
 	' ': ['pause'],
 	ArrowLeft: ['left'],
@@ -336,7 +339,6 @@ var KEY_CONFIG = {
 	Left: ['left'],
 	Right: ['right'],
 }
-
 function makeKeyboardHandler(snake){
 	return function(event){
 		clearHints()
@@ -344,8 +346,16 @@ function makeKeyboardHandler(snake){
 		action 
 			&& action[0] in snake 
 			&& snake[action[0]].apply(snake, action.slice(1)) }}
+
 function makeTapHandler(snake){
 	return function(event){
+		// prevent clicks and touches from triggering the same action 
+		// twice -- only handle the first one within timeout...
+		// NOTE: this should not affect events of the same type...
+		if(__DEBOUNCE && event.type != __DEBOUNCE){ return }
+		__DEBOUNCE = event.type
+		setTimeout(function(){ __DEBOUNCE = false }, __DEBOUNCE_TIMEOUT)
+
 		clearHints()
 		// top of screen (1/8)...
 		;(event.clientY || event.changedTouches[0].pageY) <= (document.body.clientHeight / 8) ? 
@@ -357,6 +367,7 @@ function makeTapHandler(snake){
 		: (event.clientX || event.changedTouches[0].pageX) <= (document.body.clientWidth / 2) ? 
 			Snake.left() 
 			: Snake.right() }}
+
 function clearHints(){
 	document.body.classList.contains('hints')
 		&& document.body.classList.remove('hints') }
@@ -370,11 +381,11 @@ function setup(snake, timer, size){
 	snake = snake || Snake
 
 	// setup event handlers (only once)...
-	if(!HANDLER_SET){
+	if(!__HANDLER_SET){
 		document.addEventListener('keydown', makeKeyboardHandler(snake))
-		//document.addEventListener('touchstart', makeTapHandler(snake))
+		document.addEventListener('touchstart', makeTapHandler(snake))
 		document.addEventListener('mousedown', makeTapHandler(snake))
-		HANDLER_SET = true
+		__HANDLER_SET = true
 
 		/*/ cache updater...
 		// XXX needs more work...
