@@ -376,6 +376,7 @@ function setup(snake, timer, size){
 		document.addEventListener('mousedown', makeTapHandler(snake))
 		HANDLER_SET = true
 
+		// XXX needs more work...
 		if(window.applicationCache 
 				&& applicationCache.status != applicationCache.UNCACHED){
 			applicationCache.update()
