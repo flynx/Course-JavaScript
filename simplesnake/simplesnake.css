@@ -65,3 +65,17 @@ body {
 	border: solid 1px silver;
 }
 
+.simplesnake[score]:after {
+	position: absolute;
+	display: block;
+	text-align: center;
+	width: 100vw;
+	color: gray;
+	font-size: 2vh;
+	line-height: 3vh;
+
+	content: "Top score: " attr(snake) ": " attr(score) " " attr(state);
+
+	opacity: 0.9;
+}
+

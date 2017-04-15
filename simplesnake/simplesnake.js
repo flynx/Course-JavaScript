@@ -407,6 +407,21 @@ function setup(snake, timer, size){
 		__HANDLER_SET = true
 	}
 
+	function showScore(color, age){
+		score = snake.__top_score = 
+			(!snake.__top_score || snake.__top_score.score < age) ?
+				{
+					color: color || '',
+					score: age || 0,
+				}
+				: snake.__top_score
+		snake._field.setAttribute('score', score.score)
+		snake._field.setAttribute('snake', score.color)
+		snake._field.setAttribute('state', (
+			score.score == age && score.color == color) ? '(current)' : '')
+	}
+
+	// setup the game...
 	return snake
 		.setup('.simplesnake', size)
 		.randomLevel()
@@ -415,19 +430,19 @@ function setup(snake, timer, size){
 
 		// stuff...
 		.appleEaten(function(color, age){ 
-			// XXX show score...
-			console.log(`Apple eaten by: ${color}: ${age}`)
 			this.apple() 
+			showScore(color, age)
 		})
 		.apple()
 		.apple()
 
 		// players...
 		.snakeKilled(function(color, age){ 
-			console.log(`Killed: ${color}: ${age}`)
 			this
 				.pause()
-				.snake(color, 3) })
+				.snake(color, 3) 
+			showScore(color, 3)
+		})
 		.snake('blue', 3)
 }
 
