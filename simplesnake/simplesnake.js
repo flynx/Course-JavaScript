@@ -327,6 +327,7 @@ var Snake = {
 
 /*********************************************************************/
 
+var __CACHE_UPDATE_CHECK = 10*60*1000
 var __HANDLER_SET = false
 var __DEBOUNCE_TIMEOUT = 100
 var __DEBOUNCE = false
@@ -382,26 +383,28 @@ function setup(snake, timer, size){
 
 	// setup event handlers (only once)...
 	if(!__HANDLER_SET){
+		// control handlers...
 		document.addEventListener('keydown', makeKeyboardHandler(snake))
 		document.addEventListener('touchstart', makeTapHandler(snake))
 		document.addEventListener('mousedown', makeTapHandler(snake))
-		__HANDLER_SET = true
 
-		/*/ cache updater...
-		// XXX needs more work...
-		if(window.applicationCache 
-				&& applicationCache.status != applicationCache.UNCACHED){
-			applicationCache.update()
+		// cache updater...
+		var appCache = window.applicationCache
+		if(appCache
+				&& appCache.status != appCache.UNCACHED){
+			appCache.addEventListener('updateready', function(){
+				if(appCache.status == appCache.UPDATEREADY){
+					console.log('CACHE: new version available...')
+					appCache.swapCache()
 
-			applicationCache.addEventListener('updateready', function(){
-				if(applicationCache.status == applicationCache.UPDATEREADY){
-					console.log('NEW VERSION')
-					applicationCache.swapCache()
-					location.reload()
+					confirm('New version ready, reload?')
+						&& location.reload()
 				}
 			})
+			setInterval(function(){ appCache.update() }, __CACHE_UPDATE_CHECK)
 		}
-		//*/
+
+		__HANDLER_SET = true
 	}
 
 	return snake
