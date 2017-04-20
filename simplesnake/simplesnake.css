@@ -90,7 +90,7 @@ body {
 	background-color: red;
 }
 
-.simplesnake.stopped:before {
+.simplesnake.paused:before {
 	content: "Paused...";
 	position: absolute;
 	display: block;
