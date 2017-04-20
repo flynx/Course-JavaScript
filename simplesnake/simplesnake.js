@@ -348,7 +348,6 @@ function makeKeyboardHandler(snake){
 		action 
 			&& action[0] in snake 
 			&& snake[action[0]].apply(snake, action.slice(1)) }}
-
 function makeTapHandler(snake){
 	return function(event){
 		// prevent clicks and touches from triggering the same action 
@@ -369,7 +368,6 @@ function makeTapHandler(snake){
 		: (event.clientX || event.changedTouches[0].pageX) <= (document.body.clientWidth / 2) ? 
 			Snake.left() 
 			: Snake.right() }}
-
 function clearHints(){
 	document.body.classList.contains('hints')
 		&& document.body.classList.remove('hints') }
@@ -387,7 +385,7 @@ function setup(snake, timer, size){
 		// control handlers...
 		document.addEventListener('keydown', makeKeyboardHandler(snake))
 		document.addEventListener('touchstart', makeTapHandler(snake))
-		document.addEventListener('mousedown', makeTapHandler(snake))
+		//document.addEventListener('mousedown', makeTapHandler(snake))
 
 		// cache updater...
 		var appCache = window.applicationCache
