@@ -90,6 +90,21 @@ body {
 	background-color: red;
 }
 
+.simplesnake.stopped:before {
+	content: "Paused...";
+	position: absolute;
+	display: block;
+	width: 100%;
+	top: 50%;
+	margin-top: -10vmin;
+	font-size: 10vmin;
+	font-weight: bolder;
+	text-align: center;
+	color: rgba(0, 0, 0, 0.2);
+	z-index: 100;
+}
+
+
 /*
 .simplesnake .apple {
 	position: relative;

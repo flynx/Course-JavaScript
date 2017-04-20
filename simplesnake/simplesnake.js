@@ -287,6 +287,7 @@ var Snake = {
 			.snakeKilled(null)
 	},
 	start: function(t){
+		this._field.classList.remove('paused')
 		this.__timer = this.__timer 
 			|| setInterval(this._tick.bind(this), t || this.config.interval || 200)
 		// reset player control actions...
@@ -297,6 +298,7 @@ var Snake = {
 		return this
 	},
 	stop: function(){
+		this._field.classList.add('paused')
 		clearInterval(this.__timer)
 		delete this.__timer
 		delete this.__tick
