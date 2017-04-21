@@ -246,7 +246,7 @@ var Snake = {
 		point = this.normalize_point(point || this.random_point)
 		var x = point.x
 		var y = point.y
-		length = length || 1
+		length = length || Math.random() * this.field_size.width
 
 		while(length > 0){
 			var c = this._cells[x + y * this.field_size.width]
@@ -406,18 +406,30 @@ function setup(snake, timer, size){
 
 	// levels...
 	var A = Math.round((size || snake.config.field_size)/8)
-	var RANDOM3_LEVEL = [
-		[null, null, A*6],
-		[null, null, A*6],
-		[null, null, A*6],
-	]
-	var HALVES_LEVEL = [
-		[null, null, A*8],
-	]
-	var QUARTERS_LEVEL = [
-		[null, 's', A*8],
-		[null, 'e', A*8],
-	]
+	var Level = {
+		W3: [
+			[null, null, A*6],
+			[null, null, A*6],
+			[null, null, A*6],
+		],
+		Halves: [
+			[null, null, A*8],
+		],
+		Quarters: [
+			[null, 's', A*8],
+			[null, 'e', A*8],
+		],
+		Random3: [[], [], []],
+
+		get random(){
+			var l = Object.keys(this)
+				.filter(function(e){ return e != 'random' })
+			do {
+		   		var level = this[l[ Math.round(Math.random()*l.length) ]]
+			} while(!(level instanceof Array))
+			return level
+		},
+	}
 
 	function showScore(color, age){
 		score = snake.__top_score = 
@@ -470,9 +482,7 @@ function setup(snake, timer, size){
 		})
 
 		// load level...
-		.level(RANDOM3_LEVEL)
-		//.level(HALVES_LEVEL)
-		//.level(QUARTERS_LEVEL)
+		.level(Level.random)
 
 		// game events / meta game rules...
 		// reconstruct eaten apples...
