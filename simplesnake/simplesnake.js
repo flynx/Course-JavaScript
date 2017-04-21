@@ -38,9 +38,22 @@
 *
 *
 * Goals:
-* 	- Show that the "intuitive" is not the only approach
-* 	- Show that the "intuitive" is not allways the simplest
+* 	- Show that the "intuitive" is not the only approach or is not 
+* 		necessarily the simplest...
 * 	- Show one approach to a scalable yet simple architecture
+* 	- Illustrate several programming patterns and approaches:
+* 		- concatinative 
+* 			- see how Snake methods are implemented and how they are used
+* 				in setup(..)...
+* 			- see Snake.call(..) and Snake.apply(..) methods and how they
+* 				enable extending the code inline...
+* 		- meta-programming 
+* 			see: makeEvent(..)
+* 		- event-oriented-programming
+* 			see Snake events and how they are used in setup(..) to extend
+* 			the basic game logic...
+* 	- Show the use of several HTML5/CSS3 features including appCache, 
+* 		touch events and keyboard events and handling...
 *
 *
 *
@@ -108,6 +121,25 @@ var Snake = {
 		var y = point.y % h
 		y = y < 0 ? (y + h) : y
 		return { x: x, y: y }
+	},
+
+	// system...
+	setup: function(field, size, interval){
+		this.config.field_size = size || this.config.field_size
+		this.config.interval = interval || this.config.interval
+		field = field || this._field
+		field = this._field = typeof(field) == typeof('str') ? document.querySelector(field)
+			: field
+		this._make_field()
+		this._cells = [].slice.call(field.querySelectorAll('td'))
+		this.field_size = {
+			width: field.querySelector('tr').querySelectorAll('td').length,
+			height: field.querySelectorAll('tr').length,
+		}
+		this.players = {}
+		return this
+			.appleEaten(null)
+			.snakeKilled(null)
 	},
 	_make_field: function(w){
 		var l = []
@@ -284,23 +316,6 @@ var Snake = {
 	gameStopped: makeEvent('__stopHandlers'),
 
 	// actions...
-	setup: function(field, size, interval){
-		this.config.field_size = size || this.config.field_size
-		this.config.interval = interval || this.config.interval
-		field = field || this._field
-		field = this._field = typeof(field) == typeof('str') ? document.querySelector(field)
-			: field
-		this._make_field()
-		this._cells = [].slice.call(field.querySelectorAll('td'))
-		this.field_size = {
-			width: field.querySelector('tr').querySelectorAll('td').length,
-			height: field.querySelectorAll('tr').length,
-		}
-		this.players = {}
-		return this
-			.appleEaten(null)
-			.snakeKilled(null)
-	},
 	start: function(t){
 		this.__timer = this.__timer 
 			|| setInterval(this._tick.bind(this), t || this.config.interval || 200)
