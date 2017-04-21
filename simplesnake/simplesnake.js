@@ -349,11 +349,7 @@ var Snake = {
 
 
 /*********************************************************************/
-
-var __CACHE_UPDATE_CHECK = 5*60*1000
-var __HANDLER_SET = false
-var __DEBOUNCE_TIMEOUT = 100
-var __DEBOUNCE = false
+// control event handlers...
 
 var KEY_CONFIG = {
 	' ': ['pause'],
@@ -363,6 +359,10 @@ var KEY_CONFIG = {
 	// IE compatibility...
 	Left: ['left'],
 	Right: ['right'],
+	'?': function(){
+		this
+			.stop()
+			.call(showHints) },
 }
 function makeKeyboardHandler(snake){
 	return function(event){
@@ -374,6 +374,9 @@ function makeKeyboardHandler(snake){
 				: action[0] in snake ?
 					snake[action[0]].apply(snake, action.slice(1))
 				: null) }}
+
+var __DEBOUNCE = false
+var __DEBOUNCE_TIMEOUT = 100
 function makeTapHandler(snake){
 	return function(event){
 		// prevent clicks and touches from triggering the same action 
@@ -394,9 +397,15 @@ function makeTapHandler(snake){
 		: (event.clientX || event.changedTouches[0].pageX) <= (document.body.clientWidth / 2) ? 
 			Snake.left() 
 			: Snake.right() }}
+
+
+//---------------------------------------------------------------------
+// misc stuff...
+
+function showHints(){
+	document.body.classList.add('hints') }
 function clearHints(){
-	document.body.classList.contains('hints')
-		&& document.body.classList.remove('hints') }
+	document.body.classList.remove('hints') }
 function digitizeBackground(snake, walls){
 	snake._cells.forEach(function(c){
 		var v = Math.floor(Math.random() * 6)
@@ -416,6 +425,8 @@ function digitizeBackground(snake, walls){
 
 //---------------------------------------------------------------------
 
+var __CACHE_UPDATE_CHECK = 5*60*1000
+var __HANDLER_SET = false
 function setup(snake, timer, size){
 	snake = snake || Snake
 
@@ -533,4 +544,4 @@ function setup(snake, timer, size){
 
 
 /**********************************************************************
-* vim:set ts=4 sw=4 :                                                */
+* vim:set ts=4 sw=4 spell :                                          */
