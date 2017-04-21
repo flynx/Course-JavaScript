@@ -230,6 +230,7 @@ var Snake = {
 		this.players[color] = ''
 
 		return this
+			.snakeBorn(color)
 	},
 	apple: function(point){
 		point = this.normalize_point(point || this.random_point)
@@ -265,9 +266,12 @@ var Snake = {
 	},
 
 	// events...
-	appleEaten: makeEvent('__appleEatenHandlers'),
 	snakeKilled: makeEvent('__killHandlers'),
+	snakeBorn: makeEvent('__birthHandlers'),
+	appleEaten: makeEvent('__appleEatenHandlers'),
 	tick: makeEvent('__tickHandlers'),
+	gameStarted: makeEvent('__startHandlers'),
+	gameStopped: makeEvent('__stopHandlers'),
 
 	// actions...
 	setup: function(field, size){
@@ -287,22 +291,22 @@ var Snake = {
 			.snakeKilled(null)
 	},
 	start: function(t){
-		this._field.classList.remove('paused')
 		this.__timer = this.__timer 
 			|| setInterval(this._tick.bind(this), t || this.config.interval || 200)
 		// reset player control actions...
 		var that = this
 		Object.keys(this.players)
 			.forEach(function(k){ that.players[k] = '' })
-		this.tick()
 		return this
+			.tick()
+			.gameStarted()
 	},
 	stop: function(){
-		this._field.classList.add('paused')
 		clearInterval(this.__timer)
 		delete this.__timer
 		delete this.__tick
 		return this
+			.gameStopped()
 	},
 	pause: function(){
 		return this.__timer ? this.stop() : this.start() },
@@ -327,8 +331,6 @@ var Snake = {
 
 
 /*********************************************************************/
-
-//var BG_ANIMATION = true
 
 var __CACHE_UPDATE_CHECK = 10*60*1000
 var __HANDLER_SET = false
@@ -373,6 +375,20 @@ function makeTapHandler(snake){
 function clearHints(){
 	document.body.classList.contains('hints')
 		&& document.body.classList.remove('hints') }
+function digitizeBackground(snake, walls){
+	snake._cells.forEach(function(c){
+		var v = Math.floor(Math.random() * 6)
+		// bg cell...
+		c.classList.length == 0 ?
+			(c.style.backgroundColor = 
+				`rgb(${255 - v}, ${255 - v}, ${255 - v})`)
+		// wall...
+		: walls && c.classList.contains('wall') ?
+			(c.style.backgroundColor = 
+				`rgb(${220 - v*2}, ${220 - v*2}, ${220 - v*2})`)
+		// skip the rest...
+		: null })
+}
 
 
 //---------------------------------------------------------------------
@@ -381,6 +397,20 @@ function clearHints(){
 //		travel...
 function setup(snake, timer, size){
 	snake = snake || Snake
+
+	function showScore(color, age){
+		score = snake.__top_score = 
+			(!snake.__top_score || snake.__top_score.score < age) ?
+				{
+					color: color || '',
+					score: age || 0,
+				}
+				: snake.__top_score
+		snake._field.setAttribute('score', score.score)
+		snake._field.setAttribute('snake', score.color)
+		snake._field.setAttribute('state', (
+			score.score == age && score.color == color) ? '(current)' : '')
+	}
 
 	// setup event handlers (only once)...
 	if(!__HANDLER_SET){
@@ -408,20 +438,6 @@ function setup(snake, timer, size){
 		__HANDLER_SET = true
 	}
 
-	function showScore(color, age){
-		score = snake.__top_score = 
-			(!snake.__top_score || snake.__top_score.score < age) ?
-				{
-					color: color || '',
-					score: age || 0,
-				}
-				: snake.__top_score
-		snake._field.setAttribute('score', score.score)
-		snake._field.setAttribute('snake', score.color)
-		snake._field.setAttribute('state', (
-			score.score == age && score.color == color) ? '(current)' : '')
-	}
-
 	// setup the game...
 	return snake
 		.setup('.simplesnake', size)
@@ -429,34 +445,37 @@ function setup(snake, timer, size){
 		.start(timer)
 		.pause()
 
-		// game events...
+		// game events / meta game rules...
+		// reconstruct eaten apples...
 		.appleEaten(function(color, age){ 
 			this.apple() 
 			showScore(color, age)
 		})
+		// one apple per snake...
+		.snakeBorn(function(color){
+			var a = this.__snake_apples = this.__snake_apples || []
+			a.indexOf(color) < 0
+				&& this.apple()	
+				&& a.push(color)
+		})
+		// reconstruct snakes and pause game...
+		// XXX for multiplayer reconstruct the snake on timeout and do 
+		// 		not pause...
 		.snakeKilled(function(color, age){ 
 			this
 				.pause()
 				.snake(color, 3) 
 			showScore(color, 3)
 		})
-		.tick(function(){
-			// digital noise effect...
-			window.BG_ANIMATION
-				&& (!snake.__tick || snake.__tick % 2 == 0)
-				&& this._cells.forEach(function(c){
-					var v = Math.floor(Math.random() * 6)
-					c.classList.length == 0 ?
-						(c.style.backgroundColor = 
-							`rgb(${255 - v}, ${255 - v}, ${255 - v})`)
-					: c.classList.contains('wall') ?
-						(c.style.backgroundColor = 
-							`rgb(${220 - v*2}, ${220 - v*2}, ${220 - v*2})`)
-					: null })
-		})
+		// indicate game state...
+		.gameStarted(function(){ 
+			digitizeBackground(this)
+			this._field.classList.remove('paused') })
+		.gameStopped(function(){ 
+			delete this.__snake_apples
+			this._field.classList.add('paused') })
 
 		// game eleemnts...
-		.apple()
 		.apple()
 		.snake('blue', 3)
 }
