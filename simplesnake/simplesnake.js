@@ -95,16 +95,18 @@ var Snake = {
 		return ('nesw')[Math.floor(Math.random() * 4)] },
 
 	// utils...
+	call: function(func){
+		return func.apply(this, [].slice.call(arguments, 1)) },
+	apply: function(func, args){ 
+		return func.apply(this, args) },
 	normalize_point: function(point){
 		point = point || {}
-
 		var w = this.field_size.width
 		var x = point.x % w
 		x = x < 0 ? (x + w) : x
 		var h = this.field_size.height
 		var y = point.y % h
 		y = y < 0 ? (y + h) : y
-
 		return { x: x, y: y }
 	},
 	_make_field: function(w){
@@ -247,7 +249,9 @@ var Snake = {
 		length = length || 1
 
 		while(length > 0){
-			this._cells[x + y * this.field_size.width].classList.add('wall')
+			var c = this._cells[x + y * this.field_size.width]
+			c.classList.add('wall')
+			c.style.backgroundColor = ''
 
 			x += direction == 'e' ? 1
 				: direction == 'w' ? -1
@@ -264,6 +268,12 @@ var Snake = {
 
 		return this
 	},
+	level: function(level){
+		var that = this
+		level.forEach(function(wall){
+			that.wall.apply(that, wall) })
+		return this
+	},
 
 	// events...
 	snakeKilled: makeEvent('__killHandlers'),
@@ -274,8 +284,9 @@ var Snake = {
 	gameStopped: makeEvent('__stopHandlers'),
 
 	// actions...
-	setup: function(field, size){
+	setup: function(field, size, interval){
 		this.config.field_size = size || this.config.field_size
+		this.config.interval = interval || this.config.interval
 		field = field || this._field
 		field = this._field = typeof(field) == typeof('str') ? document.querySelector(field)
 			: field
@@ -318,27 +329,20 @@ var Snake = {
 		this.players[color || Object.keys(this.players)[0]] = 'right' 
 		return this
 	},
-
-	// levels...
-	randomLevel: function(){
-		var a = Math.round(this.field_size.width/8)
-		return this
-			.wall(null, null, a*6)
-			.wall(null, null, a*6)
-			.wall(null, null, a*6) },
 }
 
 
 
 /*********************************************************************/
 
-var __CACHE_UPDATE_CHECK = 10*60*1000
+var __CACHE_UPDATE_CHECK = 5*60*1000
 var __HANDLER_SET = false
 var __DEBOUNCE_TIMEOUT = 100
 var __DEBOUNCE = false
 
 var KEY_CONFIG = {
 	' ': ['pause'],
+	n: setup,
 	ArrowLeft: ['left'],
 	ArrowRight: ['right'], 
 	// IE compatibility...
@@ -350,8 +354,11 @@ function makeKeyboardHandler(snake){
 		clearHints()
 		var action = KEY_CONFIG[event.key]
 		action 
-			&& action[0] in snake 
-			&& snake[action[0]].apply(snake, action.slice(1)) }}
+			&& (action instanceof Function ?
+					action.call(snake)
+				: action[0] in snake ?
+					snake[action[0]].apply(snake, action.slice(1))
+				: null) }}
 function makeTapHandler(snake){
 	return function(event){
 		// prevent clicks and touches from triggering the same action 
@@ -388,15 +395,29 @@ function digitizeBackground(snake, walls){
 				`rgb(${220 - v*2}, ${220 - v*2}, ${220 - v*2})`)
 		// skip the rest...
 		: null })
+	return snake
 }
 
 
 //---------------------------------------------------------------------
 
-// XXX need to place the snake with some headroom in the direction of 
-//		travel...
 function setup(snake, timer, size){
 	snake = snake || Snake
+
+	// levels...
+	var A = Math.round((size || snake.config.field_size)/8)
+	var RANDOM3_LEVEL = [
+		[null, null, A*6],
+		[null, null, A*6],
+		[null, null, A*6],
+	]
+	var HALVES_LEVEL = [
+		[null, null, A*8],
+	]
+	var QUARTERS_LEVEL = [
+		[null, 's', A*8],
+		[null, 'e', A*8],
+	]
 
 	function showScore(color, age){
 		score = snake.__top_score = 
@@ -440,10 +461,18 @@ function setup(snake, timer, size){
 
 	// setup the game...
 	return snake
-		.setup('.simplesnake', size)
-		.randomLevel()
-		.start(timer)
-		.pause()
+		// prepare the field/game...
+		.setup('.simplesnake', size, timer)
+		.call(digitizeBackground, snake)
+		.call(function(){
+			this.__snake_apples = []
+			return this
+		})
+
+		// load level...
+		.level(RANDOM3_LEVEL)
+		//.level(HALVES_LEVEL)
+		//.level(QUARTERS_LEVEL)
 
 		// game events / meta game rules...
 		// reconstruct eaten apples...
@@ -453,11 +482,9 @@ function setup(snake, timer, size){
 		})
 		// one apple per snake...
 		.snakeBorn(function(color){
-			var a = this.__snake_apples = this.__snake_apples || []
-			a.indexOf(color) < 0
+			this.__snake_apples.indexOf(color) < 0
 				&& this.apple()	
-				&& a.push(color)
-		})
+				&& this.__snake_apples.push(color) })
 		// reconstruct snakes and pause game...
 		// XXX for multiplayer reconstruct the snake on timeout and do 
 		// 		not pause...
@@ -469,10 +496,8 @@ function setup(snake, timer, size){
 		})
 		// indicate game state...
 		.gameStarted(function(){ 
-			digitizeBackground(this)
 			this._field.classList.remove('paused') })
 		.gameStopped(function(){ 
-			delete this.__snake_apples
 			this._field.classList.add('paused') })
 
 		// game eleemnts...
