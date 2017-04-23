@@ -11,8 +11,8 @@ body.hints:after {
 body.hints:before {
 	content: "";
 	width: 100%;
-	border-top: dashed 0.5vmin red;
-	border-bottom: dashed 0.5vmin red;
+	border-top: dotted 0.3vmin rgba(255, 0, 0, 0.5);
+	border-bottom: dotted 0.3vmin rgba(255, 0, 0, 0.5);
 }
 body.hints:after {
 	content: "↺↻";
@@ -20,19 +20,19 @@ body.hints:after {
 	right: 50%;
 	left: auto;
 	overflow: visible;
-	border-right: dashed 0.5vmin red;
+	border-right: dotted 0.3vmin rgba(255, 0, 0, 0.5);
 
 	color: rgba(255, 0, 0, 0.5);
 	font-size: 15vmin;
-	line-height: 70vmin;
+	line-height: 70vh;
 	white-space: pre;
 	letter-spacing: 50vmin;
 }
 .hints .simplesnake {
-	opacity: 0.3;
+	opacity: 0.2;
 }
-.hints .simplesnake:before,
-.hints .simplesnake:after {
+.hints .title:before,
+.hints .title:after {
 	position: absolute;
 	display: block;
 	text-align: center;
@@ -41,14 +41,51 @@ body.hints:after {
 	font-size: 5vh;
 	line-height: 10vh;
 	z-index: 100;
+	opacity: 0.6;
 }
-.hints .simplesnake:before {
-	content: "new level";
+.hints .title:before {
+	content: "New level";
 }
-.hints .simplesnake:after {
+.hints .title:after {
 	bottom: 0;
-	content: "pause";
+	content: "Pause game";
 }
+.hints .title {
+	display: block;
+}
+.hints .title h1:after {
+	content: "Touch control hints...";
+	display: block;
+	position: relative;
+	font-size: 4vmin;
+	font-weight: normal;
+	font-style: italic;
+	text-shadow: 3pt 3pt 10pt rgba(0,0,0,0.2);
+	opacity: 0.7;
+}
+
+
+.title {
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	text-align: center;
+	z-index: 500;
+	color: rgba(255,0,0,0.7);
+}
+.title h1 {
+	position: relative;
+	display: block;
+	top: 50%;
+	font-size: 10vmin;
+	margin-top: -22vmin;
+	font-weight: bolder;
+	text-shadow: 3pt 3pt 15pt rgba(0,0,0,0.2);
+}
+
 
 
 body {
