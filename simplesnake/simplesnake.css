@@ -85,6 +85,10 @@ body.hints:after {
 	font-weight: bolder;
 	text-shadow: 3pt 3pt 15pt rgba(0,0,0,0.2);
 }
+.title h1 sup {
+	font-weight: normal;
+	font-size: 5vh;
+}
 
 
 

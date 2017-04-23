@@ -59,6 +59,11 @@
 *
 **********************************************************************/
 
+var VERSION = '2.0'
+
+
+/*********************************************************************/
+
 function makeEvent(handler_attr){
 	return function(func){
 		if(func === null){
@@ -473,6 +478,9 @@ function setup(snake, timer, size){
 
 	// setup event handlers (only once)...
 	if(!__HANDLER_SET){
+		document.querySelectorAll('.version')
+			.forEach(function(e){ e.innerHTML = VERSION })
+
 		// control handlers...
 		document.addEventListener('keydown', makeKeyboardHandler(snake))
 		document.addEventListener('touchstart', makeTapHandler(snake))
