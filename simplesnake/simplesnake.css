@@ -1,3 +1,4 @@
+/**************************************************** Hints screen ***/
 
 body.hints:before,
 body.hints:after {
@@ -65,6 +66,9 @@ body.hints:after {
 }
 
 
+
+/*********************************************************** Title ***/
+
 .title {
 	display: none;
 	position: absolute;
@@ -92,11 +96,17 @@ body.hints:after {
 
 
 
+/********************************************************* General ***/
+
 body {
 	background-color: rgb(253, 253, 253);
 	font-family: sans-serif;
 	overflow: hidden;
 }
+
+
+
+/************************************************************ Game ***/
 
 .simplesnake .field {
 	position: relative;
@@ -146,54 +156,5 @@ body:not(.hints) .simplesnake.paused:before {
 }
 
 
-/*
-.simplesnake .apple {
-	position: relative;
-	background-color: none;
-}
-.simplesnake .apple:before {
-	position: absolute;
-	display: block;
-	content: "";
-	width: 100%;
-	height: 100%;
-	top: 0;
-	left: 0;
-	background-color: red;
-	transform: rotate(45deg);
-}
-*/
 
-/*
-.simplesnake .apple {
-	position: relative;
-	background-color: none;
-}
-.simplesnake .apple:before {
-	display: block;
-	content: "";
-	width: 60%;
-	height: 100%;
-	top: 0;
-	left: 0;
-	position: absolute;
-	background-color: red;
-	border-radius: 30%;
-	border-bottom-right-radius: 50%;
-	transform: rotate(-10deg);
-}
-.simplesnake .apple:after {
-	display: block;
-	content: "";
-	width: 60%;
-	height: 100%;
-	top: 0;
-	right: 0;
-	position: absolute;
-	background-color: red;
-	border-radius: 30%;
-	border-bottom-left-radius: 50%;
-	transform: rotate(10deg);
-}
-*/
-
+/*********************************************************************/
