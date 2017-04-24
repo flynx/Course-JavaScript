@@ -1,7 +1,8 @@
 CACHE MANIFEST
-# Timestamp: 20170425000811
+# Timestamp: 20170425001109
 
 CACHE:
 simplesnake.html
 simplesnake.css
 simplesnake.js
+manifest.json
