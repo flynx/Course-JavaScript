@@ -18,16 +18,18 @@ body.hints:before {
 body.hints:after {
 	content: "↺↻";
 	width: 37vmin;
-	right: 50%;
 	left: auto;
+	right: 50%;
+
 	overflow: visible;
 	border-right: dotted 0.3vmin rgba(255, 0, 0, 0.5);
 
 	color: rgba(255, 0, 0, 0.5);
+
 	font-size: 15vmin;
 	line-height: 70vh;
 	white-space: pre;
-	letter-spacing: 50vmin;
+	letter-spacing: 38vw;
 }
 .hints .simplesnake {
 	opacity: 0.2;
@@ -109,9 +111,11 @@ body {
 /************************************************************ Game ***/
 
 .simplesnake .field {
-	position: relative;
-	left: 50%;
+	position: absolute;
+	left: 50vw;
+	top: 50vh;
 	margin-left: -45vmin;
+	margin-top: -45vmin;
 
 	width: 90vmin;
 	height: 90vmin;
@@ -127,6 +131,7 @@ body {
 	color: gray;
 	font-size: 2vh;
 	line-height: 3vh;
+	bottom: 1vh;
 
 	content: "Top score: " attr(snake) ": " attr(score) " " attr(state);
 
