@@ -394,15 +394,15 @@ function makeTapHandler(snake){
 
 		clearHints()
 		// top of screen (1/8)...
-		;(event.clientY || event.changedTouches[0].pageY) <= (document.body.clientHeight / 8) ? 
+		;(event.clientY || event.changedTouches[0].pageY) <= (window.innerHeight / 8) ? 
 			setup()
 		// bottom of screen 1/8...
-		: (event.clientY || event.changedTouches[0].pageY) >= (document.body.clientHeight / 8)*8 ? 
+		: (event.clientY || event.changedTouches[0].pageY) >= (window.innerHeight / 8)*7 ? 
 			Snake.pause()
 		// left/right of screen...
-		: (event.clientX || event.changedTouches[0].pageX) <= (document.body.clientWidth / 2) ? 
+		: (event.clientX || event.changedTouches[0].pageX) <= (window.innerWidth / 2) ? 
 			Snake.left() 
-			: Snake.right() }}
+		: Snake.right() }}
 
 
 //---------------------------------------------------------------------
