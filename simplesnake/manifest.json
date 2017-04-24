@@ -1,0 +1,7 @@
+{
+	"short_name": "SimpleSnake",
+	"name": "SimpleSnake",
+	"display": "standalone",
+	"orientation": "landscape",
+	"Theme_color": "white"
+}
