@@ -539,6 +539,9 @@ var BOOTSTRAP =
 
 -------------------------------------------------------------------------------
 
+ Slang Basics
+ ------------
+
  The system consists of:
 	- Stack
 	- Code
@@ -574,20 +577,21 @@ var BOOTSTRAP =
  Words may read and affect any of the three system parts:
 	- Stack
 	- Code
-	- Namespace (not yet fully implemented)
+	- Namespace
 
  Traditioannly, in stack languages words affect only the stack, this is
  one of the motivations to implement Slang, that is, to experiment with
  different ways to go with stack languages.
 
 
- TODO: add a complete word-set for work with lists/blocks
- TODO: add a complete word-set for work with dicts/namespaces
  TODO: add topological comparison/diff
 
 
 
 -----------------------------------------------------------------------------
+
+ Stack effect notation
+ ---------------------
 
  Traditionally, stack languages use a "stack effect" notation to document how
  words affect the stack state, a kind of before-after transformation. here is
@@ -635,6 +639,9 @@ var BOOTSTRAP =
 
 
 -------------------------------------------------------------------------------
+
+ Blocks / Lists
+ --------------
 
  Basic words for block manipulation:
 
@@ -719,7 +726,8 @@ var BOOTSTRAP =
 
 -------------------------------------------------------------------------------
 
- Objects and namespaces:
+ Objects and namespaces
+ ----------------------
 
  Get the namespace object...
 
