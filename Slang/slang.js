@@ -721,17 +721,25 @@ var BOOTSTRAP =
 
  Objects and namespaces:
 
+ Get the namespace object...
+
+		ns		-> namespace
+
+
+ Set attribute (key-value pair) on object...
+
+		o x 123 item!
+				-> o
+
+ Since almost all object words return the original object we can chain
+ object operations like this:
+
  Create a variable word o and p and set them to empty objects...
 
 		ns
 			o {} item!
 			p {} item!
 		.
-
- Set attribute (key-value pair) on object...
-
-		o x 123 item!
-				-> o
 
  Get attribute x value...
 

@@ -1,0 +1,11 @@
+CACHE MANIFEST
+# Timestamp: 20170825132449
+
+CACHE:
+slang.html
+slang.js
+manifest.json
+
+NETWORK:
+*
+
