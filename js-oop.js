@@ -31,15 +31,15 @@
 	b.z					// -> 3
 
 // What we see is that if the attribute is not found in the current 
-// object it resolves to the next object, and so on, this next object is
+// object the next object is checked, and so on, this next object is
 // called "prototype". 
 // These prototype chains can be of any length.
 // Cycles in prototype chains are not allowed, see note further down for
 // an example.
 //
-// Note that this works for reading attributes, but when writing or 
-// deleting we are affecting ONLY the local object and attributes 
-// explicitly defined in it, or its' "own" attributes.
+// Note that this works for reading (and mutating) attributes, but when 
+// writing or deleting we are affecting ONLY the local object and 
+// attributes explicitly defined in it, or its' "own" attributes.
 
 	b.x = 321
 	b.x					// -> 321
