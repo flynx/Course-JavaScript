@@ -87,8 +87,8 @@
 // on most systems.
 //
 // NOTE: we did not see .__proto__ in the list of accessible attributes
-// 		because it is a special attribute, it is implemented internally
-// 		and is not enumerable.
+// 		because it is a special attribute (property), it is implemented 
+// 		internally and is not enumerable.
 // NOTE: cyclic prototype chains are actively not allowed, e.g. creating
 // 		a chain like the following will fail:
 // 			var a = {}
