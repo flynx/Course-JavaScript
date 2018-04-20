@@ -185,7 +185,8 @@
 
 	function construct(func){
 		var obj = {}
-		return func.apply(obj)
+		func.apply(obj)
+		return obj
 	}
 
 	var b = construct(A)
@@ -254,26 +255,26 @@
 
 	// the following three lines actually add attributes to the same 
 	// object...
-	A.prototype.x = 123
-	a.constructor.prototype.y = 321
-	a.__proto__.z = 333
+	A.prototype.k = 123
+	a.constructor.prototype.l = 321
+	a.__proto__.m = 333
 
 	// for illustration, we'll set some object own attributes
-	a.x = 'a!'
-	b.x = 'b!'
+	a.k = 'a!'
+	b.k = 'b!'
 
-	a.x					// -> 'a!'
-	a.y					// -> 321
-	a.z					// -> 333
+	a.k					// -> 'a!'
+	a.l					// -> 321
+	a.m					// -> 333
 
 
 // These values are accessible from all objects constructed by A since
 // all of them point to A with both the .constructor and .__proto__ 
 // attributes
 
-	b.x					// -> 'b!'
-	b.y					// -> 321
-	b.z					// -> 333
+	b.k					// -> 'b!'
+	b.l					// -> 321
+	b.m					// -> 333
 
 
 // This works for any constructor, including built-in constructors and
@@ -292,8 +293,10 @@
 	Object.prototype.keys = function(){ return Object.keys(this) }
 	Object.prototype.allKeys = function(){ return Object.allKeys(this) }
 
-	b.keys()			// -> ['x']
-	b.allKeys()			// -> ['x', 'y', 'z']
+	b.keys()			// -> ['k']
+	b.allKeys()			// -> ['x', 'y', 'k', 'l', 'm']
+						// 	NOTE: x and y are set in the A constructor 
+						// 		above...
 
 
 
