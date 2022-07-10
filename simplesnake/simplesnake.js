@@ -79,11 +79,9 @@ function makeEvent(handler_attr){
 			var args = [].slice.call(arguments)
 			this[handler_attr]
 				&& this[handler_attr]
-					.forEach(function(handler){ handler.apply(that, args) })
-		}
-		return this
-	}
-}
+					.forEach(function(handler){ 
+						handler.apply(that, args) }) }
+		return this } }
 
 var Snake = {
 	config: {
@@ -108,8 +106,7 @@ var Snake = {
 		return {
 			x: i%w,
 			y: Math.floor(i/w),
-		}
-	},
+		} },
 	get random_direction(){
 		return ('nesw')[Math.floor(Math.random() * 4)] },
 
@@ -126,15 +123,15 @@ var Snake = {
 		var h = this.field_size.height
 		var y = point.y % h
 		y = y < 0 ? (y + h) : y
-		return { x: x, y: y }
-	},
+		return { x, y } },
 
 	// system...
 	setup: function(field, size, interval){
 		this.config.field_size = size || this.config.field_size
 		this.config.interval = interval || this.config.interval
 		field = field || this._field
-		field = this._field = typeof(field) == typeof('str') ? document.querySelector(field)
+		field = this._field = typeof(field) == typeof('str') ? 
+			document.querySelector(field)
 			: field
 		this._make_field()
 		this._cells = [].slice.call(field.querySelectorAll('td'))
@@ -145,8 +142,7 @@ var Snake = {
 		this.players = {}
 		return this
 			.appleEaten(null)
-			.snakeKilled(null)
-	},
+			.snakeKilled(null) },
 	_make_field: function(w){
 		var l = []
 		l.length = w || this.config.field_size
@@ -156,8 +152,7 @@ var Snake = {
 				l.map(function(){ 
 					return `  <tr> ${ l.join('') } </tr>` 
 				}).join('\n') 
-			}\n</table>`
-	},
+			}\n</table>` },
 	_tick: function(){
 		var that = this
 		var l = this._cells.length
@@ -171,8 +166,7 @@ var Snake = {
 
 			// skip cells we touched on this tick...
 			if(cell.tick == tick){
-				return
-			}
+				return }
 
 			// snake...
 			if(cell.age != null){
@@ -183,8 +177,7 @@ var Snake = {
 					cell.style.backgroundColor = ''
 
 				} else {
-					cell.age -= 1
-				}
+					cell.age -= 1 }
 
 				// snake head -> move...
 				var direction = cell.direction
@@ -192,22 +185,30 @@ var Snake = {
 					// turn...
 					if(that.players[color] != ''){
 						var turn = that.players[color] || ''
-						var j = turn == 'left' ? directions.indexOf(direction) - 1
+						var j = turn == 'left' ? 
+							directions.indexOf(direction) - 1
 							: directions.indexOf(direction) + 1
 						j = j < 0 ? 3 : j
 						direction = directions[j]
-						that.players[color] = ''
-					}
+						that.players[color] = '' }
 
 					// get next cell index...
 					var next = 
 						direction == 'n' ? 
-							(i < w ? l - w + i : i - w)
+							(i < w ? 
+								l - w + i 
+								: i - w)
 						: direction == 's' ? 
-							(i > (l-w-1) ? i - (l-w) : i + w)
+							(i > (l-w-1) ? 
+								i - (l-w) 
+								: i + w)
 						: direction == 'e' ? 
-							((i+1)%w == 0 ? i - (w-1) : i + 1)
-						: (i%w == 0 ? i + (w-1) : i - 1)
+							((i+1)%w == 0 ? 
+								i - (w-1) 
+								: i + 1)
+						: (i%w == 0 ? 
+							i + (w-1) 
+							: i - 1)
 					next = that._cells[next]
 
 					var age = cell.age
@@ -238,8 +239,7 @@ var Snake = {
 
 					// other -> kill...
 					} else {
-						that.snakeKilled(color, age+2)
-					}
+						that.snakeKilled(color, age+2) }
 
 					// do the move...
 					if(move){
@@ -247,16 +247,11 @@ var Snake = {
 						next.style.backgroundColor = color
 						next.classList.add('snake')
 						next.age = age + 1
-						next.direction = direction
-					}
+						next.direction = direction }
 
-					delete cell.direction
-				}
-			}
-			cell.tick = tick
-		})
-		this.tick(tick)
-	},
+					delete cell.direction } }
+			cell.tick = tick })
+		this.tick(tick) },
 
 	// constructors...
 	snake: function(color, age, point, direction){
@@ -265,53 +260,57 @@ var Snake = {
 		var head = this._cells[point.x + point.y * this.field_size.width]
 		head.style.backgroundColor = color
 		head.classList.add('snake')
-		head.direction = direction || this.random_direction
+		head.direction = direction 
+			|| this.random_direction
 		head.age = (age || 5) - 1
 		this.players[color] = ''
 
 		return this
-			.snakeBorn(color)
-	},
+			.snakeBorn(color) },
 	apple: function(point){
 		point = this.normalize_point(point || this.random_point)
 		var c = this._cells[point.x + point.y * this.field_size.width]
 		c.classList.add('apple')
 		c.style.backgroundColor = ''
-		return this
-	},
+		return this },
 	wall: function(point, direction, length){
-		direction = direction || this.random_direction
+		direction = direction 
+			|| this.random_direction
 		point = this.normalize_point(point || this.random_point)
 		var x = point.x
 		var y = point.y
-		length = length || Math.random() * this.field_size.width
+		length = length 
+			|| Math.random() * this.field_size.width
 
 		while(length > 0){
 			var c = this._cells[x + y * this.field_size.width]
 			c.classList.add('wall')
 			c.style.backgroundColor = ''
 
-			x += direction == 'e' ? 1
-				: direction == 'w' ? -1
+			x += direction == 'e' ? 
+					1
+				: direction == 'w' ? 
+					-1
 				: 0
-			x = x < 0 ? this.field_size.width + x
+			x = x < 0 ? 
+				this.field_size.width + x
 				: x % this.field_size.width
-			y += direction == 'n' ? -1
-				: direction == 's' ? 1
+			y += direction == 'n' ? 
+					-1
+				: direction == 's' ? 
+					1
 				: 0
-			y = y < 0 ? this.field_size.height + y
+			y = y < 0 ? 
+				this.field_size.height + y
 				: y % this.field_size.height
-			length -= 1
-		}
+			length -= 1 }
 
-		return this
-	},
+		return this },
 	level: function(level){
 		var that = this
 		level.forEach(function(wall){
 			that.wall.apply(that, wall) })
-		return this
-	},
+		return this },
 
 	// events...
 	snakeKilled: makeEvent('__killHandlers'),
@@ -324,32 +323,35 @@ var Snake = {
 	// actions...
 	start: function(t){
 		this.__timer = this.__timer 
-			|| setInterval(this._tick.bind(this), t || this.config.interval || 200)
+			|| setInterval(
+				this._tick.bind(this), 
+				t 
+					|| this.config.interval 
+					|| 200)
 		// reset player control actions...
 		var that = this
 		Object.keys(this.players)
-			.forEach(function(k){ that.players[k] = '' })
+			.forEach(function(k){ 
+				that.players[k] = '' })
 		return this
 			.tick()
-			.gameStarted()
-	},
+			.gameStarted() },
 	stop: function(){
 		clearInterval(this.__timer)
 		delete this.__timer
 		delete this.__tick
 		return this
-			.gameStopped()
-	},
+			.gameStopped() },
 	pause: function(){
-		return this.__timer ? this.stop() : this.start() },
+		return this.__timer ? 
+			this.stop() 
+			: this.start() },
 	left: function(color){ 
 		this.players[color || Object.keys(this.players)[0]] = 'left' 
-		return this
-	},
+		return this },
 	right: function(color){
 		this.players[color || Object.keys(this.players)[0]] = 'right' 
-		return this
-	},
+		return this },
 }
 
 
@@ -388,19 +390,23 @@ function makeTapHandler(snake){
 		// prevent clicks and touches from triggering the same action 
 		// twice -- only handle the first one within timeout...
 		// NOTE: this should not affect events of the same type...
-		if(__DEBOUNCE && event.type != __DEBOUNCE){ return }
+		if(__DEBOUNCE && event.type != __DEBOUNCE){ 
+			return }
 		__DEBOUNCE = event.type
 		setTimeout(function(){ __DEBOUNCE = false }, __DEBOUNCE_TIMEOUT)
 
 		clearHints()
 		// top of screen (1/8)...
-		;(event.clientY || event.changedTouches[0].pageY) <= (window.innerHeight / 8) ? 
+		;(event.clientY 
+				|| event.changedTouches[0].pageY) <= (window.innerHeight / 8) ? 
 			setup()
 		// bottom of screen 1/8...
-		: (event.clientY || event.changedTouches[0].pageY) >= (window.innerHeight / 8)*7 ? 
+		: (event.clientY 
+				|| event.changedTouches[0].pageY) >= (window.innerHeight / 8)*7 ? 
 			Snake.pause()
 		// left/right of screen...
-		: (event.clientX || event.changedTouches[0].pageX) <= (window.innerWidth / 2) ? 
+		: (event.clientX 
+				|| event.changedTouches[0].pageX) <= (window.innerWidth / 2) ? 
 			Snake.left() 
 		: Snake.right() }}
 
@@ -425,8 +431,7 @@ function digitizeBackground(snake, walls){
 				`rgb(${220 - v*2}, ${220 - v*2}, ${220 - v*2})`)
 		// skip the rest...
 		: null })
-	return snake
-}
+	return snake }
 
 
 //---------------------------------------------------------------------
@@ -455,12 +460,12 @@ function setup(snake, timer, size){
 
 		get random(){
 			var l = Object.keys(this)
-				.filter(function(e){ return e != 'random' })
+				.filter(function(e){ 
+					return e != 'random' })
 			do {
 		   		var level = this[l[ Math.round(Math.random()*l.length) ]]
 			} while(!(level instanceof Array))
-			return level
-		},
+			return level },
 	}
 
 	function showScore(color, age){
@@ -473,14 +478,17 @@ function setup(snake, timer, size){
 				: snake.__top_score
 		snake._field.setAttribute('score', score.score)
 		snake._field.setAttribute('snake', score.color)
-		snake._field.setAttribute('state', (
-			score.score == age && score.color == color) ? '(current)' : '')
-	}
+		snake._field.setAttribute('state', 
+			(score.score == age 
+					&& score.color == color) ? 
+				'(current)' 
+				: '') }
 
 	// setup event handlers (only once)...
 	if(!__HANDLER_SET){
 		document.querySelectorAll('.version')
-			.forEach(function(e){ e.innerHTML = VERSION })
+			.forEach(function(e){ 
+				e.innerHTML = VERSION })
 
 		// control handlers...
 		document.addEventListener('keydown', makeKeyboardHandler(snake))
@@ -497,14 +505,12 @@ function setup(snake, timer, size){
 					appCache.swapCache()
 
 					confirm('New version ready, reload?')
-						&& location.reload()
-				}
-			})
-			setInterval(function(){ appCache.update() }, __CACHE_UPDATE_CHECK)
-		}
+						&& location.reload() } })
+			setInterval(
+				function(){ appCache.update() }, 
+				__CACHE_UPDATE_CHECK) }
 
-		__HANDLER_SET = true
-	}
+		__HANDLER_SET = true }
 
 	// setup the game...
 	return snake
@@ -513,8 +519,7 @@ function setup(snake, timer, size){
 		.call(digitizeBackground, snake)
 		.call(function(){
 			this.__snake_apples = []
-			return this
-		})
+			return this })
 
 		// load level...
 		.level(Level.random)
@@ -523,8 +528,7 @@ function setup(snake, timer, size){
 		// reconstruct eaten apples...
 		.appleEaten(function(color, age){ 
 			this.apple() 
-			showScore(color, age)
-		})
+			showScore(color, age) })
 		// one apple per snake...
 		.snakeBorn(function(color){
 			this.__snake_apples.indexOf(color) < 0
@@ -537,8 +541,7 @@ function setup(snake, timer, size){
 			this
 				.pause()
 				.snake(color, 3) 
-			showScore(color, 3)
-		})
+			showScore(color, 3) })
 		// indicate game state...
 		.gameStarted(function(){ 
 			this._field.classList.remove('paused') })
@@ -547,8 +550,7 @@ function setup(snake, timer, size){
 
 		// game eleemnts...
 		.apple()
-		.snake('blue', 3)
-}
+		.snake('blue', 3) }
 
 
 
