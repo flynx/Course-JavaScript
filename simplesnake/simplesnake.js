@@ -57,6 +57,23 @@
 *
 *
 *
+* Further tasks:
+* 	- multiplayer modes / control
+* 	- new game objects:
+* 		- teleporters / tunnels
+* 		- floors / bridges
+* 	- new game mechanics:
+* 		- shifting of objects (earthquakes, ...)
+* 	- networking
+*
+*
+*
+* NOTE: the code is styled in a very specific but not very popular 
+* 		style in part to illustrate different approaches to code
+* 		organization and structuring.
+*
+*
+*
 **********************************************************************/
 
 var VERSION = '2.0'
