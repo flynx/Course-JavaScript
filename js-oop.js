@@ -24,6 +24,13 @@
 	var b = Object.create(a)
 	b.z = 3
 
+// Another way to do this:
+
+	var b = {
+		__proto__: a,
+		z: 3,
+	}
+
 // The object 'b' now has both access to it's own attributes ('z') and 
 // attributes of 'a' ('x' and 'y')
 
@@ -68,7 +75,8 @@
 	Object.keys(b)		// -> z
 
 	// show all accessible keys...
-	for(var k in b){ console.log(k) }
+	for(var k in b){ 
+		console.log(k) }
 						// -> x, y, z
 
 // Another way to test if the attribute is own/local
@@ -100,9 +108,9 @@
 // this:
 
 	function clone(from){
-		var o = {}
-		o.__proto__ = from
-		return o
+		return {
+			__proto__: from,
+		}
 	}
 
 	var c = clone(b)
