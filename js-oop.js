@@ -172,6 +172,30 @@
 
 	var a = new A()
 
+// The above aproach has one rather big flaw -- if called without new
+// it will modify the root contect (i.e. window or global)
+// A safer way to define a constructor:
+
+	function A(){
+		return {
+			__proto__: A.prototype,
+			x: 1,
+			y: 2,
+		}
+	}
+
+	var a = new A()
+	var a = A()
+
+	// XXX a way to check if we are running in a new context...
+	function A(){
+		var obj = this instanceof A ?
+			this
+			: { __proto__: A.prototype }
+		obj.x = 1
+		obj.y = 2
+		return obj
+	}
 
 // Some terminology:
 // - in the above use-case 'A' is called a constructor,
