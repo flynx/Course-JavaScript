@@ -1,12 +1,26 @@
-
 /**********************************************************************
 * 
 * JavaScript types and objects
 *
 *
 **********************************************************************/
-
-
+//
+// Types and object
+// ================
+//
+// 	JavaScript's type system is split into two categories of enteties: 
+// 	basic types or values and objects, they differ in several aspects.
+//
+// 						| values			| objects
+// 		----------------+-------------------+--------------------------
+// 		     mutability	| imutable			| mutable
+// 		----------------+-------------------+--------------------------
+// 		       identity	| equal values are 	| different objects
+// 						| the same entity	| can have same 
+// 						| (singletons)		| structure
+// 		----------------+-------------------+--------------------------
+//
+//
 // Basic values
 // ============
 //
