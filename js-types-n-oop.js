@@ -5,8 +5,8 @@
 *
 **********************************************************************/
 //
-// Types and object
-// ================
+// Types and objects
+// =================
 //
 // 	JavaScript's type system is split into two categories of enteties: 
 // 	basic types or values and objects, they differ in several aspects.
@@ -22,7 +22,7 @@
 //
 //
 // Basic values
-// ============
+// ------------
 //
 // numbers
 	var integer = 123
@@ -80,18 +80,25 @@
 
 
 
-// Objects
-// =======
-//
+// Type cecking
 //
 
+
+
+
+// Objects
+// -------
+//
+
+// Type cheking
+//
+
+
 // Prototypes and inheritance
-// --------------------------
 //
 //
 
 // Constructors
-// ------------
 //
 //
 
