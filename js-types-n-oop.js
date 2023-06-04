@@ -79,6 +79,9 @@
 //
 
 
+// Automatic type coercion
+//
+
 
 // Type cecking
 //
