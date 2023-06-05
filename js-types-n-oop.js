@@ -83,7 +83,7 @@
 //
 
 
-// Type cecking
+// Type checking
 //
 
 
