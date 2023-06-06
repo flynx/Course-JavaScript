@@ -85,7 +85,7 @@
 
 // Type checking
 //
-
+	typeof(42) // -> 'number'
 
 
 
@@ -95,6 +95,21 @@
 
 // Type cheking
 //
+// Here thesame approach as for simple types is not productive:
+
+	typeof([42]) // -> 'object'
+	typeof({}) // -> 'object'
+
+// so a better approach would be to:
+
+	[42] instanceof Array // -> true
+
+// but since all objects are objects the test can get quite generic (XXX)
+
+	[42] instanceof Object // -> true
+	{} instanceof Object // -> true
+
+
 
 
 // Prototypes and inheritance
