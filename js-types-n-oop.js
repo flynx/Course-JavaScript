@@ -86,6 +86,7 @@
 // Type checking
 //
 	typeof(42) // -> 'number'
+	typeof('meaning of life') // -> 'string'
 
 
 
