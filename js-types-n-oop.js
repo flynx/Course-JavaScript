@@ -110,16 +110,19 @@
 	[42] instanceof Object // -> true
 	{} instanceof Object // -> true
 
+// this essentially checks if the left oprtand is related to (i.e. in the 
+// inheritance chain of) the second operand's .prototypr, or we can say
+// that it id "inherited" from the constructor.
 
 
 
 // Prototypes and inheritance
 //
-//
+
 
 // Constructors
 //
-//
+
 
 
 /**********************************************************************
