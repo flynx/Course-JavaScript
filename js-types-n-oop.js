@@ -111,7 +111,7 @@
 	{} instanceof Object // -> true
 
 // this essentially checks if the left oprtand is related to (i.e. in the 
-// inheritance chain of) the second operand's .prototypr, or we can say
+// inheritance chain of) the second operand's .prototype, or we can say
 // that it id "inherited" from the constructor.
 
 
@@ -119,9 +119,52 @@
 // Prototypes and inheritance
 //
 
+	var a = {
+	}
+
+	var b = Object.create(a)
+
+	var c = {
+		__proto__: b,
+	}
+
 
 // Constructors
 //
+
+	function A(){
+		this.attr = 42
+		this.method = function(){
+			console.log('Hello world!')
+		}
+	}
+
+	var x = new A()
+
+	var y = {
+		__proto__: A.prototype,
+	}
+
+
+	function B(){
+		var obj = {
+			__proto__: B.prototype,
+		}
+		return obj
+	}
+
+	// this can be calles with and withot new
+	var z = B() 
+
+	// less naive...
+	function C(){
+		var obj = this instanceof C ?
+			this
+			: { __proto__: C.prototype }
+		return obj
+	}
+
+	// XXX extending the chain....
 
 
 
