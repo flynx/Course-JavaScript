@@ -85,6 +85,7 @@
 
 // Type checking
 //
+
 	typeof(42) // -> 'number'
 	typeof('meaning of life') // -> 'string'
 
@@ -145,6 +146,7 @@
 		__proto__: A.prototype,
 	}
 
+// XXX a safer way -- now we can forget new...
 
 	function B(){
 		var obj = {
@@ -163,8 +165,29 @@
 			: { __proto__: C.prototype }
 		return obj
 	}
+	// make C instances related to B...
+	C.prototype.__proto__ = B.prototype
 
-	// XXX extending the chain....
+
+
+// Extending builtin types
+//
+
+// XXX Reflect.construct(Function, args, newConstructor)
+// 		mainly usefull if the resulting instance has to be of a builtin 
+// 		type like a function (callable) or an array...
+
+
+
+// Classes and JavaScript
+//
+// Since the class syntax is simply a more restrictive way to do the 
+// same as the above, in addition to introducing more "the same but 
+// slightly different" ways to define functions and methods thus adding
+// lots of new details, pitfalls and nuances that give us essentially 
+// the same functionaly that already existed in the language with 
+// the onus of additional complexity, we will be completely ignoring 
+// them in this document.
 
 
 
