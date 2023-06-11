@@ -176,6 +176,8 @@
 // XXX Reflect.construct(Function, args, newConstructor)
 // 		mainly usefull if the resulting instance has to be of a builtin 
 // 		type like a function (callable) or an array...
+// 		...especially when overloading the constructor
+// XXX should this be in advanced topics???
 
 
 
