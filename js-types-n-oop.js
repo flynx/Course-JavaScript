@@ -173,6 +173,21 @@
 // Extending builtin types
 //
 
+// Mixing builtin types
+//
+// In general this is impossible in JavaScript due to the lack of any 
+// mechanism of horizontal name resolution in the inheritance chain like 
+// multiple inheritance (hence why we call it a chain and not a tree).
+//
+// So there is no way, for example, to make something both an array and
+// a function at the same time.
+//
+
+	
+
+
+
+
 // XXX Reflect.construct(Function, args, newConstructor)
 // 		mainly usefull if the resulting instance has to be of a builtin 
 // 		type like a function (callable) or an array...
