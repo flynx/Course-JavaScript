@@ -119,6 +119,7 @@
 
 // Prototypes and inheritance
 //
+// XXX
 
 	var a = {
 	}
@@ -154,7 +155,12 @@
 		__proto__: A.prototype,
 	}
 
-// XXX a safer way -- now we can forget new...
+//
+// The problem with the default way this is done is that now a 
+// constructor will behave differently when called directly or if called
+// via the new syntax. This can be desirable in some cases but in 
+// general this is a pitfall, so let's unify the two cases:
+//
 
 	function B(){
 		var obj = {
@@ -163,10 +169,10 @@
 		return obj
 	}
 
-	// this can be calles with and withot new
+	// this can be called with and without new:
 	var z = B() 
 
-	// less naive...
+	// less naive -- reuses the instance created by new...
 	function C(){
 		var obj = this instanceof C ?
 			this
@@ -176,6 +182,11 @@
 	// make C instances related to B...
 	C.prototype.__proto__ = B.prototype
 
+//
+// Note that constructor extension is trivial if you think of how 
+// prototypical inheritance works, to link A and B "instances" all we 
+// needed to do is link the constructor prototypes in the code above.
+//
 
 
 // Extending builtin types
