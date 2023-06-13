@@ -132,6 +132,14 @@
 
 // Constructors
 //
+// A constructor is simply a function that "constructs" or populates an
+// object. 
+//
+// By convention constructor functions are capitalized (Pascal-case)
+//
+// Classic constructors are called with a "new" keyword which creates a
+// bare instance and passes it to the function as the call context.
+//
 
 	function A(){
 		this.attr = 42
