@@ -17,19 +17,54 @@
 // 		----------------+-------------------+--------------------------
 // 		       identity	| equal values are 	| different objects
 // 						| the same entity	| can have same 
-// 						| (singletons)		| structure
+// 						| (singletons)		| structure / "value"
 // 		----------------+-------------------+--------------------------
+//
+//
+// Value vs. Identity
+// ------------------
+//
+// Imagine an apple, it's a "thing" that is an "apple", or we say that
+// it has a value "apple". There are lots of apples in the world, 
+// each one is different but all are apples. Now imagine two people, each
+// looking at an apple, wa can say that each person sees the value "apple",
+// those values are equel, and if those people are sitting at the same 
+// table and looking at the same apple, we say that their apples are the 
+// same, or they are of the same identity, (i.i. the same apple).
+// Then if we can take a different set of people looking at apples, but 
+// now each one has their own personal apple, the values are still the same,
+// both apples are still aplles but now they are different aplles, aren't 
+// they? and thus we say they are of different identities.
+// We'll come back to this concept a bit later, once we introduce JavaScript
+// values and types.
 //
 //
 // Basic values
 // ------------
 //
-// numbers
+// Numbers
 	var integer = 123
 	var floating_point = 3.1415
-	var hex = 0xFF
 
-// strings
+//
+// Note that all numbers are of the same "type", this is different to 
+// alot of other languages where numbers are represented closer to the 
+// low-level hardware implementation and thus are represented by a 
+// whole range of number types.
+//
+// Numbers can also be written using different base notations:
+	var bin = 0b101010
+	var oct = 052
+	var hex = 0xFF
+	var dec = 42
+
+//
+// But note that these are just different notations and all of the 
+// above resolve to the same number.
+//
+
+
+// Strings
 	var string = 'string'
 	var another_string = "also a string"
 	var template = `
@@ -37,11 +72,13 @@
 		this can include \\n's
 		also summorts expansions ${ '.' }`
 
-// boolieans
+// XXX a note on template strings
+
+// Boolieans
 	var t = true
 	var f = false
 
-// nulls
+// Nulls
 	var n = null
 	var u = undefined
 	var not_a_number = NaN
@@ -77,14 +114,17 @@
 
 // Equality and identity
 //
+// XXX
 
 
 // Automatic type coercion
 //
+// XXX
 
 
 // Type checking
 //
+// XXX
 
 	typeof(42) // -> 'number'
 	typeof('meaning of life') // -> 'string'
@@ -111,9 +151,11 @@
 	[42] instanceof Object // -> true
 	{} instanceof Object // -> true
 
+//
 // this essentially checks if the left oprtand is related to (i.e. in the 
 // inheritance chain of) the second operand's .prototype, or we can say
 // that it id "inherited" from the constructor.
+//
 
 
 
@@ -191,6 +233,7 @@
 
 // Extending builtin types
 //
+// XXX
 
 // Mixing builtin types
 //
