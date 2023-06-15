@@ -26,17 +26,18 @@
 //
 // Imagine an apple, it's a "thing" that is an "apple", or we say that
 // it has a value "apple". There are lots of apples in the world, 
-// each one is different but all are apples. Now imagine two people, each
-// looking at an apple, wa can say that each person sees the value "apple",
-// those values are equel, and if those people are sitting at the same 
-// table and looking at the same apple, we say that their apples are the 
-// same, or they are of the same identity, (i.i. the same apple).
+// each one is different but all are apples. Now imagine two people, 
+// each looking at an apple, we can say that each person sees the value 
+// "apple", those values are equal, and if those people are sitting at 
+// the same table and looking at the same apple, we say that their 
+// apples are the same, or they are of the same identity, (i.e. the 
+// same apple).  
 // Then if we can take a different set of people looking at apples, but 
-// now each one has their own personal apple, the values are still the same,
-// both apples are still aplles but now they are different aplles, aren't 
-// they? and thus we say they are of different identities.
-// We'll come back to this concept a bit later, once we introduce JavaScript
-// values and types.
+// now each one has their own personal apple, the values are still the 
+// same, both apples are still apples but now they are different apples, 
+// aren't they? And thus we say they are of different identities.
+// We'll come back to this concept a bit later, once we introduce 
+// JavaScript values and types.
 //
 //
 // Basic values
