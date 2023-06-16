@@ -49,7 +49,7 @@
 
 //
 // Note that all numbers are of the same "type", this is different to 
-// alot of other languages where numbers are represented closer to the 
+// allot of other languages where numbers are represented closer to the 
 // low-level hardware implementation and thus are represented by a 
 // whole range of number types.
 //
