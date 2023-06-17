@@ -131,6 +131,12 @@
 	typeof('meaning of life') // -> 'string'
 
 
+// Note that this has a small "inconsistency" that can be used to check 
+// if a variable is defined.
+
+	typeof(unknown_variable) // -> 'undefined'
+
+
 
 // Objects
 // -------
