@@ -141,6 +141,15 @@
 // Objects
 // -------
 //
+// One very useful distinction/simplification from a lot of other 
+// languages is that JavaScript for most of its history did not have a 
+// dict/map/hashmap type, it was unified with the generic object type.
+//
+// Note that a Map type was added in ES6 but that is mostly a duplication
+// of base object functionality with a set of added methods with one 
+// important difference -- Map keys can be any arbitrary object while 
+// object keys can only be strings.
+//
 
 // Type cheking
 //
