@@ -26,16 +26,17 @@
 //
 // Imagine an apple, it's a "thing" that is an "apple", or we say that
 // it has a value "apple". There are lots of apples in the world, 
-// each one is different but all are apples. Now imagine two people, 
-// each looking at an apple, we can say that each person sees the value 
-// "apple", those values are equal, and if those people are sitting at 
-// the same table and looking at the same apple, we say that their 
-// apples are the same, or they are of the same identity, (i.e. the 
-// same apple).  
+// each one is slightly different but all are apples. Now imagine two 
+// people, each looking at an apple, we can say that each person sees
+// the value "apple", those values are equal, and if those people are
+// sitting at the same table and looking at the same apple, we say that 
+// their apples are the same apple, or in JavaScript-ish, they are of 
+// the same identity.  
 // Then if we can take a different set of people looking at apples, but 
 // now each one has their own personal apple, the values are still the 
-// same, both apples are still apples but now they are different apples, 
-// aren't they? And thus we say they are of different identities.
+// same, both apples are still looking at apples but now their apples 
+// are different, aren't they? And thus we say they are of different 
+// identities.
 // We'll come back to this concept a bit later, once we introduce 
 // JavaScript values and types.
 //
@@ -49,7 +50,7 @@
 
 //
 // Note that all numbers are of the same "type", this is different to 
-// allot of other languages where numbers are represented closer to the 
+// allot of other languages where numbers are implemented closer to the 
 // low-level hardware implementation and thus are represented by a 
 // whole range of number types.
 //
@@ -58,11 +59,19 @@
 	var oct = 052
 	var hex = 0xFF
 	var dec = 42
+	var exp = .42e2
 
 //
 // But note that these are just different notations and all of the 
 // above resolve to the same number.
 //
+
+// Numbers also have several limitations:
+//
+// - precision, rounding errors and fractions (IEEE-754)
+	0.1 + 0.2 == 0.3 // -> false
+
+// - large number rounding
 
 
 // Strings
@@ -75,9 +84,11 @@
 
 // XXX a note on template strings
 
-// Boolieans
+
+// Booleans
 	var t = true
 	var f = false
+
 
 // Nulls
 	var n = null
