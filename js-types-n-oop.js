@@ -71,7 +71,22 @@
 // - precision, rounding errors and fractions (IEEE-754)
 	0.1 + 0.2 == 0.3 // -> false
 
+//   XXX
+
 // - large number rounding
+	Number.MAX_SAFE_INTEGER + 10 - 10 == Number.MAX_SAFE_INTEGER
+
+//   In general numbers larger than Number.MAX_SAFE_INTEGER and 
+//   smaller than Number.MIN_SAFE_INTEGER should not be used for 
+//   math operations (see BigInt).
+//
+// Note that neither issue is specific to JavaScript but rather are 
+// side-effects of number implementations in modern computers and
+// the trade-offs of these implementation on each level from the 
+// CPU to the high-level languages.
+//
+// For more details see:
+// 	XXX
 
 
 // Strings
