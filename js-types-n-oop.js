@@ -86,7 +86,7 @@
 // CPU to the high-level languages.
 //
 // For more details see:
-// 	XXX
+// 	https://en.wikipedia.org/wiki/IEEE_754-2008_revision
 
 
 // Strings
