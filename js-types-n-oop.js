@@ -191,7 +191,7 @@
 
 	[42] instanceof Array // -> true
 
-// but since all objects are objects the test can get quite generic (XXX)
+// but since all objects are objects the test can get quite generic
 
 	[42] instanceof Object // -> true
 	{} instanceof Object // -> true
