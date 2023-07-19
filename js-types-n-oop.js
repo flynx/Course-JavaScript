@@ -86,7 +86,9 @@
 // CPU to the high-level languages.
 //
 // For more details see:
-// 	https://en.wikipedia.org/wiki/IEEE_754-2008_revision
+// 	- https://en.wikipedia.org/wiki/IEEE_754-2008_revision
+// 	- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
+// 	XXX
 
 
 // Strings
