@@ -68,10 +68,11 @@
 
 // Numbers also have several limitations:
 //
-// - precision, rounding errors and fractions (IEEE-754)
+// - precision, rounding errors and fractions
 	0.1 + 0.2 == 0.3 // -> false
 
-//   XXX
+//   This is due to how floating point numbets ate traditionally 
+//   implemented on CPUs, see: IEEE-754
 
 // - large number rounding
 	Number.MAX_SAFE_INTEGER + 10 - 10 == Number.MAX_SAFE_INTEGER
