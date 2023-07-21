@@ -72,7 +72,7 @@
 	0.1 + 0.2 == 0.3 // -> false
 
 //   This is due to how floating point numbets ate traditionally 
-//   implemented on CPUs, see: IEEE-754
+//   implemented on CPUs (see: IEEE-754).
 
 // - large number rounding
 	Number.MAX_SAFE_INTEGER + 10 - 10 == Number.MAX_SAFE_INTEGER
