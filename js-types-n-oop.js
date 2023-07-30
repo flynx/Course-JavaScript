@@ -160,7 +160,7 @@
 
 // But in cases where the same operation is defined for both types
 // the result may seem less predictable, for example `+` defines both
-// number addition and string concatination:
+// number addition and string concatenation:
 	1 + 2 // -> 3
 	'a' + 'b' // -> 'ab'
 
@@ -168,12 +168,12 @@
 	1 + '2' // -> '12'
 
 // This feature can both help make the code simpler and more generic if
-// used conciously and at the same time can prove quite frustrating if
+// used consciously and at the same time can prove quite frustrating if
 // neglected.
 //
 // This neglect and carelessness is the main reason it is quite popular
 // to avoid type coercion and instead overuse strict comparisons and 
-// deffensively over-check everything, at times raised to such levels as
+// defensively over-check everything, at times raised to such levels as
 // to define whole languages (like TypeScript) around this.
 
 
