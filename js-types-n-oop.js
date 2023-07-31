@@ -159,22 +159,22 @@
 	undefined == null // -> true
 
 // But in cases where the same operation is defined for both types
-// the result may seem less predictable, for example `+` defines both
+// the result may *seem* less predictable, for example `+` defines both
 // number addition and string concatenation:
 	1 + 2 // -> 3
 	'a' + 'b' // -> 'ab'
 
-// But when mixed it reverts to constructor:
+// But when mixed it reverts to concatenation:
 	1 + '2' // -> '12'
 
 // This feature can both help make the code simpler and more generic if
 // used consciously and at the same time can prove quite frustrating if
 // neglected.
 //
-// This neglect and carelessness is the main reason it is quite popular
-// to avoid type coercion and instead overuse strict comparisons and 
-// defensively over-check everything, at times raised to such levels as
-// to define whole languages (like TypeScript) around this.
+// Note that this neglect and carelessness is the main reason it is quite 
+// popular to avoid type coercion and instead overuse strict comparisons 
+// and defensively over-check everything, at times raised to such levels 
+// as to define whole languages around this (like TypeScript).
 
 
 // Type checking
