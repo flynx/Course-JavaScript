@@ -177,18 +177,40 @@
 // as to define whole languages around this (like TypeScript).
 
 
-// Type checking
+// Checking type
 //
-// XXX
+// All values in JavaScript have a type, this type is returned via:
 
 	typeof(42) // -> 'number'
 	typeof('meaning of life') // -> 'string'
 
 
 // Note that this has a small "inconsistency" that can be used to check 
-// if a variable is defined.
+// if a variable is defined (and is not referencing undefined).
 
 	typeof(unknown_variable) // -> 'undefined'
+
+// But also note that if a variable references undefined its type will 
+// also be 'undefined':
+
+	var x
+	typeof(x) // -> 'undefined'
+
+	typeof(undefined) // -> 'undefined'
+
+// This is a general theme in JavaScript -- since things that are not 
+// explicitly assigned a value resolve to undefined, checking if something
+// is explicitly defined by comparing it to undefined is not consistent
+// as this approach can not distingwish between something that is not 
+// defined and something that references undefined explicitly.
+// This is mainly an issue with attributes and variables (implemented as
+// attributes).
+// (XXX move this to a more appropriate spot)
+
+// a couple notable types that can be counter-intuitive:
+
+	typeof(null) // -> 'object'
+	typeof(NaN) // -> 'number'
 
 
 
@@ -205,9 +227,10 @@
 // object keys can only be strings.
 //
 
-// Type cheking
+// Checking type
 //
-// Here thesame approach as for simple types is not productive:
+// Since in JavaScript all non-basic typed values are objects, the same 
+// approach as for simple types is not productive:
 
 	typeof([42]) // -> 'object'
 	typeof({}) // -> 'object'
