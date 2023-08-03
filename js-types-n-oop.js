@@ -209,8 +209,27 @@
 
 // a couple notable types that can be counter-intuitive:
 
-	typeof(null) // -> 'object'
 	typeof(NaN) // -> 'number'
+	typeof(null) // -> 'object'
+
+// For NaN use:
+
+	isNaN(NaN) // -> true
+
+// And for null/undefined a more generic and non-strict comparison is 
+// recommended:
+
+	var x = null
+	var y = undefined
+
+	x == null // -> true
+	y == null // -> true
+
+// Strict comparisons also work but unless explicitly required they 
+// should be avoided in favor of the non-strict comparison shown above:
+
+	x === null // -> true
+	y === undefined // -> true
 
 
 
