@@ -226,7 +226,8 @@
 	y == null // -> true
 
 // Strict comparisons also work but unless explicitly required they 
-// should be avoided in favor of the non-strict comparison shown above:
+// should be avoided in favor of the non-strict and more flexible 
+// comparisons shown above:
 
 	x === null // -> true
 	y === undefined // -> true
@@ -264,7 +265,7 @@
 	{} instanceof Object // -> true
 
 //
-// this essentially checks if the left oprtand is related to (i.e. in the 
+// this essentially checks if the left operand is related to (i.e. in the 
 // inheritance chain of) the second operand's .prototype, or we can say
 // that it id "inherited" from the constructor.
 //
