@@ -225,9 +225,10 @@
 	x == null // -> true
 	y == null // -> true
 
-// Strict comparisons also work but unless explicitly required they 
-// should be avoided in favor of the non-strict and more flexible 
-// comparisons shown above:
+// Strict comparisons also work but unless it explicitly required to
+// differentiate between null and undefined (which is either a rare case 
+// or a sign of bad design) they should be avoided in favor of the 
+// non-strict and more flexible comparisons shown above:
 
 	x === null // -> true
 	y === undefined // -> true
