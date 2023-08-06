@@ -295,7 +295,7 @@
 // By convention constructor functions are capitalized (Pascal-case)
 //
 // Classic constructors are called with a "new" keyword which creates a
-// bare instance and passes it to the function as the call context.
+// bare instance and passes it to the function as the call context (this).
 //
 
 	function A(){
@@ -314,8 +314,9 @@
 //
 // The problem with the default way this is done is that now a 
 // constructor will behave differently when called directly or if called
-// via the new syntax. This can be desirable in some cases but in 
-// general this is a pitfall, so let's unify the two cases:
+// via the new syntax due to different contexts. This can be desirable 
+// in some cases but in general this is a pitfall, so let's unify the 
+// two cases:
 //
 
 	function B(){
@@ -347,6 +348,23 @@
 
 // Extending builtin types
 //
+// The above approach will not work for "special" built-in  objects,
+// like functions, arrays and the like, because the created instance 
+// is a generic object and not a function, array or other built-in 
+// derived instance.
+// We can avoid this by either creating the base instance manually 
+// or by using Reflect.construct(..).
+//
+// Here we'll extend Array:
+
+	// XXX revise...
+	function List(){
+		var obj = this instanceof List ?
+			this
+			: Reflect.construct(Array, arguments, List)
+		return obj
+	}
+
 // XXX
 
 // Mixing builtin types
