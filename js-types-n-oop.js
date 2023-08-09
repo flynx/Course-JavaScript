@@ -361,6 +361,7 @@
 	function List(){
 		var obj = this instanceof List ?
 			this
+			// create an array base object but link it to List...
 			: Reflect.construct(Array, arguments, List)
 		return obj
 	}
