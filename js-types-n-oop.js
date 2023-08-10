@@ -361,7 +361,10 @@
 	function List(){
 		var obj = this instanceof List ?
 			this
-			// create an array base object but link it to List...
+			// create an array base object but link it to List as prototype...
+			// NOTE: if List is not linked to Array the instances will 
+			// 		not have access to any of the array methods but will
+			// 		support the indexing syntax.
 			: Reflect.construct(Array, arguments, List)
 		return obj
 	}
