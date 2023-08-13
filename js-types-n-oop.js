@@ -371,7 +371,8 @@
 
 // XXX
 
-// Mixing builtin types
+
+// Mixing multiple builtin types
 //
 // In general this is impossible in JavaScript due to the lack of any 
 // mechanism of horizontal name resolution in the inheritance chain like 
