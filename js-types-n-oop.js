@@ -371,6 +371,8 @@
 
 // XXX
 
+// XXX should this be in advanced topics???
+
 
 // Mixing multiple builtin types
 //
@@ -381,18 +383,6 @@
 // So there is no way, for example, to make something both an array and
 // a function at the same time.
 //
-
-	
-
-
-
-
-// XXX Reflect.construct(Function, args, newConstructor)
-// 		mainly usefull if the resulting instance has to be of a builtin 
-// 		type like a function (callable) or an array...
-// 		...especially when overloading the constructor
-// XXX should this be in advanced topics???
-
 
 
 // Classes and JavaScript
