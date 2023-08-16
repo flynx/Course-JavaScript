@@ -62,7 +62,7 @@
 	var exp = .42e2
 
 //
-// But note that these are just different notations and all of the 
+// But note that these are just different notations, and all of the 
 // above resolve to the same number.
 //
 
@@ -89,7 +89,6 @@
 // For more details see:
 // 	- https://en.wikipedia.org/wiki/IEEE_754-2008_revision
 // 	- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
-// 	XXX
 
 
 // Strings
@@ -100,7 +99,8 @@
 		this can include \\n's
 		also summorts expansions ${ '.' }`
 
-// XXX a note on template strings
+// That last sting is an example of string interpolations, for more info 
+// see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
 
 
 // Booleans
