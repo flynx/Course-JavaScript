@@ -144,7 +144,7 @@
 
 // Equality and identity
 //
-// XXX ...link with next section...
+// XXX link with next section...
 
 
 // Automatic type coercion
